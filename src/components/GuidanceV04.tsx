@@ -3,9 +3,10 @@ import type { FormEvent } from 'react';
 import { AlertTriangle, BookHeart, CheckCircle2, ExternalLink, HeartHandshake, LockKeyhole, MessageCircle, Plus, ShieldAlert, ShieldCheck } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { getGuidance, isApprovedSource } from '../lib/safetyAssistant';
+import {canIndependentlyApprove} from '../lib/governance';
 import type { GuideResponse, Stage } from '../lib/safetyAssistant';
 
-interface Article { id:string; title:string; summary:string; body:string; source_url:string; topic:string; locale:string; status:string; version:number }
+interface Article { author_id:string|null; id:string; title:string; summary:string; body:string; source_url:string; topic:string; locale:string; status:string; version:number }
 interface Props { stage:Stage; allowStageContext:boolean; userId:string|null; isDemo:boolean }
 const SAMPLES=[
   'What are nourishing food choices during pregnancy?',
@@ -33,7 +34,7 @@ export default function GuidanceV04({stage,allowStageContext,userId,isDemo}:Prop
   if(isDemo||!userId||!supabase)return;
   const client=supabase;setLoading(true);
   void Promise.all([
-   client.from('education_articles').select('id,title,summary,body,source_url,topic,locale,status,version').eq('status','approved').order('updated_at',{ascending:false}).limit(20),
+   client.from('education_articles').select('id,title,summary,body,source_url,topic,locale,status,version,author_id').eq('status','approved').order('updated_at',{ascending:false}).limit(20),
    client.from('clinical_reviewers').select('is_active').eq('user_id',userId).maybeSingle()
   ]).then(async ([published,assignment])=>{
    if(!live)return;
@@ -42,7 +43,7 @@ export default function GuidanceV04({stage,allowStageContext,userId,isDemo}:Prop
    const reviewer=Boolean(assignment.data?.is_active);
    setIsReviewer(reviewer);
    if(reviewer){
-    const queue=await client.from('education_articles').select('id,title,summary,body,source_url,topic,locale,status,version').in('status',['draft','in_review']).order('updated_at',{ascending:false}).limit(50);
+    const queue=await client.from('education_articles').select('id,title,summary,body,source_url,topic,locale,status,version,author_id').in('status',['draft','in_review']).order('updated_at',{ascending:false}).limit(50);
     if(live){if(queue.error)setError(queue.error.message);else setReviewQueue(((queue.data??[]) as Article[]));}
    }
    if(live)setLoading(false);
@@ -59,27 +60,27 @@ export default function GuidanceV04({stage,allowStageContext,userId,isDemo}:Prop
   const {data,error:saveError}=await supabase.from('education_articles').insert({
     slug:'guide-'+crypto.randomUUID(),title:draftTitle.trim().slice(0,150),summary:draftSummary.trim().slice(0,500),
     body:draftBody.trim().slice(0,10000),topic:draftTopic.trim().slice(0,80),locale:'en',
-    source_url:draftSource,status:'in_review'
-  }).select('id,title,summary,body,source_url,topic,locale,status,version').single();
+    source_url:draftSource,author_id:userId,status:'in_review'
+  }).select('id,title,summary,body,source_url,topic,locale,status,version,author_id').single();
   setReviewBusy(false);
   if(saveError){setError(saveError.message);return;}
   if(data){setReviewQueue(q=>[data as Article,...q]);setDraftBody('');setDraftTitle('');setDraftSummary('');setDraftSource('');}
  }
  async function approve(article:Article){
-  if(!isReviewer||!userId||!supabase)return;
+  if(!isReviewer||!userId||!supabase||!canIndependentlyApprove(article,userId))return;
   if(!isApprovedSource(article.source_url)){setError('This reference is not an allowed public health source.');return;}
   if(!window.confirm('Confirm that you are the clinically authorized reviewer and that you personally checked this exact version and source. Publish it?'))return;
   setReviewBusy(true);setError('');
   const {error:saveError}=await supabase.from('education_articles').update({
    status:'approved',reviewed_by:userId,reviewed_at:new Date().toISOString()
-  }).eq('id',article.id);
+  }).eq('id',article.id).eq('status','in_review').neq('author_id',userId).select('id').single();
   setReviewBusy(false);
   if(saveError){setError(saveError.message);return;}
   setReviewQueue(q=>q.filter(a=>a.id!==article.id));
   setArticles(a=>[{...article,status:'approved'},...a]);
  }
  return <div className="page-content v4-page">
-  <div className="section-heading"><div><div className="eyebrow">MAMAMWANA GUIDANCE • V0.4</div><h2>Ask about your journey</h2><p>A source-linked educational guide with clear clinical safety boundaries.</p></div></div>
+  <div className="section-heading"><div><div className="eyebrow">MAMAMWANA GUIDANCE • V0.5</div><h2>Ask about your journey</h2><p>A source-linked educational guide with clear clinical safety boundaries.</p></div></div>
   <div className="v4-guidance-head">
    <span><HeartHandshake size={27}/></span><div><strong>Learning support, not a diagnosis</strong><p>Questions are processed in this browser session. No LLM, external AI service or chat history storage is used. This early guide is keyword-based and cannot reliably assess symptoms or emergencies.</p></div>
   </div>
@@ -100,7 +101,7 @@ export default function GuidanceV04({stage,allowStageContext,userId,isDemo}:Prop
    <p className="muted">Only articles explicitly approved by a database-assigned clinical reviewer are shown here. Source-linked answers above are <strong>not</strong> themselves certified as clinically reviewed.</p>
    {loading?<p className="v4-hint">Loading library…</p>:articles.length===0?<p className="v4-empty">No clinician-approved MamaMwana articles have been published yet. The review workflow must be completed before showing that label.</p>:<div className="v4-article-grid">{articles.map(a=><article key={a.id} className="v4-article"><span className="v4-approved"><CheckCircle2 size={14}/> Reviewed • v{a.version}</span><h4>{a.title}</h4><p>{a.summary}</p><details><summary>Read this article</summary><p className="v4-article-body">{a.body}</p></details><a href={a.source_url} rel="noopener noreferrer" target="_blank">Official source <ExternalLink size={13}/></a></article>)}</div>}
   </section>
-  {isReviewer&&<section className="panel v4-review"><div className="eyebrow">RESTRICTED • AUTHORIZED REVIEWER</div><h3>Clinical content review desk</h3><p className="muted">Only database-assigned reviewer accounts may prepare and approve content. Each approval records a reviewer ID and timestamp. This workspace is not a substitute for a documented clinical governance policy.</p>
+  {isReviewer&&<section className="panel v4-review"><div className="eyebrow">RESTRICTED • AUTHORIZED REVIEWER</div><h3>Clinical content review desk</h3><p className="muted">Database-assigned clinicians may submit drafts. A different, independently authorized clinician must approve each submitted version. Published articles cannot be changed in place; every approval is logged. This still requires an external clinical governance policy.</p>
    <form onSubmit={createDraft} className="v4-review-form">
     <label>Article title<input required minLength={5} maxLength={150} value={draftTitle} onChange={e=>setDraftTitle(e.target.value)}/></label>
     <label>Summary<input maxLength={500} value={draftSummary} onChange={e=>setDraftSummary(e.target.value)}/></label>
@@ -110,7 +111,7 @@ export default function GuidanceV04({stage,allowStageContext,userId,isDemo}:Prop
     <button disabled={reviewBusy} type="submit"><Plus size={16}/> Submit for review</button>
    </form>
    <h4>Awaiting approval</h4>
-   {reviewQueue.length===0?<p className="v4-hint">No pending articles.</p>:reviewQueue.map(a=><div key={a.id} className="v4-review-entry"><div><strong>{a.title}</strong><p>{a.body}</p><a href={a.source_url} target="_blank" rel="noopener noreferrer">Check source <ExternalLink size={13}/></a></div><button disabled={reviewBusy||!isApprovedSource(a.source_url)} onClick={()=>approve(a)}><ShieldCheck size={15}/> Approve reviewed version</button></div>)}
+   {reviewQueue.length===0?<p className="v4-hint">No pending articles.</p>:reviewQueue.map(a=><div key={a.id} className="v4-review-entry"><div><strong>{a.title}</strong><p>{a.body}</p><a href={a.source_url} target="_blank" rel="noopener noreferrer">Check source <ExternalLink size={13}/></a></div>{canIndependentlyApprove(a,userId)?<button disabled={reviewBusy} onClick={()=>approve(a)}><ShieldCheck size={15}/> Approve independently</button>:<span className="v5-awaiting-label">{a.author_id===userId?'You submitted this • awaiting another clinician':'Independent review unavailable'}</span>}</div>)}
   </section>}
   {error&&<p className="v4-error" role="alert">{error}</p>}
   <p className="footnote"><LockKeyhole size={14}/> Not for medical emergencies. Do not enter names, record numbers or other identifying health information in the question field. The application does not send questions to an external AI provider.</p>
