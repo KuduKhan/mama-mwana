@@ -22,14 +22,14 @@ export default function DataRightsV05({userId,isDemo}:Props){
   let active=true;setRequests([]);setError('');setMessage('');
   if(isDemo||!userId||!supabase)return;
   const client=supabase;setLoading(true);
-  void client.from('data_rights_requests').select('id,request_type,status,requested_at,resolved_at')
+  void Promise.resolve(client.from('data_rights_requests').select('id,request_type,status,requested_at,resolved_at')
    .eq('owner_id',userId).order('requested_at',{ascending:false}).limit(40)
    .then(({data,error:readError})=>{
     if(!active)return;
     if(readError)setError('Account-rights intake is not available yet. Apply the v0.5 database migration.');
     else setRequests((data??[]) as DataRightRequest[]);
     setLoading(false);
-   }).catch(()=>{if(active){setLoading(false);setError('Could not load account requests.');}});
+   })).catch(()=>{if(active){setLoading(false);setError('Could not load account requests.');}});
   return ()=>{active=false;};
  },[userId,isDemo]);
  async function request(type:DataRightType){
