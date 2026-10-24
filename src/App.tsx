@@ -181,7 +181,7 @@ export default function App(){
   if(!user||demo||!supabase){if(!user&&!demo){current.current=null;setJourney(null);setJourneys([]);persistedIds.current.clear();setDataError('');}return;}
   const client=supabase;let active=true;
   setLoadingJourney(true);
-  client.from('journeys').select('id,mother_name,due_date,baby_birth_date,baby_name,visits,daily_checks,birth_checks,growth,milestones,feeding_logs,wellbeing_entries,baby_sex,gestation_at_birth_weeks,immunizations,created_at').eq('owner_id',user.id).order('created_at',{ascending:false})
+  Promise.resolve(client.from('journeys').select('id,mother_name,due_date,baby_birth_date,baby_name,visits,daily_checks,birth_checks,growth,milestones,feeding_logs,wellbeing_entries,baby_sex,gestation_at_birth_weeks,immunizations,created_at').eq('owner_id',user.id).order('created_at',{ascending:false}))
    .then(async ({data,error})=>{
     if(!active)return;
     if(error)throw new Error('Database unavailable. Check your Supabase migration history. '+error.message);
