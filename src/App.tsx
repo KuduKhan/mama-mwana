@@ -5,7 +5,7 @@ import {
   Activity, ArrowLeft, ArrowRight, Baby, BookHeart, CalendarDays,
   Check, CheckCircle2, CircleHelp, ClipboardList,
   Cloud, Droplets, ExternalLink, Footprints, Heart, HeartHandshake, HeartPulse,
-  House, Leaf, LockKeyhole, LogOut, Menu, Moon, Plus, ShieldAlert, ShieldCheck,
+  House, Leaf, LockKeyhole, LogOut, Menu, Moon, Plus, ShieldAlert, ShieldCheck, Users, Bell, Download, NotebookPen, ChevronRight,
   Sparkles, Stethoscope, Sun, TrendingUp, Utensils, X
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -15,15 +15,17 @@ import {
   isValidBirthDate, makeJourney, postpartumDay, pregnancyStage, readable, todayISO,
   validateOnboarding
 } from './lib/domain';
-import type { Journey, Visit } from './lib/domain';
+import type { FeedingMethod, Feeling, Journey, Visit } from './lib/domain';
+import { reminderStatus, visitReminders, visitCalendarUrl } from './lib/reminders';
 import {
   CARE_TASKS, CHILDHOOD_TASKS, educationForWeek, MILESTONES, POSTPARTUM_TASKS, SOURCES
 } from './content/education';
 
-type Tab = 'home'|'pregnancy'|'care'|'visits'|'birth'|'baby'|'library';
+type Tab = 'home'|'family'|'pregnancy'|'care'|'visits'|'birth'|'baby'|'library';
 type NavItem = {id:Tab; label:string; Icon:LucideIcon};
 const NAV:NavItem[]=[
  {id:'home',label:'Overview',Icon:House},
+ {id:'family',label:'Family journeys',Icon:Users},
  {id:'pregnancy',label:'My pregnancy',Icon:Heart},
  {id:'care',label:'Daily care',Icon:Leaf},
  {id:'visits',label:'Antenatal visits',Icon:CalendarDays},
@@ -96,13 +98,13 @@ function AuthGate({onDemo}:{onDemo:()=>void}){
    </div></div>
  </div>;
 }
-function Onboarding({onCreate,isDemo}:{onCreate:(j:Journey)=>void;isDemo:boolean}){
+function Onboarding({onCreate,isDemo,onCancel}:{onCreate:(j:Journey)=>void;isDemo:boolean;onCancel?:()=>void}){
  const [name,setName]=useState(isDemo?'Amina':'');
  const [due,setDue]=useState(addDays(todayISO(),112));
  const [error,setError]=useState('');
  function submit(e:FormEvent){e.preventDefault();const validation=validateOnboarding(name,due);if(validation){setError(validation);return;}onCreate(makeJourney(name,due));}
  return <div className="onboarding">
-   <div className="onboarding-top"><Brand/><span className="mini-pill">{isDemo?'Preview mode':'Private profile setup'}</span></div>
+   <div className="onboarding-top"><Brand/><div className="onboarding-top-actions">{onCancel&&<Button variant="subtle" Icon={ArrowLeft} onClick={onCancel}>Back to family</Button>}<span className="mini-pill">{isDemo?'Preview mode':'Private profile setup'}</span></div></div>
    <div className="onboarding-grid"><div className="onboarding-intro"><div className="badge-soft"><Heart size={14}/> First things first</div><h1>Tell us a little<br/>about <em>your journey.</em></h1><p>We’ll use your estimated due date to help you discover pregnancy stages, suggested learning and gentle everyday reminders.</p>
      <div className="setup-benefits"><span><CheckCircle2/> Week-by-week guidance</span><span><CheckCircle2/> Personal appointment journal</span><span><CheckCircle2/> One continuous baby journey</span></div>
      <div className="onboard-decoration"><Heart size={72} strokeWidth={1}/></div></div>
@@ -132,8 +134,10 @@ export default function App(){
  const [checking,setChecking]=useState(configured);
  const [demo,setDemo]=useState(false);
  const [journey,setJourney]=useState<Journey|null>(null);
+ const [journeys,setJourneys]=useState<Journey[]>([]);
+ const [creatingJourney,setCreatingJourney]=useState(false);
  const current=useRef<Journey|null>(null);
- const writeQueue=useRef<Promise<void>>(Promise.resolve());
+ const writeQueue=useRef<Record<string,Promise<void>>>({});
  const [saveStatus,setSaveStatus]=useState<'saved'|'saving'|'error'>('saved');
  const [loadingJourney,setLoadingJourney]=useState(false);
  const [tab,setTab]=useState<Tab>('home');
@@ -148,6 +152,9 @@ export default function App(){
  const [growthWeight,setGrowthWeight]=useState('');
  const [growthLength,setGrowthLength]=useState('');
  const [milestoneFilter,setMilestoneFilter]=useState<number|null>(null);
+ const [feedingMethod,setFeedingMethod]=useState<FeedingMethod>('breast');
+ const [feeling,setFeeling]=useState<Feeling>('okay');
+ const [wellbeingNote,setWellbeingNote]=useState('');
 
  useEffect(()=>{
   if(!supabase){setChecking(false);return;}
@@ -157,34 +164,39 @@ export default function App(){
   return ()=>{active=false;subscription.unsubscribe();};
  },[]);
  useEffect(()=>{
-  if(!user||demo||!supabase){if(!user&&!demo){current.current=null;setJourney(null);}return;}
+  if(!user||demo||!supabase){if(!user&&!demo){current.current=null;setJourney(null);setJourneys([]);}return;}
   const client=supabase;let active=true;
   setLoadingJourney(true);
-  client.from('journeys').select('id,mother_name,due_date,baby_birth_date,baby_name,visits,daily_checks,birth_checks,growth,milestones').eq('owner_id',user.id).maybeSingle()
-  .then(({data,error})=>{
-   if(!active)return;
-   if(error){setToast('Database unavailable: '+error.message+'. Run the supplied Supabase migration.');}
-   else{current.current=data as Journey|null;setJourney(data as Journey|null);}
-   setLoadingJourney(false);
-  });
+  client.from('journeys').select('id,mother_name,due_date,baby_birth_date,baby_name,visits,daily_checks,birth_checks,growth,milestones,feeding_logs,wellbeing_entries,created_at').eq('owner_id',user.id).order('created_at',{ascending:false})
+   .then(({data,error})=>{
+    if(!active)return;
+    if(error)setToast('Database unavailable: '+error.message+'. Run both Supabase migrations.');
+    else{
+      const items=(data??[]).map(raw=>({...raw,feeding_logs:raw.feeding_logs??[],wellbeing_entries:raw.wellbeing_entries??[]})) as Journey[];
+      setJourneys(items);const selected=items[0]??null;
+      current.current=selected;setJourney(selected);setCreatingJourney(false);
+    }
+    setLoadingJourney(false);
+   });
   return ()=>{active=false;};
  },[user?.id,demo]);
  const persist=useCallback((j:Journey)=>{
-  current.current=j;setJourney(j);
+  current.current=j;setJourney(j);setJourneys(previous=>[j,...previous.filter(item=>item.id!==j.id)]);
   if(demo||!user||!supabase){setSaveStatus('saved');return;}
-  const client=supabase;const owner_id=user.id;
-  setSaveStatus('saving');
-  writeQueue.current=writeQueue.current.catch(()=>{}).then(async()=>{
-   const {error}=await client.from('journeys').upsert({...j,owner_id},{onConflict:'id'});
-   if(error)throw error;
-  });
-  writeQueue.current.then(()=>setSaveStatus('saved')).catch((e:Error)=>{setSaveStatus('error');setToast('Your changes could not be saved. '+e.message);});
+  const client=supabase;const owner_id=user.id;setSaveStatus('saving');
+  const previous=writeQueue.current[j.id]??Promise.resolve();
+  const next=previous.catch(()=>{}).then(async()=>{const {error}=await client.from('journeys').upsert({...j,owner_id},{onConflict:'id'});if(error)throw error;});
+  writeQueue.current[j.id]=next;
+  next.then(()=>{if(current.current?.id===j.id)setSaveStatus('saved');})
+    .catch((e:Error)=>{if(current.current?.id===j.id)setSaveStatus('error');setToast('Save failed: '+e.message+'. Check the v0.2 migration.');});
  },[demo,user]);
  function modify(fn:(j:Journey)=>Journey){const active=current.current;if(active)persist(fn(active));}
  function toggleDaily(id:string){modify(j=>({...j,daily_checks:{...j.daily_checks,[todayISO()]:uniqueToggle(j.daily_checks[todayISO()]||[],id)}}));}
  function toggleBirth(key:string){modify(j=>({...j,birth_checks:uniqueToggle(j.birth_checks,key)}));}
  function enterTab(next:Tab){setTab(next);setMenuOpen(false);window.scrollTo({top:0,behavior:'smooth'});}
- function signOut(){if(demo){setDemo(false);setJourney(null);current.current=null;setTab('home');}else{void supabase?.auth.signOut();setJourney(null);current.current=null;setTab('home');}}
+ function selectJourney(selected:Journey){current.current=selected;setJourney(selected);setCreatingJourney(false);setWeekView(null);setMilestoneFilter(null);setSaveStatus('saved');enterTab('home');}
+ function createAnotherJourney(){setCreatingJourney(true);setWeekView(null);setMenuOpen(false);}
+ function signOut(){if(demo)setDemo(false);else void supabase?.auth.signOut();setJourneys([]);setJourney(null);current.current=null;setCreatingJourney(false);setTab('home');}
  function markBirth(date:string,name:string){modify(j=>({...j,baby_birth_date:date,baby_name:name}));setBirthOpen(false);enterTab('baby');setToast('Welcome, '+name+'! Your pregnancy journey remains connected.');}
  function saveGrowth(e:FormEvent){e.preventDefault();const weight=growthWeight===''?null:Number(growthWeight),length=growthLength===''?null:Number(growthLength);
   if(!isDate(growthDate)||!journey?.baby_birth_date||daysBetween(journey.baby_birth_date,growthDate)<0||daysBetween(growthDate,todayISO())<0){setToast('Choose a valid measurement date after your baby’s birth.');return;}
@@ -194,20 +206,22 @@ export default function App(){
   setGrowthOpen(false);setGrowthWeight('');setGrowthLength('');setToast('Measurement recorded. Your clinician should interpret growth trends.');
  }
  if(checking||loadingJourney)return <div className="loading-screen"><div className="loading-icon"><Heart size={28}/></div><p>Preparing your MamaMwana space…</p></div>;
- if(!demo&&!user)return <AuthGate onDemo={()=>{setDemo(true);setJourney(null);current.current=null;}}/>;
- if(!journey)return <Onboarding isDemo={demo} onCreate={j=>{persist(j);enterTab('home');}}/>;
- const phase=getPhase(journey),preg=pregnancyStage(journey.due_date,journey.baby_birth_date??todayISO());
- const isBorn=Boolean(journey.baby_birth_date);
- const babyMonths=journey.baby_birth_date?ageInMonths(journey.baby_birth_date):0;
- const pDays=journey.baby_birth_date?postpartumDay(journey.baby_birth_date):0;
+ if(!demo&&!user)return <AuthGate onDemo={()=>{setDemo(true);setJourney(null);setJourneys([]);current.current=null;}}/>;
+ if(!journey||creatingJourney)return <Onboarding isDemo={demo} onCancel={journey?()=>{setCreatingJourney(false);enterTab('family');}:undefined} onCreate={j=>{setCreatingJourney(false);persist(j);enterTab('home');}}/>;
+ const activeJourney:Journey = journey;
+ const phase=getPhase(journey),preg=pregnancyStage(activeJourney.due_date,activeJourney.baby_birth_date??todayISO());
+ const isBorn=Boolean(activeJourney.baby_birth_date);
+ const babyMonths=activeJourney.baby_birth_date?ageInMonths(activeJourney.baby_birth_date):0;
+ const pDays=activeJourney.baby_birth_date?postpartumDay(activeJourney.baby_birth_date):0;
  const tasks=phase==='pregnancy'?CARE_TASKS:phase==='postpartum'?POSTPARTUM_TASKS:CHILDHOOD_TASKS;
- const doneToday=journey.daily_checks[todayISO()]||[];
+ const doneToday=activeJourney.daily_checks[todayISO()]||[];
  const completedToday=tasks.filter(t=>doneToday.includes(t.id)).length;
  const edu=educationForWeek(weekView??preg.week);
- const upcoming=journey.visits.filter(v=>!v.attended&&v.scheduled_on>=todayISO()).sort((a,b)=>a.scheduled_on.localeCompare(b.scheduled_on));
+ const upcoming=activeJourney.visits.filter(v=>!v.attended&&v.scheduled_on>=todayISO()).sort((a,b)=>a.scheduled_on.localeCompare(b.scheduled_on));
  const nextVisit=upcoming[0];
- const checkCount=BIRTH_CHECKLIST.filter(c=>journey.birth_checks.includes(c.key)).length;
- const displayName=journey.mother_name.split(' ')[0];
+ const reminders=visitReminders(activeJourney.visits);
+ const checkCount=BIRTH_CHECKLIST.filter(c=>activeJourney.birth_checks.includes(c.key)).length;
+ const displayName=activeJourney.mother_name.split(' ')[0];
  const topLabel=phase==='pregnancy'?'YOUR PREGNANCY JOURNEY':phase==='postpartum'?'THE FOURTH TRIMESTER':'GROWING TOGETHER';
 
  function Home(){
@@ -215,34 +229,43 @@ export default function App(){
    <div className="hero-card">
     <div className="hero-copy"><span className="hero-eyebrow"><Sparkles size={14}/> {topLabel}</span>
       <h2>{phase==='pregnancy'?'A beautiful chapter,':phase==='postpartum'?'A new kind of love,':'Every tiny milestone,'}<br/><em>{phase==='pregnancy'?'one day at a time.':phase==='postpartum'?'a brand-new chapter.':'a wonderful big step.'}</em></h2>
-      <p>{phase==='pregnancy'?'Your baby is growing, and so are you. Let’s make room for little moments of care each day.':phase==='postpartum'?'Gentle support for your recovery and your newborn’s earliest days.':'Celebrate '+(journey.baby_name||'your little one')+'’s discoveries and keep growing together.'}</p>
+      <p>{phase==='pregnancy'?'Your baby is growing, and so are you. Let’s make room for little moments of care each day.':phase==='postpartum'?'Gentle support for your recovery and your newborn’s earliest days.':'Celebrate '+(activeJourney.baby_name||'your little one')+'’s discoveries and keep growing together.'}</p>
       <Button variant="secondary" onClick={()=>enterTab(phase==='pregnancy'?'pregnancy':'baby')}>Explore your journey <ArrowRight size={16}/></Button>
     </div>
     <div className="hero-visual" aria-hidden="true"><div className="hero-halo halo-outer"/><div className="hero-halo halo-middle"/><div className="hero-halo halo-inner"/><div className="hero-emblem"><Heart size={66} strokeWidth={1.35}/><Baby size={38} strokeWidth={1.65}/></div><span className="hero-stardust star-one">✦</span><span className="hero-stardust star-two">✧</span><span className="hero-stardust star-three">✧</span></div>
     <div className="hero-floating">{phase==='pregnancy'?<><strong>Week {preg.week}</strong><small>of your journey</small></>:<><strong>{formatAge(babyMonths)}</strong><small>growing together</small></>}</div>
    </div>
    <div className="metrics-grid">
-     <div className="metric-card"><span className="metric-icon peach"><CalendarDays size={20}/></span><span className="metric-label">{isBorn?'Baby arrived':'Estimated due date'}</span><strong>{readable(isBorn?journey.baby_birth_date!:journey.due_date)}</strong><span className="metric-foot">{isBorn?'A day to remember':preg.daysLeft>0?preg.daysLeft+' days until the estimate':'Your estimated date has passed'}</span></div>
+     <div className="metric-card"><span className="metric-icon peach"><CalendarDays size={20}/></span><span className="metric-label">{isBorn?'Baby arrived':'Estimated due date'}</span><strong>{readable(isBorn?activeJourney.baby_birth_date!:activeJourney.due_date)}</strong><span className="metric-foot">{isBorn?'A day to remember':preg.daysLeft>0?preg.daysLeft+' days until the estimate':'Your estimated date has passed'}</span></div>
      <div className="metric-card"><span className="metric-icon mint"><CheckCircle2 size={20}/></span><span className="metric-label">Today’s care</span><strong>{completedToday} <span className="metric-denom">/ {tasks.length}</span></strong><ProgressBar value={completedToday/tasks.length*100}/></div>
      <div className="metric-card"><span className="metric-icon lilac">{isBorn?<Baby size={20}/>:<Stethoscope size={20}/>}</span><span className="metric-label">{isBorn?'Baby’s age':'Next antenatal visit'}</span><strong>{isBorn?formatAge(babyMonths):(nextVisit?readable(nextVisit.scheduled_on):'Not booked')}</strong><span className="metric-foot">{isBorn?'Your growing little one':nextVisit?nextVisit.clinic:'Add your next clinic visit'}</span></div>
    </div>
+   {reminders.length>0&&<button className="reminder-banner" onClick={()=>enterTab('visits')}><Bell size={19}/><span><strong>{reminders.length} appointment{reminders.length===1?' needs':'s need'} your attention</strong><small>{reminders.some(v=>reminderStatus(v)==='overdue')?'A visit date has passed. Confirm the outcome with your care team.':'You have an upcoming visit within seven days.'}</small></span><ArrowRight size={18}/></button>}
    <div className="dashboard-grid">
      <Panel className="today-panel"><div className="panel-heading"><div><div className="eyebrow">YOUR DAILY RHYTHM</div><h3>A little care, every day</h3></div><div className="date-tag"><Sun size={16}/>{readable(todayISO())}</div></div>
        <p className="muted">Thoughtful reminders, not a medical prescription.</p>
        <div className="task-list">{tasks.slice(0,4).map(t=>{const Icon=TASK_ICONS[t.icon]||Heart;return <button key={t.id} className={'task-row '+(doneToday.includes(t.id)?'task-complete':'')} onClick={()=>toggleDaily(t.id)}><span className="task-icon"><Icon size={19}/></span><span className="task-description"><strong>{t.title}</strong><small>{t.description}</small></span><span className="task-checkbox">{doneToday.includes(t.id)&&<Check size={15}/>}</span></button>;})}</div>
        <button className="text-link" onClick={()=>enterTab('care')}>Open full daily care plan <ArrowRight size={15}/></button>
      </Panel>
-     <div className="aside-stack"><Panel className="journey-card"><div className="eyebrow">{isBorn?'AFTER HELLO':'GROWING TOGETHER'}</div><div className="journey-card-icon"><Baby size={27}/></div><h3>{isBorn?'Welcome, '+(journey.baby_name||'little one')+'!':'Your baby, this week'}</h3><p className="muted">{isBorn?'Your baby’s story now continues in the growth and milestones journal.':educationForWeek(preg.week).baby}</p><button className="text-link" onClick={()=>enterTab(isBorn?'baby':'pregnancy')}>Find out more <ArrowRight size={15}/></button></Panel>
+     <div className="aside-stack"><Panel className="journey-card"><div className="eyebrow">{isBorn?'AFTER HELLO':'GROWING TOGETHER'}</div><div className="journey-card-icon"><Baby size={27}/></div><h3>{isBorn?'Welcome, '+(activeJourney.baby_name||'little one')+'!':'Your baby, this week'}</h3><p className="muted">{isBorn?'Your baby’s story now continues in the growth and milestones journal.':educationForWeek(preg.week).baby}</p><button className="text-link" onClick={()=>enterTab(isBorn?'baby':'pregnancy')}>Find out more <ArrowRight size={15}/></button></Panel>
        <WarningCard onOpen={()=>setWarningOpen(true)}/></div>
    </div>
    {phase!=='pregnancy'&&<Panel className="postpartum-banner"><div className="postpartum-illustration"><HeartHandshake size={32}/></div><div><div className="eyebrow">YOUR RECOVERY IS IMPORTANT</div><h3>{phase==='postpartum'?'Day '+pDays+' postpartum':'Mother’s wellbeing still matters'}</h3><p>Physical recovery and emotional wellbeing deserve attention too. Follow your postnatal check-up plan and ask for help when you need it.</p></div><Button variant="subtle" onClick={()=>enterTab('care')}>Recovery guide <ArrowRight size={15}/></Button></Panel>}
    <SourcesSmall/>
  </div>;
  }
+ function Family(){
+  return <div className="page-content"><SectionTitle eyebrow="YOUR CONNECTED STORY" title="Family journeys" subtitle="Switch between your recorded pregnancies and children. Each journey stays private." action={<Button Icon={Plus} onClick={createAnotherJourney}>New pregnancy</Button>}/>
+   <Panel className="family-intro"><span className="small-round mint"><Users size={21}/></span><div><h3>Every chapter has its place</h3><p>Starting another journey does not erase your previous pregnancy, birth or baby records. One baby is supported per journey; twins require a future expansion.</p></div></Panel>
+   <div className="family-list">{journeys.map(j=>{const born=Boolean(j.baby_birth_date);return <button key={j.id} className={'family-journey '+(j.id===activeJourney.id?'current':'')} onClick={()=>selectJourney(j)}>
+     <span className="family-avatar">{born?<Baby size={25}/>:<Heart size={25}/>}</span><span className="family-journey-copy"><strong>{born?j.baby_name+'’s journey':'Pregnancy journey'}</strong><small>{born?'Born '+readable(j.baby_birth_date!):'Estimated due '+readable(j.due_date)} · {j.mother_name}</small></span><span className="family-tag">{j.id===activeJourney.id?'Viewing':'Open'}</span><ChevronRight size={18}/></button>;})}</div>
+   <p className="footnote">Profiles belong to the signed-in account, and are not automatically shared with healthcare providers.</p>
+  </div>;
+ }
  function Pregnancy(){
  return <div className="page-content"><SectionTitle eyebrow="YOUR PREGNANCY STORY" title="Inside your pregnancy" subtitle="A week-by-week learning companion alongside your antenatal care." action={<span className="tag-green">{isBorn?'Archived pregnancy':'Trimester '+preg.trimester}</span>}/>
   <div className="pregnancy-grid">
-    <Panel className="week-explorer"><div className="week-explorer-head"><span className="eyebrow">GROWTH TIMELINE</span><span className="soft-label">Estimated due {readable(journey.due_date)}</span></div><div className="week-center"><div className="week-orbit"><div className="week-inner"><Baby size={45} strokeWidth={1.45}/><span className="tiny-spark">✦</span></div></div><h3>Week {weekView??preg.week}</h3><span className="muted">Explore your baby’s progress</span></div>
+    <Panel className="week-explorer"><div className="week-explorer-head"><span className="eyebrow">GROWTH TIMELINE</span><span className="soft-label">Estimated due {readable(activeJourney.due_date)}</span></div><div className="week-center"><div className="week-orbit"><div className="week-inner"><Baby size={45} strokeWidth={1.45}/><span className="tiny-spark">✦</span></div></div><h3>Week {weekView??preg.week}</h3><span className="muted">Explore your baby’s progress</span></div>
       <div className="week-selector"><button disabled={(weekView??preg.week)<=4} aria-label="Previous week" onClick={()=>setWeekView(Math.max(4,(weekView??preg.week)-1))}><ArrowLeft size={17}/></button><input aria-label="Choose a pregnancy week" type="range" min={4} max={42} value={Math.max(4,weekView??preg.week)} onChange={e=>setWeekView(Number(e.target.value))}/><button disabled={(weekView??preg.week)>=42} aria-label="Next week" onClick={()=>setWeekView(Math.min(42,(weekView??preg.week)+1))}><ArrowRight size={17}/></button></div><div className="week-bottom"><span>Week 4</span><button onClick={()=>setWeekView(null)}>My current week</button><span>Week 42</span></div>
     </Panel>
     <div className="education-stack"><Panel className="education-primary"><span className="eyebrow">{edu.summary}</span><h3>{edu.title}</h3><div className="education-item"><span className="education-icon"><Baby size={19}/></span><div><strong>What’s happening with baby</strong><p>{edu.baby}</p></div></div><div className="education-item"><span className="education-icon"><Heart size={19}/></span><div><strong>What you might notice</strong><p>{edu.mother}</p></div></div><div className="education-item"><span className="education-icon"><Stethoscope size={19}/></span><div><strong>A helpful focus</strong><p>{edu.focus}</p></div></div></Panel>
@@ -255,7 +278,15 @@ export default function App(){
  function Care(){
  return <div className="page-content"><SectionTitle eyebrow="WELLBEING FIRST" title={isBorn?'Your recovery & daily care':'Your daily care plan'} subtitle="Small, supportive practices for your current stage. Adapt these with your health professional’s advice." action={<span className="mini-pill">{readable(todayISO())}</span>}/>
   <div className="care-summary"><div><span className="eyebrow">TODAY’S PROGRESS</span><h3>{completedToday} of {tasks.length} gentle reminders</h3><p>You are more than a checklist. Take each day at your own pace.</p></div><div className="care-score">{Math.round(completedToday/tasks.length*100)}<small>%</small></div></div>
-  <div className="care-list">{tasks.map(t=>{const Icon=TASK_ICONS[t.icon]||Heart;const complete=doneToday.includes(t.id);return <button key={t.id} onClick={()=>toggleDaily(t.id)} className={'care-item '+(complete?'is-checked':'')}><span className="care-item-icon"><Icon size={23}/></span><span><strong>{t.title}</strong><small>{t.description}</small></span><span className="care-check">{complete?<Check size={20}/>:<Plus size={19}/>}</span></button>;})}</div>
+  <Panel className="wellbeing-panel"><div className="panel-heading"><div><div className="eyebrow">MOTHER'S WELLBEING</div><h3>How are you feeling today?</h3></div><span className="small-round lilac"><NotebookPen size={19}/></span></div>
+    <p className="muted">Optional private check-in, not a mental-health assessment. Share persistent distress or serious concerns with your care team.</p>
+    <form onSubmit={e=>{e.preventDefault();modify(j=>({...j,wellbeing_entries:[...(j.wellbeing_entries??[]).filter(v=>v.recorded_on!==todayISO()),{id:crypto.randomUUID(),recorded_on:todayISO(),feeling,note:wellbeingNote.trim().slice(0,400)}]}));setToast('Daily wellbeing check-in saved.');}}>
+     <div className="mood-options" role="group" aria-label="How are you feeling">{([['good','Good'],['okay','Okay'],['tired','Tired'],['anxious','Worried'],['low','Low']] as [Feeling,string][]).map(([value,label])=><button key={value} type="button" aria-pressed={feeling===value} className={feeling===value?'active':''} onClick={()=>setFeeling(value)}>{label}</button>)}</div>
+     <label className="wellbeing-label">A note for yourself (optional)<textarea maxLength={400} rows={2} value={wellbeingNote} onChange={e=>setWellbeingNote(e.target.value)} placeholder="Anything you want to remember or discuss with your care team?"/></label>
+     <div className="button-row"><Button type="submit" Icon={CheckCircle2}>Save check-in</Button><span className="wellbeing-last">{activeJourney.wellbeing_entries?.some(v=>v.recorded_on===todayISO())?'Today’s check-in recorded':''}</span></div>
+    </form>
+   </Panel>
+   <div className="care-list">{tasks.map(t=>{const Icon=TASK_ICONS[t.icon]||Heart;const complete=doneToday.includes(t.id);return <button key={t.id} onClick={()=>toggleDaily(t.id)} className={'care-item '+(complete?'is-checked':'')}><span className="care-item-icon"><Icon size={23}/></span><span><strong>{t.title}</strong><small>{t.description}</small></span><span className="care-check">{complete?<Check size={20}/>:<Plus size={19}/>}</span></button>;})}</div>
   <div className="two-columns"><Panel className="info-card"><span className="small-round mint"><Utensils size={19}/></span><h3>{isBorn?'Recovery and feeding':'Everyday food choices'}</h3><p>{isBorn?'Eat varied meals, rest and follow the feeding support plan suitable for your baby. Ask for help with pain or feeding difficulties.':'Enjoy varied meals that include safely cooked protein, vegetables, fruits and sufficient nourishment. Avoid alcohol and discuss supplements with your provider.'}</p></Panel><Panel className="info-card"><span className="small-round peach"><Moon size={19}/></span><h3>{isBorn?'Safe sleep for baby':'Comfortable rest'}</h3><p>{isBorn?'Always place your baby on their back, in their own firm, flat and clear sleep space. Avoid pillows, loose bedding and soft objects.':'Side-sleeping is recommended when going to sleep from 28 weeks of pregnancy. Ask your provider about pain, dizziness or positioning concerns.'}</p></Panel></div>
   <WarningCard onOpen={()=>setWarningOpen(true)}/><SourcesSmall/>
  </div>;
@@ -265,35 +296,41 @@ export default function App(){
   <Panel className="anc-intro"><div className="anc-icon"><Stethoscope size={28}/></div><div><h3>Stay connected with your care team</h3><p>WHO describes a model with at least eight antenatal contacts across pregnancy. These weeks are general educational reference points—not appointments booked for you.</p></div></Panel>
   <Panel className="anc-timeline"><div className="panel-heading"><div><div className="eyebrow">REFERENCE TIMELINE</div><h3>Eight WHO contact points</h3></div><span className="soft-label">Illustrative only</span></div><div className="weeks-strip">{ANC_WEEKS.map((w,i)=><div key={w} className={'week-chip '+(w<=preg.week?'passed':'')}><small>{i+1}</small><strong>{w===12?'≤12':String(w)}</strong><span>wks</span></div>)}</div><p className="footnote">Ask your clinic which contact dates, examinations and follow-ups are right for your pregnancy.</p></Panel>
   {newVisit&&<Panel className="form-panel"><h3>Plan an appointment</h3><NewVisitForm onSave={v=>{modify(j=>({...j,visits:[...j.visits,v]}));setNewVisit(false);setToast('Visit added to your personal journal.');}} onCancel={()=>setNewVisit(false)}/></Panel>}
-  <Panel className="appointment-panel"><div className="panel-heading"><div><div className="eyebrow">YOUR VISITS</div><h3>Appointment journal</h3></div><span className="count-label">{journey.visits.length} visits</span></div>
-   {journey.visits.length===0?<div className="empty-state"><CalendarDays size={32}/><h4>No visits yet</h4><p>Once you book with your clinic, add the appointment here so it stays part of your journey.</p><Button variant="secondary" Icon={Plus} onClick={()=>setNewVisit(true)}>Add your first visit</Button></div>:
-   <div className="appointments">{[...journey.visits].sort((a,b)=>a.scheduled_on.localeCompare(b.scheduled_on)).map(v=><div className="appointment-row" key={v.id}><div className="appointment-date"><strong>{new Date(v.scheduled_on+'T12:00:00Z').getUTCDate()}</strong><small>{new Intl.DateTimeFormat('en-KE',{month:'short',timeZone:'UTC'}).format(new Date(v.scheduled_on+'T12:00:00Z'))}</small></div><div className="appointment-info"><strong>{v.clinic}</strong><small>{v.notes||'No notes added'}</small><span className={'status-inline '+(v.attended?'done':'')}>{v.attended?'Attended':v.scheduled_on<todayISO()?'Date passed — confirm status':'Upcoming / planned'}</span></div><div className="appointment-actions"><button onClick={()=>modify(j=>({...j,visits:j.visits.map(a=>a.id===v.id?{...a,attended:!a.attended}:a)}))}>{v.attended?'Mark planned':'Mark attended'}</button><button aria-label={'Remove visit '+v.clinic} onClick={()=>modify(j=>({...j,visits:j.visits.filter(a=>a.id!==v.id)}))}><X size={16}/></button></div></div>)}</div>}
+  {reminders.length>0&&<Panel className="reminders-panel"><div className="panel-heading"><div><div className="eyebrow">APPOINTMENT REMINDERS</div><h3>Dates to follow up</h3></div><Bell size={20}/></div><p className="muted">In-app reminders appear when you open MamaMwana. For an external reminder, add a visit to your own calendar.</p><div className="reminder-items">{reminders.map(v=><div key={v.id} className="reminder-item"><span className={'reminder-signal '+(reminderStatus(v)==='overdue'?'overdue':'')}/><span><strong>{v.clinic}</strong><small>{readable(v.scheduled_on)} · {reminderStatus(v)==='overdue'?'Date passed — confirm with clinic':reminderStatus(v)==='today'?'Today':'Within seven days'}</small></span></div>)}</div></Panel>}
+   <Panel className="appointment-panel"><div className="panel-heading"><div><div className="eyebrow">YOUR VISITS</div><h3>Appointment journal</h3></div><span className="count-label">{activeJourney.visits.length} visits</span></div>
+   {activeJourney.visits.length===0?<div className="empty-state"><CalendarDays size={32}/><h4>No visits yet</h4><p>Once you book with your clinic, add the appointment here so it stays part of your journey.</p><Button variant="secondary" Icon={Plus} onClick={()=>setNewVisit(true)}>Add your first visit</Button></div>:
+   <div className="appointments">{[...activeJourney.visits].sort((a,b)=>a.scheduled_on.localeCompare(b.scheduled_on)).map(v=><div className="appointment-row" key={v.id}><div className="appointment-date"><strong>{new Date(v.scheduled_on+'T12:00:00Z').getUTCDate()}</strong><small>{new Intl.DateTimeFormat('en-KE',{month:'short',timeZone:'UTC'}).format(new Date(v.scheduled_on+'T12:00:00Z'))}</small></div><div className="appointment-info"><strong>{v.clinic}</strong><small>{v.notes||'No notes added'}</small><span className={'status-inline '+(v.attended?'done':'')}>{v.attended?'Attended':v.scheduled_on<todayISO()?'Date passed — confirm status':'Upcoming / planned'}</span></div><div className="appointment-actions"><button onClick={()=>modify(j=>({...j,visits:j.visits.map(a=>a.id===v.id?{...a,attended:!a.attended}:a)}))}>{v.attended?'Mark planned':'Mark attended'}</button>{!v.attended&&<a className="calendar-link" href={visitCalendarUrl(v)} download={'mamamwana-visit-'+v.scheduled_on+'.ics'} title="Export to calendar; external calendars may store visit details"><Download size={14}/> Calendar</a>}<button aria-label={'Remove visit '+v.clinic} onClick={()=>modify(j=>({...j,visits:j.visits.filter(a=>a.id!==v.id)}))}><X size={16}/></button></div></div>)}</div>}
   </Panel><SourcesSmall/>
  </div>;
  }
  function Birth(){
  return <div className="page-content"><SectionTitle eyebrow="GETTING READY" title="Your birth preparation" subtitle="Practical steps to help you feel prepared and supported." action={isBorn?<span className="tag-green"><Check size={15}/> Baby arrived</span>:undefined}/>
   <div className="birth-hero"><div><span className="eyebrow">ONE SPECIAL DAY</span><h3>When the moment comes,<br/><em>you’ll have a plan.</em></h3><p>Build a simple, flexible plan with your care team and trusted people. Birth rarely follows a perfect checklist—and that’s okay.</p></div><HeartHandshake size={100} strokeWidth={1}/></div>
-  <div className="birth-layout"><Panel className="birth-list-panel"><div className="panel-heading"><div><div className="eyebrow">PREPARATION LIST</div><h3>Little things, big peace of mind</h3></div><span className="count-label">{checkCount}/{BIRTH_CHECKLIST.length}</span></div><ProgressBar value={checkCount/BIRTH_CHECKLIST.length*100}/><div className="birth-list">{BIRTH_CHECKLIST.map(c=><button key={c.key} className="birth-check-row" onClick={()=>toggleBirth(c.key)}><span className={'birth-check '+(journey.birth_checks.includes(c.key)?'checked':'')}>{journey.birth_checks.includes(c.key)&&<Check size={14}/>}</span><span>{c.label}</span></button>)}</div></Panel>
-   <div className="birth-side"><Panel className="birth-milestone-card"><div className="birth-milestone-icon"><Baby size={28}/></div><span className="eyebrow">CONTINUE TO THE NEXT CHAPTER</span><h3>{isBorn?'Your baby’s story is here':'Your baby's arrival'}</h3><p>{isBorn?'Your pregnancy record is connected to your baby’s milestones and your recovery care.':'After delivery, record the baby’s birth date to open postpartum recovery and newborn development features.'}</p><Button onClick={()=>isBorn?enterTab('baby'):setBirthOpen(true)}>{isBorn?'Open baby’s journey':'Record baby’s arrival'} <ArrowRight size={15}/></Button></Panel><Panel className="tip-panel"><div className="tip-top"><ShieldCheck size={19}/><strong>Plan for safety</strong></div><p>Know your facility’s emergency contact number, referral destination and transport plan. Seek urgent help for danger signs; don’t wait for an app reminder.</p></Panel></div></div>
+  <div className="birth-layout"><Panel className="birth-list-panel"><div className="panel-heading"><div><div className="eyebrow">PREPARATION LIST</div><h3>Little things, big peace of mind</h3></div><span className="count-label">{checkCount}/{BIRTH_CHECKLIST.length}</span></div><ProgressBar value={checkCount/BIRTH_CHECKLIST.length*100}/><div className="birth-list">{BIRTH_CHECKLIST.map(c=><button key={c.key} className="birth-check-row" onClick={()=>toggleBirth(c.key)}><span className={'birth-check '+(activeJourney.birth_checks.includes(c.key)?'checked':'')}>{activeJourney.birth_checks.includes(c.key)&&<Check size={14}/>}</span><span>{c.label}</span></button>)}</div></Panel>
+   <div className="birth-side"><Panel className="birth-milestone-card"><div className="birth-milestone-icon"><Baby size={28}/></div><span className="eyebrow">CONTINUE TO THE NEXT CHAPTER</span><h3>{isBorn?'Your baby’s story is here':'Your baby’s arrival'}</h3><p>{isBorn?'Your pregnancy record is connected to your baby’s milestones and your recovery care.':'After delivery, record the baby’s birth date to open postpartum recovery and newborn development features.'}</p><Button onClick={()=>isBorn?enterTab('baby'):setBirthOpen(true)}>{isBorn?'Open baby’s journey':'Record baby’s arrival'} <ArrowRight size={15}/></Button></Panel><Panel className="tip-panel"><div className="tip-top"><ShieldCheck size={19}/><strong>Plan for safety</strong></div><p>Know your facility’s emergency contact number, referral destination and transport plan. Seek urgent help for danger signs; don’t wait for an app reminder.</p></Panel></div></div>
  </div>;
  }
  function BabyPage(){
  if(!isBorn)return <div className="page-content"><SectionTitle eyebrow="THE NEXT CHAPTER" title="Your baby’s story" subtitle="This space opens when you record your baby’s arrival."/><Panel className="baby-locked"><div className="baby-locked-orb"><Baby size={54} strokeWidth={1.35}/></div><h3>One journey, from bump to baby</h3><p>After birth, you’ll find newborn care guidance, growth measurements and a flexible milestone journal here—all connected to your pregnancy story.</p><Button onClick={()=>setBirthOpen(true)}>Record baby’s arrival <ArrowRight size={16}/></Button></Panel></div>;
  const displayMilestones=MILESTONES.filter(m=>m.age===(milestoneFilter??[2,4,6,9,12,18,24,36,48,60].find(x=>x>=babyMonths)??60));
- const latestGrowth=journey.growth[0];
- return <div className="page-content"><SectionTitle eyebrow="GROWING TOGETHER" title={(journey.baby_name||'Baby')+'’s little world'} subtitle="A continuous story from pregnancy through these early years." action={<span className="tag-green">{formatAge(babyMonths)}</span>}/>
-  <div className="baby-hero"><div className="baby-hero-circle"><Baby size={48} strokeWidth={1.4}/></div><div><span className="eyebrow">YOUR LITTLE ONE</span><h3>Hello, {journey.baby_name}!</h3><p>Born {readable(journey.baby_birth_date!)} • {formatAge(babyMonths)} old</p><span className="baby-hero-note"><Heart size={13}/> Your pregnancy history remains here too.</span></div></div>
-  <div className="baby-stats"><div><span className="metric-label">Latest recorded weight</span><strong>{latestGrowth?.weight_kg!=null?latestGrowth.weight_kg+' kg':'Not recorded'}</strong></div><div><span className="metric-label">Latest recorded length</span><strong>{latestGrowth?.length_cm!=null?latestGrowth.length_cm+' cm':'Not recorded'}</strong></div><div><span className="metric-label">Milestones recorded</span><strong>{journey.milestones.length} achieved</strong></div></div>
+ const latestGrowth=activeJourney.growth[0];
+ return <div className="page-content"><SectionTitle eyebrow="GROWING TOGETHER" title={(activeJourney.baby_name||'Baby')+'’s little world'} subtitle="A continuous story from pregnancy through these early years." action={<span className="tag-green">{formatAge(babyMonths)}</span>}/>
+  <div className="baby-hero"><div className="baby-hero-circle"><Baby size={48} strokeWidth={1.4}/></div><div><span className="eyebrow">YOUR LITTLE ONE</span><h3>Hello, {activeJourney.baby_name}!</h3><p>Born {readable(activeJourney.baby_birth_date!)} • {formatAge(babyMonths)} old</p><span className="baby-hero-note"><Heart size={13}/> Your pregnancy history remains here too.</span></div></div>
+  <div className="baby-stats"><div><span className="metric-label">Latest recorded weight</span><strong>{latestGrowth?.weight_kg!=null?latestGrowth.weight_kg+' kg':'Not recorded'}</strong></div><div><span className="metric-label">Latest recorded length</span><strong>{latestGrowth?.length_cm!=null?latestGrowth.length_cm+' cm':'Not recorded'}</strong></div><div><span className="metric-label">Milestones recorded</span><strong>{activeJourney.milestones.length} achieved</strong></div></div>
   <Panel className="growth-panel"><div className="panel-heading"><div><div className="eyebrow">GROWTH JOURNAL</div><h3>One little step at a time</h3></div><Button variant="secondary" Icon={Plus} onClick={()=>setGrowthOpen(v=>!v)}>Add measurement</Button></div>
    <p className="muted">Log clinic measurements. A provider should interpret growth using age, sex, gestational age at birth and WHO growth standards—numbers alone do not determine health.</p>
-   {growthOpen&&<form className="inline-form" onSubmit={saveGrowth}><div className="form-row three"><label>Measurement date<input type="date" required min={journey.baby_birth_date!} max={todayISO()} value={growthDate} onChange={e=>setGrowthDate(e.target.value)}/></label><label>Weight (kg)<input type="number" min="0.1" max="60" step="0.01" value={growthWeight} onChange={e=>setGrowthWeight(e.target.value)} placeholder="e.g. 3.4"/></label><label>Length (cm)<input type="number" min="1" max="180" step="0.1" value={growthLength} onChange={e=>setGrowthLength(e.target.value)} placeholder="e.g. 50"/></label></div><div className="button-row"><Button type="submit">Save measurement</Button><Button variant="subtle" onClick={()=>setGrowthOpen(false)}>Cancel</Button></div></form>}
-   {journey.growth.length===0?<div className="empty-state compact"><TrendingUp size={30}/><h4>No measurements recorded yet</h4><p>Add measurements from your baby’s health visits.</p></div>:<div className="growth-table" role="table"><div className="growth-th" role="row"><span>Date</span><span>Weight</span><span>Length</span></div>{journey.growth.map(g=><div className="growth-tr" role="row" key={g.id}><span>{readable(g.measured_on)}</span><span>{g.weight_kg!=null?g.weight_kg+' kg':'—'}</span><span>{g.length_cm!=null?g.length_cm+' cm':'—'}</span></div>)}</div>}
+   {growthOpen&&<form className="inline-form" onSubmit={saveGrowth}><div className="form-row three"><label>Measurement date<input type="date" required min={activeJourney.baby_birth_date!} max={todayISO()} value={growthDate} onChange={e=>setGrowthDate(e.target.value)}/></label><label>Weight (kg)<input type="number" min="0.1" max="60" step="0.01" value={growthWeight} onChange={e=>setGrowthWeight(e.target.value)} placeholder="e.g. 3.4"/></label><label>Length (cm)<input type="number" min="1" max="180" step="0.1" value={growthLength} onChange={e=>setGrowthLength(e.target.value)} placeholder="e.g. 50"/></label></div><div className="button-row"><Button type="submit">Save measurement</Button><Button variant="subtle" onClick={()=>setGrowthOpen(false)}>Cancel</Button></div></form>}
+   {activeJourney.growth.length===0?<div className="empty-state compact"><TrendingUp size={30}/><h4>No measurements recorded yet</h4><p>Add measurements from your baby’s health visits.</p></div>:<div className="growth-table" role="table"><div className="growth-th" role="row"><span>Date</span><span>Weight</span><span>Length</span></div>{activeJourney.growth.map(g=><div className="growth-tr" role="row" key={g.id}><span>{readable(g.measured_on)}</span><span>{g.weight_kg!=null?g.weight_kg+' kg':'—'}</span><span>{g.length_cm!=null?g.length_cm+' cm':'—'}</span></div>)}</div>}
   </Panel>
-  <Panel className="milestones-panel"><div className="panel-heading"><div><div className="eyebrow">DISCOVER & CELEBRATE</div><h3>Developmental milestones</h3></div><span className="soft-label">Illustrative CDC milestones</span></div>
+  {babyMonths<=12&&<Panel className="feeding-panel"><div className="panel-heading"><div><div className="eyebrow">NEWBORN CARE JOURNAL</div><h3>Feeding moments</h3></div><span className="soft-label">Optional log</span></div>
+    <p className="muted">Record feeding type for your own reference. This does not prescribe feeding times or quantities. Contact your health provider for feeding difficulties.</p>
+    <div className="feeding-entry"><label>Feeding type<select value={feedingMethod} onChange={e=>setFeedingMethod(e.target.value as FeedingMethod)}><option value="breast">Breastfeeding</option><option value="expressed">Expressed milk</option><option value="formula">Formula</option><option value="other">Other / mixed feeding</option></select></label><Button Icon={Plus} onClick={()=>modify(j=>({...j,feeding_logs:[{id:crypto.randomUUID(),recorded_at:new Date().toISOString(),method:feedingMethod},...(j.feeding_logs??[])].slice(0,200)}))}>Log feeding now</Button></div>
+    {(activeJourney.feeding_logs??[]).length>0&&<div className="feed-list">{activeJourney.feeding_logs.slice(0,5).map(v=><div key={v.id}><span><strong>{v.method==='breast'?'Breastfeeding':v.method==='expressed'?'Expressed milk':v.method==='formula'?'Formula':'Other / mixed feeding'}</strong><small>{new Date(v.recorded_at).toLocaleString('en-KE',{dateStyle:'medium',timeStyle:'short'})}</small></span><button aria-label="Remove feeding entry" onClick={()=>modify(j=>({...j,feeding_logs:j.feeding_logs.filter(x=>x.id!==v.id)}))}><X size={16}/></button></div>)}</div>}
+   </Panel>}
+   <Panel className="milestones-panel"><div className="panel-heading"><div><div className="eyebrow">DISCOVER & CELEBRATE</div><h3>Developmental milestones</h3></div><span className="soft-label">Illustrative CDC milestones</span></div>
    <p className="muted">Every child develops differently. Use these as conversation starters, not diagnostic tests. If you have concerns or a child loses a skill, ask a health professional promptly. Premature babies may need corrected-age assessment.</p>
    <div className="milestone-tabs" role="group" aria-label="Choose milestone age">{[2,4,6,9,12,18,24,36,48,60].map(m=><button key={m} className={(milestoneFilter??([2,4,6,9,12,18,24,36,48,60].find(x=>x>=babyMonths)??60))===m?'active':''} onClick={()=>setMilestoneFilter(m)}>{m<12?m+' mo':m/12+' yr'}</button>)}</div>
-   <div className="milestone-items">{displayMilestones.map(m=><button className={'milestone-item '+(journey.milestones.includes(m.key)?'reached':'')} key={m.key} onClick={()=>modify(j=>({...j,milestones:uniqueToggle(j.milestones,m.key)}))}><span className="milestone-status">{journey.milestones.includes(m.key)?<Check size={16}/>:<Plus size={15}/>}</span><span><small>{m.area}</small><strong>{m.label}</strong></span></button>)}</div>
+   <div className="milestone-items">{displayMilestones.map(m=><button className={'milestone-item '+(activeJourney.milestones.includes(m.key)?'reached':'')} key={m.key} onClick={()=>modify(j=>({...j,milestones:uniqueToggle(j.milestones,m.key)}))}><span className="milestone-status">{activeJourney.milestones.includes(m.key)?<Check size={16}/>:<Plus size={15}/>}</span><span><small>{m.area}</small><strong>{m.label}</strong></span></button>)}</div>
    <a className="text-link" href="https://www.cdc.gov/act-early/milestones/index.html" target="_blank" rel="noreferrer">See full CDC age-specific milestone checklists <ExternalLink size={14}/></a>
   </Panel>
   <Panel className="postpartum-banner"><div className="postpartum-illustration"><HeartPulse size={32}/></div><div><div className="eyebrow">MOTHER MATTERS TOO</div><h3>{pDays<=42?'Your postpartum recovery':'Your wellbeing continues'}</h3><p>{pDays<=42?'You are '+pDays+' days postpartum. Keep your postnatal follow-up plan and ask for support with healing and feelings.':'You deserve ongoing care, rest, and attention to your physical and emotional health.'}</p></div><Button variant="subtle" onClick={()=>enterTab('care')}>Care plan <ArrowRight size={15}/></Button></Panel>
@@ -314,21 +351,21 @@ export default function App(){
    <nav className="sidebar-nav" aria-label="Primary navigation">{NAV.map(({id,label,Icon})=><button key={id} onClick={()=>enterTab(id)} className={'nav-item '+(tab===id?'selected':'')} aria-current={tab===id?'page':undefined}><Icon size={19} strokeWidth={1.9}/>{label}{tab===id&&<span className="nav-active-dot"/>}</button>)}</nav>
    <div className="sidebar-spacer"/>
    <div className="sidebar-support"><span className="sidebar-support-icon"><ShieldCheck size={21}/></span><strong>Your health matters</strong><p>Medical concerns always deserve a real healthcare professional.</p><button onClick={()=>setWarningOpen(true)}>When to seek help <ArrowRight size={14}/></button></div>
-   <div className="sidebar-footer"><button onClick={signOut}><LogOut size={17}/>{demo?'Exit demo':'Sign out'}</button><span>© 2026 MamaMwana • v0.1</span></div>
+   <div className="sidebar-footer"><button onClick={signOut}><LogOut size={17}/>{demo?'Exit demo':'Sign out'}</button><span>© 2026 MamaMwana • v0.2</span></div>
   </aside>
   {menuOpen&&<button className="drawer-backdrop" aria-label="Close menu" onClick={()=>setMenuOpen(false)}/>}
   <div className="app-main">
    <header className="topbar"><div className="topbar-left"><button className="hamburger" aria-label="Open navigation" onClick={()=>setMenuOpen(true)}><Menu size={22}/></button><div className="topbar-context"><div className="topbar-hello">Hello, {displayName} <span>✳</span></div><div className="topbar-subtitle">A little love and care for today</div></div></div><div className="topbar-actions">
      {demo?<span className="env-label"><Cloud size={15}/> Unsaved demo</span>:<span className={'env-label '+(saveStatus==='error'?'env-error':'')}><CheckCircle2 size={15}/>{saveStatus==='saving'?'Saving…':saveStatus==='error'?'Save failed':'Private account'}</span>}
-     <button aria-label="Health warning signs" className="topbar-icon" onClick={()=>setWarningOpen(true)}><ShieldAlert size={19}/></button><span className="avatar">{displayName.slice(0,1).toUpperCase()}</span>
+     <button className="topbar-family" onClick={()=>enterTab('family')}><Users size={16}/> Family ({journeys.length})</button><button aria-label="Health warning signs" className="topbar-icon" onClick={()=>setWarningOpen(true)}><ShieldAlert size={19}/></button><span className="avatar">{displayName.slice(0,1).toUpperCase()}</span>
    </div></header>
    {demo&&<div className="demo-banner"><Sparkles size={16}/><span><strong>Interactive preview:</strong> use sample details only. Changes disappear when you leave this page.</span><button onClick={signOut}>Exit <ArrowRight size={14}/></button></div>}
-   <main>{tab==='home'?<Home/>:tab==='pregnancy'?<Pregnancy/>:tab==='care'?<Care/>:tab==='visits'?<Visits/>:tab==='birth'?<Birth/>:tab==='baby'?<BabyPage/>:<Library/>}</main>
+   <main>{tab==='home'?<Home/>:tab==='family'?<Family/>:tab==='pregnancy'?<Pregnancy/>:tab==='care'?<Care/>:tab==='visits'?<Visits/>:tab==='birth'?<Birth/>:tab==='baby'?<BabyPage/>:<Library/>}</main>
    <footer className="app-footer"><span>MamaMwana • Made for every little beginning</span><span>Educational support, never a substitute for professional healthcare</span></footer>
   </div>
   <nav className="mobile-tabs" aria-label="Quick navigation">{[{id:'home' as Tab,label:'Home',Icon:House},{id:'care' as Tab,label:'Today',Icon:Heart},{id:'visits' as Tab,label:'Visits',Icon:CalendarDays},{id:'baby' as Tab,label:'Baby',Icon:Baby}].map(({id,label,Icon})=><button key={id} className={tab===id?'active':''} onClick={()=>enterTab(id)}><Icon size={21}/><span>{label}</span></button>)}</nav>
   {warningOpen&&<div className="modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setWarningOpen(false);}}><div className="modal warning-modal" role="dialog" aria-modal="true" aria-labelledby="urgent-title"><button className="modal-close" aria-label="Close" onClick={()=>setWarningOpen(false)}><X size={20}/></button><div className="modal-mark danger"><ShieldAlert size={26}/></div><h2 id="urgent-title">When to seek urgent help</h2><p className="muted">If you or your baby has any of these concerns, seek immediate in-person medical assessment or contact local emergency services. Do not wait for an app response.</p><ul className="urgent-list">{URGENT.map(t=><li key={t}><span className="urgent-dot"/>{t}</li>)}</ul><p className="footnote">This is not an exhaustive list. If something feels seriously wrong, get checked promptly. For urgent warning signs, follow your local emergency care instructions.</p><Button onClick={()=>setWarningOpen(false)}>I understand</Button></div></div>}
-  {birthOpen&&<BirthModal dueDate={journey.due_date} onClose={()=>setBirthOpen(false)} onBirth={markBirth}/>}
+  {birthOpen&&<BirthModal dueDate={activeJourney.due_date} onClose={()=>setBirthOpen(false)} onBirth={markBirth}/>}
   {toast&&<Notification message={toast} onClose={()=>setToast('')}/>}
  </div>;
 }
