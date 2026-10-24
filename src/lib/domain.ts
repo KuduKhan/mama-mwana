@@ -1,12 +1,12 @@
-export interface Visit { id: string; scheduled_on: string; clinic: string; notes: string; attended: boolean }
-export interface Growth { id: string; measured_on: string; weight_kg: number | null; length_cm: number | null }
+export interface Visit { version?:number; id: string; scheduled_on: string; clinic: string; notes: string; attended: boolean }
+export interface Growth { version?:number; id: string; measured_on: string; weight_kg: number | null; length_cm: number | null }
 export type FeedingMethod = 'breast' | 'expressed' | 'formula' | 'other';
 export interface FeedingLog { id: string; recorded_at: string; method: FeedingMethod }
 export type Feeling = 'good' | 'okay' | 'tired' | 'low' | 'anxious';
 export interface WellbeingEntry { id: string; recorded_on: string; feeling: Feeling; note: string }
 export type ChildSex = 'female' | 'male' | 'unknown';
 export interface ImmunizationRecord {
- id: string; dose_id: string; given_on: string; facility: string; note: string;
+ version?:number; id: string; dose_id: string; given_on: string; facility: string; note: string;
 }
 export interface Journey {
   id: string; mother_name: string; due_date: string; baby_birth_date: string | null; baby_name: string | null;
