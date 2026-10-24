@@ -171,9 +171,9 @@ export default function App(){
   client.from('journeys').select('id,mother_name,due_date,baby_birth_date,baby_name,visits,daily_checks,birth_checks,growth,milestones,feeding_logs,wellbeing_entries,baby_sex,gestation_at_birth_weeks,immunizations,created_at').eq('owner_id',user.id).order('created_at',{ascending:false})
    .then(({data,error})=>{
     if(!active)return;
-    if(error)setToast('Database unavailable: '+error.message+'. Run both Supabase migrations.');
+    if(error)setToast('Database unavailable: '+error.message+'. Run the v0.1, v0.2 and v0.3 Supabase migrations.');
     else{
-      const items=(data??[]).map(raw=>({...raw,feeding_logs:raw.feeding_logs??[],wellbeing_entries:raw.wellbeing_entries??[],immunizations:raw.immunizations??[],baby_sex:raw.baby_sex??null,gestation_at_birth_weeks:raw.gestation_at_birth_weeks??null]})) as Journey[];
+      const items=(data??[]).map(raw=>({...raw,feeding_logs:raw.feeding_logs??[],wellbeing_entries:raw.wellbeing_entries??[],immunizations:raw.immunizations??[],baby_sex:raw.baby_sex??null,gestation_at_birth_weeks:raw.gestation_at_birth_weeks??null})) as Journey[];
       setJourneys(items);const selected=items[0]??null;
       current.current=selected;setJourney(selected);setCreatingJourney(false);
     }

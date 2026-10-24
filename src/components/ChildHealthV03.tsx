@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { Activity, Baby, CalendarDays, Check, CircleHelp, ClipboardCheck, ExternalLink, HeartHandshake, Info, Plus, Ruler, ShieldCheck, Syringe, TrendingUp, X } from 'lucide-react';
+import { Activity, Check, CircleHelp, ClipboardCheck, ExternalLink, Info, Plus, Ruler, ShieldCheck, Syringe, TrendingUp, X } from 'lucide-react';
 import type { ChildSex, ImmunizationRecord, Journey } from '../lib/domain';
-import { daysBetween, isDate, readable, todayISO } from '../lib/domain';
+import { daysBetween, readable, todayISO } from '../lib/domain';
 import { CLINICAL_REFERENCES, growthTrend, KENYA_IMMUNIZATIONS, referenceDate, referenceForSex, referenceStage, recordImmunization, validateImmunization } from '../lib/childHealth';
 import type { GrowthMetric, TrendPoint, VaccineDose } from '../lib/childHealth';
 
