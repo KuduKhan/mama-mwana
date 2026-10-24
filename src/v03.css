@@ -1,0 +1,64 @@
+
+/* v0.3 — child health cards, WHO reference access and vaccine diary */
+.ch-stack{display:flex;flex-direction:column;gap:20px;margin-top:20px}
+.ch-card{border:1px solid #e8eee7;border-radius:19px;background:#fff;box-shadow:0 10px 42px rgba(51,76,60,.045);padding:28px;min-width:0}
+.ch-section-head{margin-bottom:20px}.ch-section-head h3{display:flex;align-items:center;gap:10px;font-size:21px;letter-spacing:-.5px;color:#345841;margin:8px 0 8px}
+.ch-section-head>p{font-size:12px;color:#819487;line-height:1.75;max-width:730px;margin:0}
+.ch-kicker{font-size:10px;color:#729781;letter-spacing:1.5px;font-weight:800}
+.ch-profile-form{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px}
+.ch-profile-form label,.ch-modal label{display:flex;flex-direction:column;gap:8px;font-size:11px;color:#587663;font-weight:750}
+.ch-profile-form label{min-width:min(230px,100%);flex:1}
+.ch-profile-form select,.ch-profile-form input,.ch-modal input,.ch-modal textarea{width:100%;min-height:43px;border:1px solid #dce8dd;border-radius:10px;background:#fbfcf9;padding:10px 12px;color:#3e614b}
+.ch-primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#2f7353;color:#fff;border:0;border-radius:10px;padding:12px 17px;min-height:43px;font-size:12px;font-weight:800}
+.ch-primary:hover{background:#245b40}
+.ch-inline-message{font-size:11px;color:#4b8a60;margin:12px 0 0}
+.ch-warning-text{background:#fff7e6;border:1px solid #f2e1bc;padding:12px 14px;font-size:12px;color:#866c45;border-radius:10px;margin:17px 0 0}
+.ch-toggle{display:flex;gap:8px;margin:12px 0 20px}.ch-toggle button{display:flex;align-items:center;gap:7px;background:#f4f7f2;color:#7b9380;border:1px solid #e3ebe0;border-radius:10px;font-size:12px;font-weight:750;padding:10px 16px}.ch-toggle button.active{background:#e2f0e1;color:#316d49;border-color:#a5c6a7}
+.ch-chart-wrap{margin:0 0 20px}.ch-chart-wrap svg{display:block;width:100%;height:auto;max-height:350px}
+.ch-chart-caption{font-size:10px;line-height:1.65;color:#889b8d;margin:10px 0}
+.ch-empty{min-height:145px;background:#f8faf7;border:1px dashed #dce9dd;border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;color:#72987a;gap:9px}
+.ch-empty strong{font-size:13px;color:#487255}.ch-empty span{font-size:11px;color:#96a899}
+.ch-reference{background:#f5f8f2;padding:20px;border-radius:13px;display:flex;align-items:center;gap:24px;justify-content:space-between;flex-wrap:wrap}
+.ch-reference>div:first-child{min-width:230px;flex:1}
+.ch-reference h4{font-size:15px;color:#44684e;margin:9px 0 6px}
+.ch-reference p{font-size:11px;color:#899b8b;line-height:1.7;margin:0}
+.ch-reference-links{display:flex;flex-direction:column;gap:9px}
+.ch-reference-links>a{font-size:11px;font-weight:750;display:flex;align-items:center;justify-content:space-between;gap:8px;color:#377755;background:white;border:1px solid #dcebdd;border-radius:9px;padding:12px 13px;text-decoration:none}
+.ch-chart-placeholder{display:flex;align-items:flex-start;gap:7px;max-width:300px}
+.ch-chart-placeholder a{color:#337954}
+.ch-vaccine-summary{display:flex;align-items:center;gap:22px;background:#f0f6ed;border-radius:13px;padding:18px 21px;justify-content:space-between}
+.ch-vaccine-summary>div:first-child{display:flex;flex-direction:column;gap:9px}
+.ch-vaccine-summary strong{font-size:28px;color:#3c8057}.ch-vaccine-summary strong small{font-size:12px;color:#86a08a;font-weight:600}
+.ch-vaccine-summary>div:last-child{display:flex;align-items:center;gap:11px;max-width:400px;color:#75977b;font-size:11px;line-height:1.65}
+.ch-vaccine-list{display:flex;flex-direction:column;margin-top:14px}
+.ch-dose{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:15px 0;border-bottom:1px solid #eef1eb}
+.ch-dose-main,.ch-dose-right{display:flex;align-items:center;gap:13px;min-width:0}
+.ch-dose-main{flex:1}.ch-dose-main>div:last-child{display:flex;flex-direction:column;gap:5px;min-width:0}
+.ch-dose-main strong{font-size:12px;color:#3b5744}.ch-dose-main small{font-size:10px;color:#94a499}
+.ch-dose-icon{height:39px;width:39px;min-width:39px;border-radius:12px;background:#f4f3ea;color:#a5a17d;display:grid;place-items:center}
+.ch-dose-icon.recorded{background:#e9f5e6;color:#619973}
+.ch-dose-status{display:flex;flex-direction:column;align-items:flex-end;gap:5px;min-width:90px}
+.ch-dose-status strong{font-size:10px;color:#859689}.ch-dose-status strong.recorded{color:#398356}.ch-dose-status strong.check{color:#b38b5c}
+.ch-dose-status small{font-size:10px;color:#a8b1a9;text-align:right}
+.ch-dose-right button{font-size:10px;white-space:nowrap;color:#45845b;background:#ecf5e9;border:1px solid #dce9db;border-radius:9px;padding:10px;display:flex;align-items:center;gap:5px;font-weight:750}
+.ch-source-note{display:flex;gap:9px;align-items:flex-start;color:#8b9e8c;font-size:11px;line-height:1.8;padding:14px 2px 0;margin:0}
+.ch-source-note>a{color:#417951}
+.ch-guide-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.ch-tip{background:#f8faf5;border:1px solid #e9efe5;border-radius:13px;padding:18px}
+.ch-tip-number{display:block;color:#aac5ae;font-family:Georgia,serif;font-size:24px;margin-bottom:7px}
+.ch-tip strong{font-size:12px;color:#3c694d}.ch-tip p{font-size:11px;color:#8d9f8f;line-height:1.75;margin:7px 0 0}
+.ch-clinical-note{display:flex;gap:11px;align-items:flex-start;background:#fff6ed;border:1px solid #f4e4d6;color:#ab735d;border-radius:12px;padding:15px;margin-top:16px}
+.ch-clinical-note p{font-size:11px;line-height:1.8;margin:0;color:#977b69}
+.ch-modal-backdrop{position:fixed;inset:0;z-index:80;background:#1c3529aa;display:grid;place-items:center;padding:18px;backdrop-filter:blur(6px)}
+.ch-modal{width:min(100%,480px);max-height:calc(100dvh - 36px);overflow-y:auto;position:relative;background:white;border-radius:21px;padding:30px;box-shadow:0 20px 60px #203d3044}
+.ch-modal-close{position:absolute;right:18px;top:18px;border:0;background:#f1f5ef;color:#748d7b;border-radius:10px;height:37px;width:37px;display:grid;place-items:center}
+.ch-modal-icon{display:grid;place-items:center;color:#5c9770;background:#e8f3e7;height:52px;width:52px;border-radius:15px;margin-bottom:15px}
+.ch-modal h3{font-size:21px;color:#3f674b;letter-spacing:-.6px;margin:0 0 11px}
+.ch-modal>p{font-size:12px;line-height:1.8;color:#8ca191}
+.ch-modal form{display:flex;flex-direction:column;gap:16px;margin:23px 0}
+.ch-modal-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.ch-remove{font-size:11px;border:1px solid #eebdb5;background:#fff5f3;color:#ad685e;border-radius:10px;padding:12px 15px;font-weight:700}
+.ch-modal>small{display:block;font-size:10px;line-height:1.7;color:#a3b0a5}
+.ch-error{font-size:11px;color:#b65e52}
+@media(max-width:760px){.ch-card{padding:21px}.ch-section-head h3{font-size:18px}}
+@media(max-width:540px){.ch-reference{padding:15px}.ch-guide-grid{grid-template-columns:1fr}.ch-dose{align-items:flex-start}.ch-dose-right{flex-direction:column;align-items:flex-end;gap:6px}.ch-dose-status{min-width:0}.ch-vaccine-summary{flex-direction:column;align-items:flex-start}.ch-dose-main strong{font-size:11px}.ch-dose-icon{height:34px;width:34px;min-width:34px}.ch-profile-form{flex-direction:column;align-items:stretch}.ch-profile-form label{min-width:0;width:100%}.ch-profile-form button{width:100%}}

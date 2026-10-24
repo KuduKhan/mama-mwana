@@ -73,3 +73,23 @@ The v0.2 release supports multiple pregnancy-to-child journey records per accoun
 Reminders only display when the app is open; no background push/email notifications are claimed. `.ics` calendar exports provide an all-day reminder only, so users must confirm the actual appointment time with their clinic. Exported events may be shared with external calendar providers.
 
 The feeding log is not a clinical feeding plan. The wellbeing check-in is not a mental-health screening or crisis-support system. Content still needs clinical validation and a Kenyan data-protection/security review before real patient use. Future releases should normalize pregnancies, children, visits and clinical measurements with robust auditing and concurrency controls.
+
+## v0.3 child health — October 2026
+
+### New features
+- Child profile with optional sex and clinician-recorded gestation at birth.
+- Visual, accessible timelines for the child's measured weight and length (NOT WHO percentile classifications).
+- Sex-specific WHO reference charts linked directly from the World Health Organization. Reference choice is disabled when sex is unknown.
+- Kenya immunization diary with age-reference checklist and caregiver-recorded administration dates, facilities, and notes. Records can be edited/removed.
+- Age-appropriate newborn and infant education cards with danger sign guidance.
+- Cross-version compatibility, migration, and tests.
+
+### Important required migration
+Run `supabase/migrations/20261024_000003_v03_child_health.sql` after the v0.1 and v0.2 migrations, in that order. The script adds nullable child fields and an empty immunizations list; existing journeys and pregnancy/baby records remain intact. The v0.3 frontend requires the migration for authenticated sessions. In-memory demo mode remains independent of Supabase.
+
+### Clinical governance and boundaries
+A personal measurement trend is *not* a WHO growth chart. MamaMwana opens WHO-published clinical reference PDFs and does not calculate child growth z-scores, percentiles, malnutrition diagnoses, or individualized catch-up vaccine schedules. A clinician must interpret each child's growth and confirm vaccinations, county-level immunization differences, extra vaccines, preterm corrected-age handling, and schedule changes. A birth record here is not certified medical documentation. Child vaccination records entered by caregivers are not verified by a clinician.
+
+Current source links: https://www.who.int/tools/child-growth-standards and https://health.go.ke/sites/default/files/2025-04/Clinical%20Guidelines%20for%20Level%201%20Community%20Health%20Services.pdf
+
+Before a real-patient production rollout: medical review, Kenya data protection assessment, consent/export/delete workflows, RLS E2E testing, secure backups, normalized child and encounter models, and age-appropriate usability testing are still mandatory.

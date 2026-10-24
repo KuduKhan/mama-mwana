@@ -4,10 +4,16 @@ export type FeedingMethod = 'breast' | 'expressed' | 'formula' | 'other';
 export interface FeedingLog { id: string; recorded_at: string; method: FeedingMethod }
 export type Feeling = 'good' | 'okay' | 'tired' | 'low' | 'anxious';
 export interface WellbeingEntry { id: string; recorded_on: string; feeling: Feeling; note: string }
+export type ChildSex = 'female' | 'male' | 'unknown';
+export interface ImmunizationRecord {
+ id: string; dose_id: string; given_on: string; facility: string; note: string;
+}
 export interface Journey {
   id: string; mother_name: string; due_date: string; baby_birth_date: string | null; baby_name: string | null;
   visits: Visit[]; daily_checks: Record<string, string[]>; birth_checks: string[]; growth: Growth[]; milestones: string[];
   feeding_logs: FeedingLog[]; wellbeing_entries: WellbeingEntry[];
+  baby_sex?: ChildSex | null; gestation_at_birth_weeks?: number | null;
+  immunizations?: ImmunizationRecord[];
 }
 export const BIRTH_CHECKLIST = [
   { key:'hospital', label:'Choose a health facility and confirm your birth contact' },
@@ -39,7 +45,7 @@ export function readable(date:string) {
   return new Intl.DateTimeFormat('en-KE',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'}).format(parseISO(date));
 }
 export function makeJourney(mother_name:string,due_date:string):Journey {
- return { id:crypto.randomUUID(),mother_name:mother_name.trim(),due_date,baby_birth_date:null,baby_name:null,visits:[],daily_checks:{},birth_checks:[],growth:[],milestones:[],feeding_logs:[],wellbeing_entries:[] };
+ return { id:crypto.randomUUID(),mother_name:mother_name.trim(),due_date,baby_birth_date:null,baby_name:null,visits:[],daily_checks:{},birth_checks:[],growth:[],milestones:[],feeding_logs:[],wellbeing_entries:[],baby_sex:null,gestation_at_birth_weeks:null,immunizations:[] };
 }
 export function isDate(value:string) { return /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(parseISO(value).getTime()) && parseISO(value).toISOString().slice(0,10)===value; }
 export function validateOnboarding(name:string,due:string,now=todayISO()) {
