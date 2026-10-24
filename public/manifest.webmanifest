@@ -1,0 +1,17 @@
+{
+  "name": "MamaMwana — Mother & Child",
+  "short_name": "MamaMwana",
+  "description": "A gentle pregnancy, postpartum and child development companion.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fbfaf7",
+  "theme_color": "#2e6b54",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
