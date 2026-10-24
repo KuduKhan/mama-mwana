@@ -81,7 +81,7 @@ export default function ChildHealthV03({journey,update}:Props){
  }
  function saveDose(e:FormEvent){
   e.preventDefault();if(!selectedDose)return;
-  const err=validateImmunization(givenDate,birth,facility);
+  const err=validateImmunization(givenDate,birth!,facility);
   if(err){setDoseError(err);return;}
   const previous=records.find(v=>v.dose_id===selectedDose.id);
   const next:ImmunizationRecord={id:previous?.id??crypto.randomUUID(),dose_id:selectedDose.id,given_on:givenDate,facility:facility.trim().slice(0,100),note:note.trim().slice(0,200)};
