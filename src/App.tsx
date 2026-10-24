@@ -17,7 +17,7 @@ import {
 } from './lib/domain';
 import type { Journey, Visit } from './lib/domain';
 import {
-  CARE_TASKS, educationForWeek, MILESTONES, POSTPARTUM_TASKS, SOURCES
+  CARE_TASKS, CHILDHOOD_TASKS, educationForWeek, MILESTONES, POSTPARTUM_TASKS, SOURCES
 } from './content/education';
 
 type Tab = 'home'|'pregnancy'|'care'|'visits'|'birth'|'baby'|'library';
@@ -196,11 +196,11 @@ export default function App(){
  if(checking||loadingJourney)return <div className="loading-screen"><div className="loading-icon"><Heart size={28}/></div><p>Preparing your MamaMwana space…</p></div>;
  if(!demo&&!user)return <AuthGate onDemo={()=>{setDemo(true);setJourney(null);current.current=null;}}/>;
  if(!journey)return <Onboarding isDemo={demo} onCreate={j=>{persist(j);enterTab('home');}}/>;
- const phase=getPhase(journey),preg=pregnancyStage(journey.due_date);
+ const phase=getPhase(journey),preg=pregnancyStage(journey.due_date,journey.baby_birth_date??todayISO());
  const isBorn=Boolean(journey.baby_birth_date);
  const babyMonths=journey.baby_birth_date?ageInMonths(journey.baby_birth_date):0;
  const pDays=journey.baby_birth_date?postpartumDay(journey.baby_birth_date):0;
- const tasks=isBorn?POSTPARTUM_TASKS:CARE_TASKS;
+ const tasks=phase==='pregnancy'?CARE_TASKS:phase==='postpartum'?POSTPARTUM_TASKS:CHILDHOOD_TASKS;
  const doneToday=journey.daily_checks[todayISO()]||[];
  const completedToday=tasks.filter(t=>doneToday.includes(t.id)).length;
  const edu=educationForWeek(weekView??preg.week);

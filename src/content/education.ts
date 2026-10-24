@@ -64,6 +64,13 @@ export const POSTPARTUM_TASKS=[
  {id:'feelings',icon:'heart',title:'Check your emotional wellbeing',description:'Share overwhelming or persistent changes in mood with a healthcare professional.'},
  {id:'support',icon:'hand-heart',title:'Ask for practical support',description:'Invite trusted people to help with meals, chores or errands.'}
 ];
+export const CHILDHOOD_TASKS=[
+ {id:'talkplay',icon:'heart',title:'Connect, talk and play',description:'Offer affection, conversation and age-appropriate play; follow your child’s interests.'},
+ {id:'food',icon:'utensils',title:'Support age-appropriate feeding',description:'Follow your child’s feeding stage and healthcare advice; offer nourishing, safely prepared foods when developmentally ready.'},
+ {id:'safe',icon:'baby',title:'Make everyday spaces safer',description:'Review age-appropriate safe sleep, choking, injury prevention and supervision needs.'},
+ {id:'grow',icon:'footprints',title:'Notice new discoveries',description:'Celebrate progress without comparing children. Ask your health professional about any concerns.'},
+ {id:'wellbeing',icon:'hand-heart',title:'Care for yourself too',description:'Check your own wellbeing and lean on trusted support when needed.'}
+];
 export const MILESTONES=[
  {age:2,key:'2_smile',label:'Smiles when you speak or smile',area:'Social'},
  {age:2,key:'2_looks',label:'Watches you as you move',area:'Learning'},
