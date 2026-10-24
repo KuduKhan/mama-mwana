@@ -150,6 +150,8 @@ export default function App(){
  const [privacy,setPrivacy]=useState<PrivacyChoices>(DEFAULT_PRIVACY);
  const current=useRef<Journey|null>(null);
  const writeQueue=useRef<Record<string,Promise<void>>>({});
+ const persistedIds=useRef<Set<string>>(new Set());
+ const [dataError,setDataError]=useState('');
  const [saveStatus,setSaveStatus]=useState<'saved'|'saving'|'error'>('saved');
  const [loadingJourney,setLoadingJourney]=useState(false);
  const [tab,setTab]=useState<Tab>('home');
@@ -176,7 +178,7 @@ export default function App(){
   return ()=>{active=false;subscription.unsubscribe();};
  },[]);
  useEffect(()=>{
-  if(!user||demo||!supabase){if(!user&&!demo){current.current=null;setJourney(null);setJourneys([]);}return;}
+  if(!user||demo||!supabase){if(!user&&!demo){current.current=null;setJourney(null);setJourneys([]);persistedIds.current.clear();setDataError('');}return;}
   const client=supabase;let active=true;
   setLoadingJourney(true);
   client.from('journeys').select('id,mother_name,due_date,baby_birth_date,baby_name,visits,daily_checks,birth_checks,growth,milestones,feeding_logs,wellbeing_entries,baby_sex,gestation_at_birth_weeks,immunizations,created_at').eq('owner_id',user.id).order('created_at',{ascending:false})
@@ -186,12 +188,13 @@ export default function App(){
     const items=(data??[]).map(raw=>({...raw,feeding_logs:raw.feeding_logs??[],wellbeing_entries:raw.wellbeing_entries??[],immunizations:raw.immunizations??[],baby_sex:raw.baby_sex??null,gestation_at_birth_weeks:raw.gestation_at_birth_weeks??null})) as Journey[];
     const authoritative=await loadCanonicalJourneys(client,items);
     if(!active)return;
+    persistedIds.current=new Set(authoritative.map(j=>j.id));setDataError('');
     setJourneys(authoritative);const selected=authoritative[0]??null;
     current.current=selected;setJourney(selected);setCreatingJourney(false);
     setLoadingJourney(false);
    }).catch((err:Error)=>{
     if(!active)return;
-    setToast(err.message);
+    setToast(err.message);setDataError(err.message);
     setJourneys([]);current.current=null;setJourney(null);setLoadingJourney(false);
    });
   return ()=>{active=false;};
@@ -214,7 +217,17 @@ export default function App(){
   if(demo||!user||!supabase){setSaveStatus('saved');return;}
   const client=supabase;const owner_id=user.id;setSaveStatus('saving');
   const previous=writeQueue.current[j.id]??Promise.resolve();
-  const next=previous.catch(()=>{}).then(async()=>{const {error}=await client.from('journeys').upsert(nonClinicalJourneyPayload(j,owner_id),{onConflict:'id'});if(error)throw error;});
+  const next=previous.catch(()=>{}).then(async()=>{
+   const payload=nonClinicalJourneyPayload(j,owner_id);
+   if(persistedIds.current.has(j.id)){
+    const {data,error}=await client.from('journeys').update(payload).eq('id',j.id).eq('owner_id',owner_id).select('id').single();
+    if(error||!data)throw error??new Error('Journey was not found');
+   }else{
+    const {error}=await client.from('journeys').insert(payload);
+    if(error)throw error;
+    persistedIds.current.add(j.id);
+   }
+  });
   writeQueue.current[j.id]=next;
   next.then(()=>{if(current.current?.id===j.id)setSaveStatus('saved');})
     .catch((e:Error)=>{if(current.current?.id===j.id)setSaveStatus('error');setToast('Save failed: '+e.message+'. Check your connection and v0.6 migration.');});
@@ -287,6 +300,7 @@ export default function App(){
     if(error)throw error;
     if(!data||data.length!==1)return false;
   }
+  persistedIds.current.delete(id);
   const remaining=journeys.filter(j=>j.id!==id);
   const next=current.current?.id===id?(remaining[0]??null):current.current;
   setJourneys(remaining);setJourney(next);current.current=next;
@@ -299,7 +313,7 @@ export default function App(){
  function enterTab(next:Tab){setTab(next);setMenuOpen(false);window.scrollTo({top:0,behavior:'smooth'});}
  function selectJourney(selected:Journey){current.current=selected;setJourney(selected);setCreatingJourney(false);setWeekView(null);setMilestoneFilter(null);setSaveStatus('saved');enterTab('home');}
  function createAnotherJourney(){setCreatingJourney(true);setWeekView(null);setMenuOpen(false);}
- function signOut(){if(demo)setDemo(false);else void supabase?.auth.signOut();setJourneys([]);setJourney(null);current.current=null;setCreatingJourney(false);setTab('home');}
+ function signOut(){if(demo)setDemo(false);else void supabase?.auth.signOut();setJourneys([]);setJourney(null);current.current=null;persistedIds.current.clear();setDataError('');setCreatingJourney(false);setTab('home');}
  function markBirth(date:string,name:string){modify(j=>({...j,baby_birth_date:date,baby_name:name}));setBirthOpen(false);enterTab('baby');setToast('Welcome, '+name+'! Your pregnancy journey remains connected.');}
  async function saveGrowth(e:FormEvent){e.preventDefault();const weight=growthWeight===''?null:Number(growthWeight),length=growthLength===''?null:Number(growthLength);
   if(!isDate(growthDate)||!journey?.baby_birth_date||daysBetween(journey.baby_birth_date,growthDate)<0||daysBetween(growthDate,todayISO())<0){setToast('Choose a valid measurement date after your baby’s birth.');return;}
@@ -308,6 +322,7 @@ export default function App(){
   const saved=await changeClinical('growth',{id:crypto.randomUUID(),measured_on:growthDate,weight_kg:weight,length_cm:length});
   if(saved){setGrowthOpen(false);setGrowthWeight('');setGrowthLength('');setToast('Measurement recorded. Your clinician should interpret growth trends.');}
  }
+ if(!demo&&dataError)return <div className="loading-screen" role="alert"><div className="loading-icon"><ShieldAlert size={28}/></div><h2>Records are temporarily unavailable</h2><p>{dataError}</p><p>Your existing journey has not been deleted. The v0.6 database upgrade must be applied and verified before continuing.</p><Button onClick={()=>window.location.reload()}>Retry securely</Button></div>;
  if(checking||loadingJourney)return <div className="loading-screen"><div className="loading-icon"><Heart size={28}/></div><p>Preparing your MamaMwana space…</p></div>;
  if(!demo&&!user)return <AuthGate onDemo={()=>{setDemo(true);setJourney(null);setJourneys([]);current.current=null;}}/>;
  if(!journey||creatingJourney)return <Onboarding isDemo={demo} onCancel={journey?()=>{setCreatingJourney(false);enterTab('family');}:undefined} onCreate={j=>{setCreatingJourney(false);persist(j);enterTab('home');}}/>;

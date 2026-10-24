@@ -65,6 +65,9 @@ create or replace function private.audit_clinical_record_change()
 returns trigger language plpgsql security definer set search_path = '' as $$
 declare v_kind text;
 begin
+ if tg_op='DELETE' and not exists (select 1 from public.journeys j where j.id=old.journey_id) then
+  return old; -- parent cascade, no orphan audit event
+ end if;
  v_kind := case tg_table_name when 'journey_visits' then 'visit'
   when 'child_measurements' then 'growth' else 'immunization' end;
  insert into public.clinical_record_events(

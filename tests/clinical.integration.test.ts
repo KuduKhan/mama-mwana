@@ -11,7 +11,7 @@ const enabled=process.env.MAMA_TEST_CONFIRM_DISPOSABLE==='true'&&[
 ].every(name=>Boolean(process.env[name]));
 const env=(name:string)=>process.env[name]??'';
 describe.skipIf(!enabled)('v0.6 two-account Supabase RLS and optimistic-lock integration',()=>{
- const anon=env('MAMA_TEST_SUPABASE_ANON_KEY'),url=env('MAMA_TEST_SUPABASE_URL');
+ const anon=env('MAMA_TEST_SUPABASE_ANON_KEY')||'disabled-test-key',url=env('MAMA_TEST_SUPABASE_URL')||'https://disabled.invalid';
  const a=createClient(url,anon,{auth:{persistSession:false,autoRefreshToken:false}});
  const b=createClient(url,anon,{auth:{persistSession:false,autoRefreshToken:false}});
  const journeyId=env('MAMA_TEST_A_JOURNEY_ID');
