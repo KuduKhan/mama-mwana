@@ -6,10 +6,15 @@ import {
   Check, CheckCircle2, CircleHelp, ClipboardList,
   Cloud, Droplets, ExternalLink, Footprints, Heart, HeartHandshake, HeartPulse,
   House, Leaf, LockKeyhole, LogOut, Menu, Moon, Plus, ShieldAlert, ShieldCheck, Users, Bell, Download, NotebookPen, ChevronRight,
-  Sparkles, Stethoscope, Sun, TrendingUp, Utensils, X
+  Sparkles, Stethoscope, Sun, TrendingUp, Utensils, X, ScrollText, Bot
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { configured, supabase } from './lib/supabase';
+import GuidanceV04 from './components/GuidanceV04';
+import PrivacyV04 from './components/PrivacyV04';
+import ClinicalRecordsV04 from './components/ClinicalRecordsV04';
+import {buildExport,DEFAULT_PRIVACY,exportFilename} from './lib/privacy';
+import type {PrivacyChoices} from './lib/privacy';
 import ChildHealthV03 from './components/ChildHealthV03';
 import {
   BIRTH_CHECKLIST, addDays, ageInMonths, daysBetween, getPhase, isDate,
@@ -22,7 +27,7 @@ import {
   CARE_TASKS, CHILDHOOD_TASKS, educationForWeek, MILESTONES, POSTPARTUM_TASKS, SOURCES
 } from './content/education';
 
-type Tab = 'home'|'family'|'pregnancy'|'care'|'visits'|'birth'|'baby'|'library';
+type Tab = 'home'|'family'|'pregnancy'|'care'|'visits'|'birth'|'baby'|'records'|'guidance'|'privacy'|'library';
 type NavItem = {id:Tab; label:string; Icon:LucideIcon};
 const NAV:NavItem[]=[
  {id:'home',label:'Overview',Icon:House},
@@ -32,6 +37,9 @@ const NAV:NavItem[]=[
  {id:'visits',label:'Antenatal visits',Icon:CalendarDays},
  {id:'birth',label:'Birth preparation',Icon:ClipboardList},
  {id:'baby',label:'Baby & growth',Icon:Baby},
+ {id:'records',label:'Clinical timeline',Icon:ScrollText},
+ {id:'guidance',label:'Care guidance',Icon:Bot},
+ {id:'privacy',label:'Privacy & records',Icon:LockKeyhole},
  {id:'library',label:'Health library',Icon:BookHeart}
 ];
 const TASK_ICONS:Record<string,LucideIcon>={
@@ -137,6 +145,7 @@ export default function App(){
  const [journey,setJourney]=useState<Journey|null>(null);
  const [journeys,setJourneys]=useState<Journey[]>([]);
  const [creatingJourney,setCreatingJourney]=useState(false);
+ const [privacy,setPrivacy]=useState<PrivacyChoices>(DEFAULT_PRIVACY);
  const current=useRef<Journey|null>(null);
  const writeQueue=useRef<Record<string,Promise<void>>>({});
  const [saveStatus,setSaveStatus]=useState<'saved'|'saving'|'error'>('saved');
@@ -181,6 +190,19 @@ export default function App(){
    });
   return ()=>{active=false;};
  },[user?.id,demo]);
+ useEffect(()=>{
+  if(demo||!user||!supabase){setPrivacy(DEFAULT_PRIVACY);return;}
+  let active=true;
+  const client=supabase;
+  void client.from('privacy_preferences').select('in_app_reminders,guidance_context')
+    .eq('owner_id',user.id).maybeSingle().then(({data,error})=>{
+      if(!active)return;
+      if(error){setToast('Privacy settings unavailable. Apply the v0.4 database migration.');return;}
+      if(data)setPrivacy({in_app_reminders:data.in_app_reminders,guidance_context:data.guidance_context});
+      else setPrivacy(DEFAULT_PRIVACY);
+    });
+  return ()=>{active=false;};
+ },[user?.id,demo]);
  const persist=useCallback((j:Journey)=>{
   current.current=j;setJourney(j);setJourneys(previous=>[j,...previous.filter(item=>item.id!==j.id)]);
   if(demo||!user||!supabase){setSaveStatus('saved');return;}
@@ -191,6 +213,40 @@ export default function App(){
   next.then(()=>{if(current.current?.id===j.id)setSaveStatus('saved');})
     .catch((e:Error)=>{if(current.current?.id===j.id)setSaveStatus('error');setToast('Save failed: '+e.message+'. Check the v0.2 migration.');});
  },[demo,user]);
+ async function savePrivacy(next:PrivacyChoices){
+  if(!demo&&user&&supabase){
+    const {error}=await supabase.from('privacy_preferences').upsert({owner_id:user.id,...next,updated_at:new Date().toISOString()},{onConflict:'owner_id'});
+    if(error)throw error;
+  }
+  setPrivacy(next);
+ }
+ async function exportAllData(){
+  let records:Journey[]=journeys;
+  if(!demo&&user&&supabase){
+    await Promise.all(Object.values(writeQueue.current).map(p=>p.catch(()=>{})));
+    const {data,error}=await supabase.from('journeys').select('id,mother_name,due_date,baby_birth_date,baby_name,visits,daily_checks,birth_checks,growth,milestones,feeding_logs,wellbeing_entries,baby_sex,gestation_at_birth_weeks,immunizations').eq('owner_id',user.id);
+    if(error)throw error;
+    records=(data??[]) as Journey[];
+  }
+  const blob=new Blob([JSON.stringify(buildExport(records,privacy),null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download=exportFilename();document.body.appendChild(a);a.click();a.remove();
+  window.setTimeout(()=>URL.revokeObjectURL(url),10000);
+ }
+ async function deleteJourney(id:string):Promise<boolean>{
+  const selected=journeys.find(j=>j.id===id);if(!selected)return false;
+  if(!demo&&user&&supabase){
+    const queued=writeQueue.current[id];if(queued)await queued;
+    const {data,error}=await supabase.from('journeys').delete().eq('id',id).eq('owner_id',user.id).select('id');
+    if(error)throw error;
+    if(!data||data.length!==1)return false;
+  }
+  const remaining=journeys.filter(j=>j.id!==id);
+  const next=current.current?.id===id?(remaining[0]??null):current.current;
+  setJourneys(remaining);setJourney(next);current.current=next;
+  if(!next)setTab('home');
+  return true;
+ }
  function modify(fn:(j:Journey)=>Journey){const active=current.current;if(active)persist(fn(active));}
  function toggleDaily(id:string){modify(j=>({...j,daily_checks:{...j.daily_checks,[todayISO()]:uniqueToggle(j.daily_checks[todayISO()]||[],id)}}));}
  function toggleBirth(key:string){modify(j=>({...j,birth_checks:uniqueToggle(j.birth_checks,key)}));}
@@ -220,7 +276,7 @@ export default function App(){
  const edu=educationForWeek(weekView??preg.week);
  const upcoming=activeJourney.visits.filter(v=>!v.attended&&v.scheduled_on>=todayISO()).sort((a,b)=>a.scheduled_on.localeCompare(b.scheduled_on));
  const nextVisit=upcoming[0];
- const reminders=visitReminders(activeJourney.visits);
+ const reminders=privacy.in_app_reminders?visitReminders(activeJourney.visits):[];
  const checkCount=BIRTH_CHECKLIST.filter(c=>activeJourney.birth_checks.includes(c.key)).length;
  const displayName=activeJourney.mother_name.split(' ')[0];
  const topLabel=phase==='pregnancy'?'YOUR PREGNANCY JOURNEY':phase==='postpartum'?'THE FOURTH TRIMESTER':'GROWING TOGETHER';
@@ -353,7 +409,7 @@ export default function App(){
    <nav className="sidebar-nav" aria-label="Primary navigation">{NAV.map(({id,label,Icon})=><button key={id} onClick={()=>enterTab(id)} className={'nav-item '+(tab===id?'selected':'')} aria-current={tab===id?'page':undefined}><Icon size={19} strokeWidth={1.9}/>{label}{tab===id&&<span className="nav-active-dot"/>}</button>)}</nav>
    <div className="sidebar-spacer"/>
    <div className="sidebar-support"><span className="sidebar-support-icon"><ShieldCheck size={21}/></span><strong>Your health matters</strong><p>Medical concerns always deserve a real healthcare professional.</p><button onClick={()=>setWarningOpen(true)}>When to seek help <ArrowRight size={14}/></button></div>
-   <div className="sidebar-footer"><button onClick={signOut}><LogOut size={17}/>{demo?'Exit demo':'Sign out'}</button><span>© 2026 MamaMwana • v0.3</span></div>
+   <div className="sidebar-footer"><button onClick={signOut}><LogOut size={17}/>{demo?'Exit demo':'Sign out'}</button><span>© 2026 MamaMwana • v0.4</span></div>
   </aside>
   {menuOpen&&<button className="drawer-backdrop" aria-label="Close menu" onClick={()=>setMenuOpen(false)}/>}
   <div className="app-main">
@@ -362,7 +418,7 @@ export default function App(){
      <button className="topbar-family" onClick={()=>enterTab('family')}><Users size={16}/> Family ({journeys.length})</button><button aria-label="Health warning signs" className="topbar-icon" onClick={()=>setWarningOpen(true)}><ShieldAlert size={19}/></button><span className="avatar">{displayName.slice(0,1).toUpperCase()}</span>
    </div></header>
    {demo&&<div className="demo-banner"><Sparkles size={16}/><span><strong>Interactive preview:</strong> use sample details only. Changes disappear when you leave this page.</span><button onClick={signOut}>Exit <ArrowRight size={14}/></button></div>}
-   <main>{tab==='home'?<Home/>:tab==='family'?<Family/>:tab==='pregnancy'?<Pregnancy/>:tab==='care'?<Care/>:tab==='visits'?<Visits/>:tab==='birth'?<Birth/>:tab==='baby'?<BabyPage/>:<Library/>}</main>
+   <main>{tab==='home'?<Home/>:tab==='family'?<Family/>:tab==='pregnancy'?<Pregnancy/>:tab==='care'?<Care/>:tab==='visits'?<Visits/>:tab==='birth'?<Birth/>:tab==='baby'?<BabyPage/>:tab==='records'?<ClinicalRecordsV04 journey={activeJourney} isDemo={demo}/>:tab==='guidance'?<GuidanceV04 stage={phase} allowStageContext={privacy.guidance_context} userId={user?.id??null} isDemo={demo}/>:tab==='privacy'?<PrivacyV04 journeys={journeys} selectedId={activeJourney.id} choices={privacy} isDemo={demo} onChange={savePrivacy} onExport={exportAllData} onDelete={deleteJourney}/>:<Library/>}</main>
    <footer className="app-footer"><span>MamaMwana • Made for every little beginning</span><span>Educational support, never a substitute for professional healthcare</span></footer>
   </div>
   <nav className="mobile-tabs" aria-label="Quick navigation">{[{id:'home' as Tab,label:'Home',Icon:House},{id:'care' as Tab,label:'Today',Icon:Heart},{id:'visits' as Tab,label:'Visits',Icon:CalendarDays},{id:'baby' as Tab,label:'Baby',Icon:Baby}].map(({id,label,Icon})=><button key={id} className={tab===id?'active':''} onClick={()=>enterTab(id)}><Icon size={21}/><span>{label}</span></button>)}</nav>
