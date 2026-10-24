@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { FormEvent } from 'react';
+import type { FormEvent, ReactNode } from 'react';
 import type { User } from '@supabase/supabase-js';
 import {
-  Activity, ArrowDownRight, ArrowLeft, ArrowRight, Baby, BookHeart, CalendarDays,
-  Check, CheckCircle2, ChevronDown, ChevronRight, CircleHelp, ClipboardList,
+  Activity, ArrowLeft, ArrowRight, Baby, BookHeart, CalendarDays,
+  Check, CheckCircle2, CircleHelp, ClipboardList,
   Cloud, Droplets, ExternalLink, Footprints, Heart, HeartHandshake, HeartPulse,
   House, Leaf, LockKeyhole, LogOut, Menu, Moon, Plus, ShieldAlert, ShieldCheck,
   Sparkles, Stethoscope, Sun, TrendingUp, Utensils, X
@@ -15,7 +15,7 @@ import {
   isValidBirthDate, makeJourney, postpartumDay, pregnancyStage, readable, todayISO,
   validateOnboarding
 } from './lib/domain';
-import type { Growth, Journey, Visit } from './lib/domain';
+import type { Journey, Visit } from './lib/domain';
 import {
   CARE_TASKS, educationForWeek, MILESTONES, POSTPARTUM_TASKS, SOURCES
 } from './content/education';
@@ -52,12 +52,12 @@ function Brand({inverse=false}:{inverse?:boolean}){
  </div>;
 }
 function Button({children,onClick,type='button',variant='primary',disabled=false,Icon}:{
- children:React.ReactNode;onClick?:()=>void;type?:'button'|'submit';variant?:'primary'|'secondary'|'subtle'|'danger';disabled?:boolean;Icon?:LucideIcon
+ children:ReactNode;onClick?:()=>void;type?:'button'|'submit';variant?:'primary'|'secondary'|'subtle'|'danger';disabled?:boolean;Icon?:LucideIcon
 }){return <button type={type} onClick={onClick} className={'btn btn-'+variant} disabled={disabled}>{Icon&&<Icon size={17}/>}<span>{children}</span></button>;}
-function SectionTitle({eyebrow,title,subtitle,action}:{eyebrow:string;title:string;subtitle?:string;action?:React.ReactNode}){
+function SectionTitle({eyebrow,title,subtitle,action}:{eyebrow:string;title:string;subtitle?:string;action?:ReactNode}){
  return <div className="section-heading"><div><div className="eyebrow">{eyebrow}</div><h2>{title}</h2>{subtitle&&<p>{subtitle}</p>}</div>{action}</div>;
 }
-function Panel({children,className=''}:{children:React.ReactNode;className?:string}){return <section className={'panel '+className}>{children}</section>;}
+function Panel({children,className=''}:{children:ReactNode;className?:string}){return <section className={'panel '+className}>{children}</section>;}
 function ProgressBar({value}:{value:number}){return <div className="progress-rail" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={value}><span style={{width:String(Math.min(100,Math.max(0,value)))+'%'}}/></div>;}
 function formatAge(months:number){return months<1?'Under 1 month':months<12?months+' month'+(months===1?'':'s'):(Math.floor(months/12)+' year'+(Math.floor(months/12)===1?'':'s')+(months%12?' '+months%12+' mo':''));}
 function Notification({message,onClose}:{message:string;onClose:()=>void}){return <div className="toast" role="status">{message}<button aria-label="Dismiss notification" onClick={onClose}><X size={16}/></button></div>;}
