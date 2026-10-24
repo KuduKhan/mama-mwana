@@ -68,3 +68,6 @@
 @media(max-width:980px){.family-list{grid-template-columns:1fr}}
 @media(max-width:760px){.topbar-family{font-size:0;gap:0;padding:9px}.topbar-family svg{width:18px;height:18px}.family-intro{align-items:flex-start}}
 @media(max-width:520px){.family-journey{padding:14px}.family-tag{display:none}.feeding-entry label{flex:1}.reminder-banner{padding:15px}}
+
+.onboarding-top-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+@media(max-width:520px){.onboarding-top-actions .mini-pill{display:none}.onboarding-top-actions .btn{font-size:11px;padding:10px}}

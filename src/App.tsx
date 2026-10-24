@@ -98,13 +98,13 @@ function AuthGate({onDemo}:{onDemo:()=>void}){
    </div></div>
  </div>;
 }
-function Onboarding({onCreate,isDemo}:{onCreate:(j:Journey)=>void;isDemo:boolean}){
+function Onboarding({onCreate,isDemo,onCancel}:{onCreate:(j:Journey)=>void;isDemo:boolean;onCancel?:()=>void}){
  const [name,setName]=useState(isDemo?'Amina':'');
  const [due,setDue]=useState(addDays(todayISO(),112));
  const [error,setError]=useState('');
  function submit(e:FormEvent){e.preventDefault();const validation=validateOnboarding(name,due);if(validation){setError(validation);return;}onCreate(makeJourney(name,due));}
  return <div className="onboarding">
-   <div className="onboarding-top"><Brand/><span className="mini-pill">{isDemo?'Preview mode':'Private profile setup'}</span></div>
+   <div className="onboarding-top"><Brand/><div className="onboarding-top-actions">{onCancel&&<Button variant="subtle" Icon={ArrowLeft} onClick={onCancel}>Back to family</Button>}<span className="mini-pill">{isDemo?'Preview mode':'Private profile setup'}</span></div></div>
    <div className="onboarding-grid"><div className="onboarding-intro"><div className="badge-soft"><Heart size={14}/> First things first</div><h1>Tell us a little<br/>about <em>your journey.</em></h1><p>We’ll use your estimated due date to help you discover pregnancy stages, suggested learning and gentle everyday reminders.</p>
      <div className="setup-benefits"><span><CheckCircle2/> Week-by-week guidance</span><span><CheckCircle2/> Personal appointment journal</span><span><CheckCircle2/> One continuous baby journey</span></div>
      <div className="onboard-decoration"><Heart size={72} strokeWidth={1}/></div></div>
@@ -207,7 +207,7 @@ export default function App(){
  }
  if(checking||loadingJourney)return <div className="loading-screen"><div className="loading-icon"><Heart size={28}/></div><p>Preparing your MamaMwana space…</p></div>;
  if(!demo&&!user)return <AuthGate onDemo={()=>{setDemo(true);setJourney(null);setJourneys([]);current.current=null;}}/>;
- if(!journey||creatingJourney)return <Onboarding isDemo={demo} onCreate={j=>{setCreatingJourney(false);persist(j);enterTab('home');}}/>;
+ if(!journey||creatingJourney)return <Onboarding isDemo={demo} onCancel={journey?()=>{setCreatingJourney(false);enterTab('family');}:undefined} onCreate={j=>{setCreatingJourney(false);persist(j);enterTab('home');}}/>;
  const phase=getPhase(journey),preg=pregnancyStage(journey.due_date,journey.baby_birth_date??todayISO());
  const isBorn=Boolean(journey.baby_birth_date);
  const babyMonths=journey.baby_birth_date?ageInMonths(journey.baby_birth_date):0;
