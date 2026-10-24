@@ -18,6 +18,7 @@ export function isClinicalConflict(error:unknown){
 export function mapRow(kind:'visit',r:VisitRow):Visit&{version:number};
 export function mapRow(kind:'growth',r:GrowthRow):Growth&{version:number};
 export function mapRow(kind:'immunization',r:ImmunizationRow):ImmunizationRecord&{version:number};
+export function mapRow(kind:ClinicalKind,r:VisitRow|GrowthRow|ImmunizationRow):ClinicalVersioned;
 export function mapRow(kind:ClinicalKind,r:VisitRow|GrowthRow|ImmunizationRow):ClinicalVersioned {
  if(kind==='visit'){const v=r as VisitRow;return {id:v.source_id,version:v.version,scheduled_on:v.scheduled_on,clinic:v.clinic,notes:v.notes,attended:v.attended};}
  if(kind==='growth'){const v=r as GrowthRow;return {id:v.source_id,version:v.version,measured_on:v.measured_on,weight_kg:v.weight_kg,length_cm:v.length_cm};}
