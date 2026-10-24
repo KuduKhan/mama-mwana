@@ -4,17 +4,19 @@ import { Archive, CheckCircle2, Download, FileLock2, Info, LockKeyhole, ShieldCh
 import type { Journey } from '../lib/domain';
 import { readable } from '../lib/domain';
 import type { PrivacyChoices } from '../lib/privacy';
+import DataRightsV05 from './DataRightsV05';
 
 interface Props {
  journeys:Journey[];
  selectedId:string;
  choices:PrivacyChoices;
  isDemo:boolean;
+ userId:string|null;
  onChange:(next:PrivacyChoices)=>Promise<void>|void;
  onExport:()=>Promise<void>;
  onDelete:(id:string)=>Promise<boolean>;
 }
-export default function PrivacyV04({journeys,selectedId,choices,isDemo,onChange,onExport,onDelete}:Props){
+export default function PrivacyV04({journeys,selectedId,choices,isDemo,userId,onChange,onExport,onDelete}:Props){
  const [deleteId,setDeleteId]=useState<string|null>(null);
  const [confirmation,setConfirmation]=useState('');
  const [working,setWorking]=useState(false);
@@ -59,8 +61,9 @@ export default function PrivacyV04({journeys,selectedId,choices,isDemo,onChange,
   <section className="panel v4-privacy-section"><div className="panel-heading"><div><div className="eyebrow">CONTROL YOUR JOURNEYS</div><h3>Delete a pregnancy / child journey</h3></div><Trash2 size={19}/></div>
    <p className="muted">Deletes an individual MamaMwana journey and its associated current clinical record projections. This action cannot be undone from inside the app. Backups may be subject to a separate retention policy.</p>
    <div className="v4-delete-list">{journeys.map(j=><div className="v4-delete-row" key={j.id}><span><strong>{j.baby_name??'Pregnancy journey'}</strong><small>{j.baby_birth_date?'Birth '+readable(j.baby_birth_date):'Estimated due '+readable(j.due_date)}{j.id===selectedId?' · Current journey':''}</small></span><button disabled={working} onClick={()=>{setDeleteId(j.id);setConfirmation('')}}><Trash2 size={15}/> Delete</button></div>)}</div>
-   <p className="v4-inline-info"><Info size={16}/> Deleting your entire login account is not yet supported in the frontend. Account erasure requires a verified server-side process and an applicable retention policy; do not place an admin API key in the browser.</p>
+   <p className="v4-inline-info"><Info size={16}/> You can submit an account-erasure request below for staff review. This does not automatically delete your login or retained backups. Never place admin credentials in the browser.</p>
   </section>
+  <DataRightsV05 userId={userId} isDemo={isDemo}/>
   <section className="panel v4-privacy-section">
    <div className="eyebrow">DATA GOVERNANCE</div><h3>What this milestone does and does not do</h3>
    <div className="v4-governance-grid"><div><CheckCircle2 size={19}/><strong>Account-scoped records</strong><p>Authenticated database tables use restricted row access. New normalized clinical read models have select-only owner access.</p></div><div><CheckCircle2 size={19}/><strong>Source-linked guide</strong><p>Medical questions are not transmitted to a generative AI model. No conversation history is stored.</p></div><div><Info size={19}/><strong>Work still required</strong><p>Legal notice, data controller registration analysis, retention schedules, account deletion, clinician approvals and production security testing must be completed before real-patient rollout.</p></div></div>
