@@ -140,3 +140,28 @@ References: https://supabase.com/docs/guides/database/postgres/row-level-securit
 ### Deferred beyond v0.4
 
 Authoritative normalized clinical writes with transaction audit, full account deletion, independent reviewer approval, clinician EHR interoperability, real medical triage, and any external AI model integration.
+
+## v0.5 — Independent clinical governance and data-rights workflow
+
+### Implemented
+- **Independent clinical approval.** A database-assigned reviewer submits an article; the author cannot approve their own content. RLS and an update trigger enforce provenance, signed-in reviewer identity, original-content immutability, and approval from another authorized reviewer.
+- **Immutable publication.** Approved content cannot be silently changed via client UPDATE. Publication of a revised article requires a distinct content-version workflow in a future release. Legacy pending records without author provenance cannot be approved until an authorized operator resolves them.
+- **Review audit events.** Submitted/approved actions generate database records in education_review_events. Public clients have read-only reviewer access to these events.
+- **Data-subject rights intake.** Authenticated users can submit and track access, correction and erasure requests with duplicate-open-request protection. No browser action actually erases the Auth user or retained backups.
+- **Better mobile presentation** for rights requests, clearer workflow boundaries and test coverage for author/reviewer separation.
+
+### Migration
+Back up the target database, then apply supabase/migrations/20261024_000005_v05_governance_rights.sql after the v0.1–v0.4 scripts. Existing maternal and child journey records are not intentionally changed. Test this migration first against a disposable database with multiple accounts.
+No dedicated MamaMwana Supabase project was available to the assistant, so the SQL is committed in source control but has NOT been executed or validated against a live database. Passing TypeScript and Vite CI cannot verify RLS policy behavior.
+
+### Required pre-production gates
+1. Confirm all v0.1–v0.4 migrations have been applied, then test v0.5 on an isolated Supabase database.
+2. Verify two distinct, appropriately credentialed reviewer accounts. Author A must not approve their own submission; reviewer B may approve; non-reviewers must not submit or approve; approved content must remain immutable.
+3. Confirm audit events are generated and client roles cannot tamper with them.
+4. Confirm data rights requests cannot cross account boundaries and no user can falsely resolve their own request.
+5. Staff must implement verified erasure/correction request procedures, legal retention handling, backup retention rules, clinical review, incident response and independent security testing.
+6. Deploy only the verified main branch on Vercel, not stale feature commits.
+
+### Boundaries
+v0.5 does not introduce clinical diagnosis, AI triage, prescriptions, verified medical records, automatic Auth account deletion, automatic backend erasure or certified reviewer accreditation.
+Source: https://supabase.com/docs/guides/database/postgres/row-level-security
