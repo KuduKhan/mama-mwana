@@ -13,7 +13,6 @@ const WHO_ANC='https://www.who.int/publications/i/item/9789241549912';
 const WHO_FEED='https://www.who.int/health-topics/breastfeeding';
 const WHO_GROWTH='https://www.who.int/tools/child-growth-standards';
 const CDC_URGENT='https://www.cdc.gov/hearher/maternal-warning-signs/index.html';
-const CDC_MILESTONE='https://www.cdc.gov/act-early/milestones/index.html';
 const AAP_SLEEP='https://www.healthychildren.org/English/ages-stages/baby/sleep/Pages/a-parents-guide-to-safe-sleep.aspx';
 
 /**
