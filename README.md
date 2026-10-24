@@ -93,3 +93,50 @@ A personal measurement trend is *not* a WHO growth chart. MamaMwana opens WHO-pu
 Current source links: https://www.who.int/tools/child-growth-standards and https://health.go.ke/sites/default/files/2025-04/Clinical%20Guidelines%20for%20Level%201%20Community%20Health%20Services.pdf
 
 Before a real-patient production rollout: medical review, Kenya data protection assessment, consent/export/delete workflows, RLS E2E testing, secure backups, normalized child and encounter models, and age-appropriate usability testing are still mandatory.
+
+## MamaMwana v0.4 — Clinical, privacy and review foundations
+
+**Not a medical device or live emergency system. This release requires migration and safety validation before using real patient data.**
+
+### Included
+
+- Normalized, account-protected clinical timeline tables: `journey_visits`, `child_measurements`, `child_immunizations`. They are read-only synchronized projections; the existing JSONB journey remains the authoritative write model.
+- Privacy & Records page: in-app reminder preference, optional stage-only local guidance, export of all family journeys to unencrypted JSON, and individually confirmed deletion of a journey.
+- Source-linked, deterministic guidance engine that does not call a large language model, store question history, or diagnose illness. Keyword escalation is not reliable clinical triage; always seek immediate help for concerning signs.
+- Clinician content review foundations: manually provisioned reviewer accounts, draft review desk, approved-source filtering, and reviewed article status with reviewer ID and timestamp. No articles are automatically marked clinician-approved.
+- Unit tests for safety-gate behavior, trusted source URLs and private exports.
+
+### Database setup / non-destructive migration
+
+Back up the current database. Existing v0.3 projects must run:
+
+`supabase/migrations/20261024_000004_v04_clinical_privacy_review.sql`
+
+New projects run ALL migrations in filename order (v0.1, v0.2, v0.3, v0.4). Do not apply to a production project without testing on a disposable copy. The v0.4 migration does not drop old journey data; a trigger populates the normalized read models from it. Writes still occur through `journeys` in v0.4.
+
+### Clinical review and authorization
+
+An authorized database administrator must verify a real reviewer and insert their authenticated UUID into `public.clinical_reviewers`. Clients have no write permission on that assignment table. The reviewer UI only appears for provisioned users. Before publishing content clinically, establish credential checks, independent editorial approvals, evidence update processes and a proper audit trail. Reviewer self-approval is still possible for provisioned reviewers in this prototype, so an independent signoff policy is needed.
+
+### Security and privacy boundaries
+
+- Sensitive maternal/child records are account-scoped via PostgreSQL RLS. Validate isolation between two test users before real use.
+- Exported JSON is not encrypted by the application; user must store it privately. Export and deletion concern active application records, not historical backups or certified health records.
+- Whole-account Auth deletion is **not yet implemented**; never expose service-role credentials or use client-side admin.deleteUser.
+- Optional stage context is OFF by default. In-app reminders are visible only while using the app; there is no email or push delivery.
+- No analytics SDK, externally hosted AI inference, or personalized medical diagnosis is added.
+- Kenyan ODPC assessment, lawful-basis notice, documented retention and erasure flow, clinician governance, data-subject requests, encryption/backups, accessibility and security audit remain launch blockers.
+
+### Validation checklist
+
+1. Run `npm run typecheck`, `npm run test` and `npm run build`.
+2. Apply migration to a disposable Supabase project and verify the trigger backfill and per-user SELECT isolation.
+3. Confirm normal accounts cannot assign themselves clinical reviewer rights or approve content.
+4. Test consent preferences, multi-journey export, one-journey deletion, and continued function of v0.3 growth/vaccination screens.
+5. Validate urgent-escalation behavior, including missed-keyword emergency scenarios.
+
+References: https://supabase.com/docs/guides/database/postgres/row-level-security ; https://www.odpc.go.ke/rights-of-a-data-subject/ ; https://www.cdc.gov/hearher/maternal-warning-signs/index.html ; https://www.who.int/publications/i/item/9789240045989
+
+### Deferred beyond v0.4
+
+Authoritative normalized clinical writes with transaction audit, full account deletion, independent reviewer approval, clinician EHR interoperability, real medical triage, and any external AI model integration.
