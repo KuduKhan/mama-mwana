@@ -1,0 +1,55 @@
+name: MamaMwana v0.6 disposable database security tests
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-isolation:
+    name: Two-account RLS and clinical conflict integration
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: database-security-test
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - name: Verify all disposable test credentials exist
+        env:
+          MAMA_TEST_CONFIRM_DISPOSABLE: ${{ vars.MAMA_TEST_CONFIRM_DISPOSABLE }}
+          MAMA_TEST_SUPABASE_URL: ${{ secrets.MAMA_TEST_SUPABASE_URL }}
+          MAMA_TEST_SUPABASE_ANON_KEY: ${{ secrets.MAMA_TEST_SUPABASE_ANON_KEY }}
+          MAMA_TEST_USER_A_EMAIL: ${{ secrets.MAMA_TEST_USER_A_EMAIL }}
+          MAMA_TEST_USER_A_PASSWORD: ${{ secrets.MAMA_TEST_USER_A_PASSWORD }}
+          MAMA_TEST_USER_B_EMAIL: ${{ secrets.MAMA_TEST_USER_B_EMAIL }}
+          MAMA_TEST_USER_B_PASSWORD: ${{ secrets.MAMA_TEST_USER_B_PASSWORD }}
+          MAMA_TEST_A_JOURNEY_ID: ${{ secrets.MAMA_TEST_A_JOURNEY_ID }}
+        run: |
+          node - <<'NODE'
+          const names = ['MAMA_TEST_SUPABASE_URL','MAMA_TEST_SUPABASE_ANON_KEY',
+           'MAMA_TEST_USER_A_EMAIL','MAMA_TEST_USER_A_PASSWORD',
+           'MAMA_TEST_USER_B_EMAIL','MAMA_TEST_USER_B_PASSWORD','MAMA_TEST_A_JOURNEY_ID'];
+          if (process.env.MAMA_TEST_CONFIRM_DISPOSABLE !== 'true'
+           || names.some(n => !process.env[n])) {
+            console.error('Disposable database approval or protected test credentials missing. Refusing to skip security checks.');
+            process.exit(1);
+          }
+          if (!new URL(process.env.MAMA_TEST_SUPABASE_URL).hostname.endsWith('.supabase.co')) {
+            console.error('Use a dedicated Supabase test project.');
+            process.exit(1);
+          }
+          NODE
+      - name: Verify two-account isolation, clinical CAS and record event audit
+        env:
+          MAMA_TEST_CONFIRM_DISPOSABLE: ${{ vars.MAMA_TEST_CONFIRM_DISPOSABLE }}
+          MAMA_TEST_SUPABASE_URL: ${{ secrets.MAMA_TEST_SUPABASE_URL }}
+          MAMA_TEST_SUPABASE_ANON_KEY: ${{ secrets.MAMA_TEST_SUPABASE_ANON_KEY }}
+          MAMA_TEST_USER_A_EMAIL: ${{ secrets.MAMA_TEST_USER_A_EMAIL }}
+          MAMA_TEST_USER_A_PASSWORD: ${{ secrets.MAMA_TEST_USER_A_PASSWORD }}
+          MAMA_TEST_USER_B_EMAIL: ${{ secrets.MAMA_TEST_USER_B_EMAIL }}
+          MAMA_TEST_USER_B_PASSWORD: ${{ secrets.MAMA_TEST_USER_B_PASSWORD }}
+          MAMA_TEST_A_JOURNEY_ID: ${{ secrets.MAMA_TEST_A_JOURNEY_ID }}
+        run: npx vitest run tests/clinical.integration.test.ts
