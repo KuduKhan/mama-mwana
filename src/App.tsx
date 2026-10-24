@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { configured, supabase } from './lib/supabase';
+import ChildHealthV03 from './components/ChildHealthV03';
 import {
   BIRTH_CHECKLIST, addDays, ageInMonths, daysBetween, getPhase, isDate,
   isValidBirthDate, makeJourney, postpartumDay, pregnancyStage, readable, todayISO,
@@ -167,12 +168,12 @@ export default function App(){
   if(!user||demo||!supabase){if(!user&&!demo){current.current=null;setJourney(null);setJourneys([]);}return;}
   const client=supabase;let active=true;
   setLoadingJourney(true);
-  client.from('journeys').select('id,mother_name,due_date,baby_birth_date,baby_name,visits,daily_checks,birth_checks,growth,milestones,feeding_logs,wellbeing_entries,created_at').eq('owner_id',user.id).order('created_at',{ascending:false})
+  client.from('journeys').select('id,mother_name,due_date,baby_birth_date,baby_name,visits,daily_checks,birth_checks,growth,milestones,feeding_logs,wellbeing_entries,baby_sex,gestation_at_birth_weeks,immunizations,created_at').eq('owner_id',user.id).order('created_at',{ascending:false})
    .then(({data,error})=>{
     if(!active)return;
-    if(error)setToast('Database unavailable: '+error.message+'. Run both Supabase migrations.');
+    if(error)setToast('Database unavailable: '+error.message+'. Run the v0.1, v0.2 and v0.3 Supabase migrations.');
     else{
-      const items=(data??[]).map(raw=>({...raw,feeding_logs:raw.feeding_logs??[],wellbeing_entries:raw.wellbeing_entries??[]})) as Journey[];
+      const items=(data??[]).map(raw=>({...raw,feeding_logs:raw.feeding_logs??[],wellbeing_entries:raw.wellbeing_entries??[],immunizations:raw.immunizations??[],baby_sex:raw.baby_sex??null,gestation_at_birth_weeks:raw.gestation_at_birth_weeks??null})) as Journey[];
       setJourneys(items);const selected=items[0]??null;
       current.current=selected;setJourney(selected);setCreatingJourney(false);
     }
@@ -322,7 +323,8 @@ export default function App(){
    {growthOpen&&<form className="inline-form" onSubmit={saveGrowth}><div className="form-row three"><label>Measurement date<input type="date" required min={activeJourney.baby_birth_date!} max={todayISO()} value={growthDate} onChange={e=>setGrowthDate(e.target.value)}/></label><label>Weight (kg)<input type="number" min="0.1" max="60" step="0.01" value={growthWeight} onChange={e=>setGrowthWeight(e.target.value)} placeholder="e.g. 3.4"/></label><label>Length (cm)<input type="number" min="1" max="180" step="0.1" value={growthLength} onChange={e=>setGrowthLength(e.target.value)} placeholder="e.g. 50"/></label></div><div className="button-row"><Button type="submit">Save measurement</Button><Button variant="subtle" onClick={()=>setGrowthOpen(false)}>Cancel</Button></div></form>}
    {activeJourney.growth.length===0?<div className="empty-state compact"><TrendingUp size={30}/><h4>No measurements recorded yet</h4><p>Add measurements from your baby’s health visits.</p></div>:<div className="growth-table" role="table"><div className="growth-th" role="row"><span>Date</span><span>Weight</span><span>Length</span></div>{activeJourney.growth.map(g=><div className="growth-tr" role="row" key={g.id}><span>{readable(g.measured_on)}</span><span>{g.weight_kg!=null?g.weight_kg+' kg':'—'}</span><span>{g.length_cm!=null?g.length_cm+' cm':'—'}</span></div>)}</div>}
   </Panel>
-  {babyMonths<=12&&<Panel className="feeding-panel"><div className="panel-heading"><div><div className="eyebrow">NEWBORN CARE JOURNAL</div><h3>Feeding moments</h3></div><span className="soft-label">Optional log</span></div>
+  <ChildHealthV03 journey={activeJourney} update={persist}/>
+   {babyMonths<=12&&<Panel className="feeding-panel"><div className="panel-heading"><div><div className="eyebrow">NEWBORN CARE JOURNAL</div><h3>Feeding moments</h3></div><span className="soft-label">Optional log</span></div>
     <p className="muted">Record feeding type for your own reference. This does not prescribe feeding times or quantities. Contact your health provider for feeding difficulties.</p>
     <div className="feeding-entry"><label>Feeding type<select value={feedingMethod} onChange={e=>setFeedingMethod(e.target.value as FeedingMethod)}><option value="breast">Breastfeeding</option><option value="expressed">Expressed milk</option><option value="formula">Formula</option><option value="other">Other / mixed feeding</option></select></label><Button Icon={Plus} onClick={()=>modify(j=>({...j,feeding_logs:[{id:crypto.randomUUID(),recorded_at:new Date().toISOString(),method:feedingMethod},...(j.feeding_logs??[])].slice(0,200)}))}>Log feeding now</Button></div>
     {(activeJourney.feeding_logs??[]).length>0&&<div className="feed-list">{activeJourney.feeding_logs.slice(0,5).map(v=><div key={v.id}><span><strong>{v.method==='breast'?'Breastfeeding':v.method==='expressed'?'Expressed milk':v.method==='formula'?'Formula':'Other / mixed feeding'}</strong><small>{new Date(v.recorded_at).toLocaleString('en-KE',{dateStyle:'medium',timeStyle:'short'})}</small></span><button aria-label="Remove feeding entry" onClick={()=>modify(j=>({...j,feeding_logs:j.feeding_logs.filter(x=>x.id!==v.id)}))}><X size={16}/></button></div>)}</div>}
@@ -351,7 +353,7 @@ export default function App(){
    <nav className="sidebar-nav" aria-label="Primary navigation">{NAV.map(({id,label,Icon})=><button key={id} onClick={()=>enterTab(id)} className={'nav-item '+(tab===id?'selected':'')} aria-current={tab===id?'page':undefined}><Icon size={19} strokeWidth={1.9}/>{label}{tab===id&&<span className="nav-active-dot"/>}</button>)}</nav>
    <div className="sidebar-spacer"/>
    <div className="sidebar-support"><span className="sidebar-support-icon"><ShieldCheck size={21}/></span><strong>Your health matters</strong><p>Medical concerns always deserve a real healthcare professional.</p><button onClick={()=>setWarningOpen(true)}>When to seek help <ArrowRight size={14}/></button></div>
-   <div className="sidebar-footer"><button onClick={signOut}><LogOut size={17}/>{demo?'Exit demo':'Sign out'}</button><span>© 2026 MamaMwana • v0.2</span></div>
+   <div className="sidebar-footer"><button onClick={signOut}><LogOut size={17}/>{demo?'Exit demo':'Sign out'}</button><span>© 2026 MamaMwana • v0.3</span></div>
   </aside>
   {menuOpen&&<button className="drawer-backdrop" aria-label="Close menu" onClick={()=>setMenuOpen(false)}/>}
   <div className="app-main">
