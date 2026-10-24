@@ -5,7 +5,7 @@ import {
   Activity, ArrowLeft, ArrowRight, Baby, BookHeart, CalendarDays,
   Check, CheckCircle2, CircleHelp, ClipboardList,
   Cloud, Droplets, ExternalLink, Footprints, Heart, HeartHandshake, HeartPulse,
-  House, Leaf, LockKeyhole, LogOut, Menu, Moon, Plus, ShieldAlert, ShieldCheck,
+  House, Leaf, LockKeyhole, LogOut, Menu, Moon, Plus, ShieldAlert, ShieldCheck, Users, Bell, Download, NotebookPen, ChevronRight,
   Sparkles, Stethoscope, Sun, TrendingUp, Utensils, X
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -15,15 +15,17 @@ import {
   isValidBirthDate, makeJourney, postpartumDay, pregnancyStage, readable, todayISO,
   validateOnboarding
 } from './lib/domain';
-import type { Journey, Visit } from './lib/domain';
+import type { FeedingMethod, Feeling, Journey, Visit } from './lib/domain';
+import { reminderStatus, visitReminders, visitCalendarUrl } from './lib/reminders';
 import {
   CARE_TASKS, CHILDHOOD_TASKS, educationForWeek, MILESTONES, POSTPARTUM_TASKS, SOURCES
 } from './content/education';
 
-type Tab = 'home'|'pregnancy'|'care'|'visits'|'birth'|'baby'|'library';
+type Tab = 'home'|'family'|'pregnancy'|'care'|'visits'|'birth'|'baby'|'library';
 type NavItem = {id:Tab; label:string; Icon:LucideIcon};
 const NAV:NavItem[]=[
  {id:'home',label:'Overview',Icon:House},
+ {id:'family',label:'Family journeys',Icon:Users},
  {id:'pregnancy',label:'My pregnancy',Icon:Heart},
  {id:'care',label:'Daily care',Icon:Leaf},
  {id:'visits',label:'Antenatal visits',Icon:CalendarDays},
@@ -132,8 +134,10 @@ export default function App(){
  const [checking,setChecking]=useState(configured);
  const [demo,setDemo]=useState(false);
  const [journey,setJourney]=useState<Journey|null>(null);
+ const [journeys,setJourneys]=useState<Journey[]>([]);
+ const [creatingJourney,setCreatingJourney]=useState(false);
  const current=useRef<Journey|null>(null);
- const writeQueue=useRef<Promise<void>>(Promise.resolve());
+ const writeQueue=useRef<Record<string,Promise<void>>>({});
  const [saveStatus,setSaveStatus]=useState<'saved'|'saving'|'error'>('saved');
  const [loadingJourney,setLoadingJourney]=useState(false);
  const [tab,setTab]=useState<Tab>('home');
@@ -148,6 +152,9 @@ export default function App(){
  const [growthWeight,setGrowthWeight]=useState('');
  const [growthLength,setGrowthLength]=useState('');
  const [milestoneFilter,setMilestoneFilter]=useState<number|null>(null);
+ const [feedingMethod,setFeedingMethod]=useState<FeedingMethod>('breast');
+ const [feeling,setFeeling]=useState<Feeling>('okay');
+ const [wellbeingNote,setWellbeingNote]=useState('');
 
  useEffect(()=>{
   if(!supabase){setChecking(false);return;}
@@ -157,34 +164,39 @@ export default function App(){
   return ()=>{active=false;subscription.unsubscribe();};
  },[]);
  useEffect(()=>{
-  if(!user||demo||!supabase){if(!user&&!demo){current.current=null;setJourney(null);}return;}
+  if(!user||demo||!supabase){if(!user&&!demo){current.current=null;setJourney(null);setJourneys([]);}return;}
   const client=supabase;let active=true;
   setLoadingJourney(true);
-  client.from('journeys').select('id,mother_name,due_date,baby_birth_date,baby_name,visits,daily_checks,birth_checks,growth,milestones').eq('owner_id',user.id).maybeSingle()
-  .then(({data,error})=>{
-   if(!active)return;
-   if(error){setToast('Database unavailable: '+error.message+'. Run the supplied Supabase migration.');}
-   else{current.current=data as Journey|null;setJourney(data as Journey|null);}
-   setLoadingJourney(false);
-  });
+  client.from('journeys').select('id,mother_name,due_date,baby_birth_date,baby_name,visits,daily_checks,birth_checks,growth,milestones,feeding_logs,wellbeing_entries,created_at').eq('owner_id',user.id).order('created_at',{ascending:false})
+   .then(({data,error})=>{
+    if(!active)return;
+    if(error)setToast('Database unavailable: '+error.message+'. Run both Supabase migrations.');
+    else{
+      const items=(data??[]).map(raw=>({...raw,feeding_logs:raw.feeding_logs??[],wellbeing_entries:raw.wellbeing_entries??[]})) as Journey[];
+      setJourneys(items);const selected=items[0]??null;
+      current.current=selected;setJourney(selected);setCreatingJourney(false);
+    }
+    setLoadingJourney(false);
+   });
   return ()=>{active=false;};
  },[user?.id,demo]);
  const persist=useCallback((j:Journey)=>{
-  current.current=j;setJourney(j);
+  current.current=j;setJourney(j);setJourneys(previous=>[j,...previous.filter(item=>item.id!==j.id)]);
   if(demo||!user||!supabase){setSaveStatus('saved');return;}
-  const client=supabase;const owner_id=user.id;
-  setSaveStatus('saving');
-  writeQueue.current=writeQueue.current.catch(()=>{}).then(async()=>{
-   const {error}=await client.from('journeys').upsert({...j,owner_id},{onConflict:'id'});
-   if(error)throw error;
-  });
-  writeQueue.current.then(()=>setSaveStatus('saved')).catch((e:Error)=>{setSaveStatus('error');setToast('Your changes could not be saved. '+e.message);});
+  const client=supabase;const owner_id=user.id;setSaveStatus('saving');
+  const previous=writeQueue.current[j.id]??Promise.resolve();
+  const next=previous.catch(()=>{}).then(async()=>{const {error}=await client.from('journeys').upsert({...j,owner_id},{onConflict:'id'});if(error)throw error;});
+  writeQueue.current[j.id]=next;
+  next.then(()=>{if(current.current?.id===j.id)setSaveStatus('saved');})
+    .catch((e:Error)=>{if(current.current?.id===j.id)setSaveStatus('error');setToast('Save failed: '+e.message+'. Check the v0.2 migration.');});
  },[demo,user]);
  function modify(fn:(j:Journey)=>Journey){const active=current.current;if(active)persist(fn(active));}
  function toggleDaily(id:string){modify(j=>({...j,daily_checks:{...j.daily_checks,[todayISO()]:uniqueToggle(j.daily_checks[todayISO()]||[],id)}}));}
  function toggleBirth(key:string){modify(j=>({...j,birth_checks:uniqueToggle(j.birth_checks,key)}));}
  function enterTab(next:Tab){setTab(next);setMenuOpen(false);window.scrollTo({top:0,behavior:'smooth'});}
- function signOut(){if(demo){setDemo(false);setJourney(null);current.current=null;setTab('home');}else{void supabase?.auth.signOut();setJourney(null);current.current=null;setTab('home');}}
+ function selectJourney(selected:Journey){current.current=selected;setJourney(selected);setCreatingJourney(false);setWeekView(null);setMilestoneFilter(null);setSaveStatus('saved');enterTab('home');}
+ function createAnotherJourney(){setCreatingJourney(true);setWeekView(null);setMenuOpen(false);}
+ function signOut(){if(demo)setDemo(false);else void supabase?.auth.signOut();setJourneys([]);setJourney(null);current.current=null;setCreatingJourney(false);setTab('home');}
  function markBirth(date:string,name:string){modify(j=>({...j,baby_birth_date:date,baby_name:name}));setBirthOpen(false);enterTab('baby');setToast('Welcome, '+name+'! Your pregnancy journey remains connected.');}
  function saveGrowth(e:FormEvent){e.preventDefault();const weight=growthWeight===''?null:Number(growthWeight),length=growthLength===''?null:Number(growthLength);
   if(!isDate(growthDate)||!journey?.baby_birth_date||daysBetween(journey.baby_birth_date,growthDate)<0||daysBetween(growthDate,todayISO())<0){setToast('Choose a valid measurement date after your baby’s birth.');return;}
@@ -194,8 +206,8 @@ export default function App(){
   setGrowthOpen(false);setGrowthWeight('');setGrowthLength('');setToast('Measurement recorded. Your clinician should interpret growth trends.');
  }
  if(checking||loadingJourney)return <div className="loading-screen"><div className="loading-icon"><Heart size={28}/></div><p>Preparing your MamaMwana space…</p></div>;
- if(!demo&&!user)return <AuthGate onDemo={()=>{setDemo(true);setJourney(null);current.current=null;}}/>;
- if(!journey)return <Onboarding isDemo={demo} onCreate={j=>{persist(j);enterTab('home');}}/>;
+ if(!demo&&!user)return <AuthGate onDemo={()=>{setDemo(true);setJourney(null);setJourneys([]);current.current=null;}}/>;
+ if(!journey||creatingJourney)return <Onboarding isDemo={demo} onCreate={j=>{setCreatingJourney(false);persist(j);enterTab('home');}}/>;
  const phase=getPhase(journey),preg=pregnancyStage(journey.due_date,journey.baby_birth_date??todayISO());
  const isBorn=Boolean(journey.baby_birth_date);
  const babyMonths=journey.baby_birth_date?ageInMonths(journey.baby_birth_date):0;
@@ -206,6 +218,7 @@ export default function App(){
  const edu=educationForWeek(weekView??preg.week);
  const upcoming=journey.visits.filter(v=>!v.attended&&v.scheduled_on>=todayISO()).sort((a,b)=>a.scheduled_on.localeCompare(b.scheduled_on));
  const nextVisit=upcoming[0];
+ const reminders=visitReminders(journey.visits);
  const checkCount=BIRTH_CHECKLIST.filter(c=>journey.birth_checks.includes(c.key)).length;
  const displayName=journey.mother_name.split(' ')[0];
  const topLabel=phase==='pregnancy'?'YOUR PREGNANCY JOURNEY':phase==='postpartum'?'THE FOURTH TRIMESTER':'GROWING TOGETHER';
@@ -314,16 +327,16 @@ export default function App(){
    <nav className="sidebar-nav" aria-label="Primary navigation">{NAV.map(({id,label,Icon})=><button key={id} onClick={()=>enterTab(id)} className={'nav-item '+(tab===id?'selected':'')} aria-current={tab===id?'page':undefined}><Icon size={19} strokeWidth={1.9}/>{label}{tab===id&&<span className="nav-active-dot"/>}</button>)}</nav>
    <div className="sidebar-spacer"/>
    <div className="sidebar-support"><span className="sidebar-support-icon"><ShieldCheck size={21}/></span><strong>Your health matters</strong><p>Medical concerns always deserve a real healthcare professional.</p><button onClick={()=>setWarningOpen(true)}>When to seek help <ArrowRight size={14}/></button></div>
-   <div className="sidebar-footer"><button onClick={signOut}><LogOut size={17}/>{demo?'Exit demo':'Sign out'}</button><span>© 2026 MamaMwana • v0.1</span></div>
+   <div className="sidebar-footer"><button onClick={signOut}><LogOut size={17}/>{demo?'Exit demo':'Sign out'}</button><span>© 2026 MamaMwana • v0.2</span></div>
   </aside>
   {menuOpen&&<button className="drawer-backdrop" aria-label="Close menu" onClick={()=>setMenuOpen(false)}/>}
   <div className="app-main">
    <header className="topbar"><div className="topbar-left"><button className="hamburger" aria-label="Open navigation" onClick={()=>setMenuOpen(true)}><Menu size={22}/></button><div className="topbar-context"><div className="topbar-hello">Hello, {displayName} <span>✳</span></div><div className="topbar-subtitle">A little love and care for today</div></div></div><div className="topbar-actions">
      {demo?<span className="env-label"><Cloud size={15}/> Unsaved demo</span>:<span className={'env-label '+(saveStatus==='error'?'env-error':'')}><CheckCircle2 size={15}/>{saveStatus==='saving'?'Saving…':saveStatus==='error'?'Save failed':'Private account'}</span>}
-     <button aria-label="Health warning signs" className="topbar-icon" onClick={()=>setWarningOpen(true)}><ShieldAlert size={19}/></button><span className="avatar">{displayName.slice(0,1).toUpperCase()}</span>
+     <button className="topbar-family" onClick={()=>enterTab('family')}><Users size={16}/> Family ({journeys.length})</button><button aria-label="Health warning signs" className="topbar-icon" onClick={()=>setWarningOpen(true)}><ShieldAlert size={19}/></button><span className="avatar">{displayName.slice(0,1).toUpperCase()}</span>
    </div></header>
    {demo&&<div className="demo-banner"><Sparkles size={16}/><span><strong>Interactive preview:</strong> use sample details only. Changes disappear when you leave this page.</span><button onClick={signOut}>Exit <ArrowRight size={14}/></button></div>}
-   <main>{tab==='home'?<Home/>:tab==='pregnancy'?<Pregnancy/>:tab==='care'?<Care/>:tab==='visits'?<Visits/>:tab==='birth'?<Birth/>:tab==='baby'?<BabyPage/>:<Library/>}</main>
+   <main>{tab==='home'?<Home/>:tab==='family'?<Family/>:tab==='pregnancy'?<Pregnancy/>:tab==='care'?<Care/>:tab==='visits'?<Visits/>:tab==='birth'?<Birth/>:tab==='baby'?<BabyPage/>:<Library/>}</main>
    <footer className="app-footer"><span>MamaMwana • Made for every little beginning</span><span>Educational support, never a substitute for professional healthcare</span></footer>
   </div>
   <nav className="mobile-tabs" aria-label="Quick navigation">{[{id:'home' as Tab,label:'Home',Icon:House},{id:'care' as Tab,label:'Today',Icon:Heart},{id:'visits' as Tab,label:'Visits',Icon:CalendarDays},{id:'baby' as Tab,label:'Baby',Icon:Baby}].map(({id,label,Icon})=><button key={id} className={tab===id?'active':''} onClick={()=>enterTab(id)}><Icon size={21}/><span>{label}</span></button>)}</nav>

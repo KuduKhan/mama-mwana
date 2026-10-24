@@ -63,3 +63,13 @@ v0.3: clinician-approved WHO growth plotting, corrected age for preterm infants,
 v0.4: evidence-constrained AI assistant with strict non-AI emergency escalation and medical governance.
 
 GitHub remains the source of truth.
+
+## v0.2 upgrade — October 2026
+
+The v0.2 release supports multiple pregnancy-to-child journey records per account, in-app seven-day and overdue appointment reminders, opt-in calendar export, optional private wellbeing check-ins, and newborn feeding logs. Each journey currently tracks one baby; twins and normalized child records remain planned.
+
+**Required database upgrade:** Run `supabase/migrations/20261024_000002_v02_journey_history.sql` after the original `20261024_000001_foundation.sql`. The migration removes the original unique-per-user limit and adds two optional JSONB log fields; it preserves existing records. For a fresh database execute both migrations in order.
+
+Reminders only display when the app is open; no background push/email notifications are claimed. `.ics` calendar exports provide an all-day reminder only, so users must confirm the actual appointment time with their clinic. Exported events may be shared with external calendar providers.
+
+The feeding log is not a clinical feeding plan. The wellbeing check-in is not a mental-health screening or crisis-support system. Content still needs clinical validation and a Kenyan data-protection/security review before real patient use. Future releases should normalize pregnancies, children, visits and clinical measurements with robust auditing and concurrency controls.
