@@ -16,25 +16,26 @@ export default function CarePlannerV07({journey,isDemo,userId}:Props){
  const [filter,setFilter]=useState<'open'|'done'|'all'>('open');
  const [busy,setBusy]=useState(false);
  const [loading,setLoading]=useState(false);
+ const [loadFailed,setLoadFailed]=useState(false);
  const [error,setError]=useState('');
  const [notice,setNotice]=useState('');
  const [reloadKey,setReloadKey]=useState(0);
  const demo=isDemo||!userId;
  useEffect(()=>{
   let alive=true;
-  setItems([]);setDraft({...empty});setSelectedVisit('');setError('');setNotice('');
+  setItems([]);setDraft({...empty});setSelectedVisit('');setError('');setNotice('');setLoadFailed(false);
   if(demo)return;
-  if(!supabase){setError('Connect a secure database to save appointment planning items.');return;}
+  if(!supabase){setLoadFailed(true);setError('Connect a secure database to save appointment planning items.');return;}
   const client=supabase;setLoading(true);
   void Promise.resolve(client.from('care_plan_items')
    .select('id,journey_id,owner_id,kind,title,detail,state,due_on,visit_source_id,version,created_at,updated_at')
    .eq('journey_id',journey.id).order('created_at',{ascending:false}).limit(250))
    .then(({data,error:queryError})=>{
     if(!alive)return;
-    if(queryError)setError('Care Planner cannot load. Apply and verify the v0.7 database migration.');
+    if(queryError){setLoadFailed(true);setError('Care Planner cannot load. Apply and verify the v0.7 database migration.');}
     else setItems((data??[]) as CareItem[]);
     setLoading(false);
-   }).catch(()=>{if(alive){setError('Unable to load your care plan. Check your connection.');setLoading(false);}});
+   }).catch(()=>{if(alive){setLoadFailed(true);setError('Unable to load your care plan. Check your connection.');setLoading(false);}});
   return ()=>{alive=false;};
  },[demo,journey.id,userId,reloadKey]);
  const arranged=useMemo(()=>orderCareItems(items),[items]);
@@ -119,7 +120,7 @@ export default function CarePlannerV07({journey,isDemo,userId}:Props){
     </div>
     <label>Question or action<input value={draft.title} required maxLength={160} minLength={3} onChange={e=>setField('title',e.target.value)} placeholder="What would I like to discuss or remember?"/></label>
     <label>Supporting details (optional)<textarea rows={3} maxLength={1200} value={draft.detail} onChange={e=>setField('detail',e.target.value)} placeholder="A short note for your next visit. Avoid information you would not want on a device."/></label>
-    <div className="care07-form-bottom"><label>Target date (optional)<input type="date" value={draft.due_on??''} onChange={e=>setField('due_on',e.target.value||null)}/></label><button type="submit" disabled={busy||loading||Boolean(error&&items.length===0&&!demo)}><Plus size={16}/> Save to my plan</button></div>
+    <div className="care07-form-bottom"><label>Target date (optional)<input type="date" value={draft.due_on??''} onChange={e=>setField('due_on',e.target.value||null)}/></label><button type="submit" disabled={busy||loading||loadFailed}><Plus size={16}/> Save to my plan</button></div>
    </form>
    {demo&&<p className="care07-demo">Preview mode: entries are kept in this page only and disappear when you leave.</p>}
   </section>
