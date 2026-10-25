@@ -10,6 +10,8 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { configured, supabase } from './lib/supabase';
+import {applyClinicalMutation,editJourneyClinical,isClinicalConflict,loadCanonicalJourneys,nonClinicalJourneyPayload} from './lib/clinical';
+import type {ClinicalKind,ClinicalVersioned} from './lib/clinical';
 import GuidanceV04 from './components/GuidanceV04';
 import PrivacyV04 from './components/PrivacyV04';
 import ClinicalRecordsV04 from './components/ClinicalRecordsV04';
@@ -148,6 +150,8 @@ export default function App(){
  const [privacy,setPrivacy]=useState<PrivacyChoices>(DEFAULT_PRIVACY);
  const current=useRef<Journey|null>(null);
  const writeQueue=useRef<Record<string,Promise<void>>>({});
+ const persistedIds=useRef<Set<string>>(new Set());
+ const [dataError,setDataError]=useState('');
  const [saveStatus,setSaveStatus]=useState<'saved'|'saving'|'error'>('saved');
  const [loadingJourney,setLoadingJourney]=useState(false);
  const [tab,setTab]=useState<Tab>('home');
@@ -174,19 +178,24 @@ export default function App(){
   return ()=>{active=false;subscription.unsubscribe();};
  },[]);
  useEffect(()=>{
-  if(!user||demo||!supabase){if(!user&&!demo){current.current=null;setJourney(null);setJourneys([]);}return;}
+  if(!user||demo||!supabase){if(!user&&!demo){current.current=null;setJourney(null);setJourneys([]);persistedIds.current.clear();setDataError('');}return;}
   const client=supabase;let active=true;
   setLoadingJourney(true);
-  client.from('journeys').select('id,mother_name,due_date,baby_birth_date,baby_name,visits,daily_checks,birth_checks,growth,milestones,feeding_logs,wellbeing_entries,baby_sex,gestation_at_birth_weeks,immunizations,created_at').eq('owner_id',user.id).order('created_at',{ascending:false})
-   .then(({data,error})=>{
+  Promise.resolve(client.from('journeys').select('id,mother_name,due_date,baby_birth_date,baby_name,visits,daily_checks,birth_checks,growth,milestones,feeding_logs,wellbeing_entries,baby_sex,gestation_at_birth_weeks,immunizations,created_at').eq('owner_id',user.id).order('created_at',{ascending:false}))
+   .then(async ({data,error})=>{
     if(!active)return;
-    if(error)setToast('Database unavailable: '+error.message+'. Run the v0.1, v0.2 and v0.3 Supabase migrations.');
-    else{
-      const items=(data??[]).map(raw=>({...raw,feeding_logs:raw.feeding_logs??[],wellbeing_entries:raw.wellbeing_entries??[],immunizations:raw.immunizations??[],baby_sex:raw.baby_sex??null,gestation_at_birth_weeks:raw.gestation_at_birth_weeks??null})) as Journey[];
-      setJourneys(items);const selected=items[0]??null;
-      current.current=selected;setJourney(selected);setCreatingJourney(false);
-    }
+    if(error)throw new Error('Database unavailable. Check your Supabase migration history. '+error.message);
+    const items=(data??[]).map(raw=>({...raw,feeding_logs:raw.feeding_logs??[],wellbeing_entries:raw.wellbeing_entries??[],immunizations:raw.immunizations??[],baby_sex:raw.baby_sex??null,gestation_at_birth_weeks:raw.gestation_at_birth_weeks??null})) as Journey[];
+    const authoritative=await loadCanonicalJourneys(client,items);
+    if(!active)return;
+    persistedIds.current=new Set(authoritative.map(j=>j.id));setDataError('');
+    setJourneys(authoritative);const selected=authoritative[0]??null;
+    current.current=selected;setJourney(selected);setCreatingJourney(false);
     setLoadingJourney(false);
+   }).catch((err:Error)=>{
+    if(!active)return;
+    setToast(err.message);setDataError(err.message);
+    setJourneys([]);current.current=null;setJourney(null);setLoadingJourney(false);
    });
   return ()=>{active=false;};
  },[user?.id,demo]);
@@ -208,11 +217,61 @@ export default function App(){
   if(demo||!user||!supabase){setSaveStatus('saved');return;}
   const client=supabase;const owner_id=user.id;setSaveStatus('saving');
   const previous=writeQueue.current[j.id]??Promise.resolve();
-  const next=previous.catch(()=>{}).then(async()=>{const {error}=await client.from('journeys').upsert({...j,owner_id},{onConflict:'id'});if(error)throw error;});
+  const next=previous.catch(()=>{}).then(async()=>{
+   const payload=nonClinicalJourneyPayload(j,owner_id);
+   if(persistedIds.current.has(j.id)){
+    const {data,error}=await client.from('journeys').update(payload).eq('id',j.id).eq('owner_id',owner_id).select('id').single();
+    if(error||!data)throw error??new Error('Journey was not found');
+   }else{
+    const {error}=await client.from('journeys').insert(payload);
+    if(error)throw error;
+    persistedIds.current.add(j.id);
+   }
+  });
   writeQueue.current[j.id]=next;
   next.then(()=>{if(current.current?.id===j.id)setSaveStatus('saved');})
-    .catch((e:Error)=>{if(current.current?.id===j.id)setSaveStatus('error');setToast('Save failed: '+e.message+'. Check the v0.2 migration.');});
+    .catch((e:Error)=>{if(current.current?.id===j.id)setSaveStatus('error');setToast('Save failed: '+e.message+'. Check your connection and v0.6 migration.');});
  },[demo,user]);
+ async function changeClinical(kind:ClinicalKind,entry:ClinicalVersioned,remove=false):Promise<boolean>{
+  const selected=current.current;
+  if(!selected)return false;
+  if(demo||!user||!supabase){
+   const updated=editJourneyClinical(selected,kind,entry,remove);
+   current.current=updated;setJourney(updated);
+   setJourneys(previous=>previous.map(j=>j.id===updated.id?updated:j));
+   return true;
+  }
+  setSaveStatus('saving');
+  try{
+   const result=await applyClinicalMutation(supabase,{kind,journeyId:selected.id,entry,remove});
+   const fresh=current.current;
+   if(fresh?.id===selected.id){
+    const updated=editJourneyClinical(fresh,kind,result??entry,remove);
+    current.current=updated;setJourney(updated);
+    setJourneys(previous=>previous.map(j=>j.id===updated.id?updated:j));
+   }else{
+    const prior=journeys.find(j=>j.id===selected.id);
+    if(prior)setJourneys(previous=>previous.map(j=>j.id===selected.id?editJourneyClinical(j,kind,result??entry,remove):j));
+   }
+   setSaveStatus('saved');
+   return true;
+  }catch(err){
+   setSaveStatus('error');
+   if(isClinicalConflict(err)){
+    try{
+     const fresh=current.current;
+     const matching=journeys.find(j=>j.id===selected.id);
+     const latest=await loadCanonicalJourneys(supabase,matching?[matching]:[selected]);
+     if(latest[0]){
+      setJourneys(previous=>previous.map(j=>j.id===selected.id?latest[0]:j));
+      if(fresh?.id===selected.id){current.current=latest[0];setJourney(latest[0]);}
+     }
+    }catch{setToast('Concurrent record edit detected, but reload failed. Refresh before continuing.');return false;}
+    setToast('Another session changed this record. Latest clinical data loaded; review it before retrying.');
+   }else setToast('Clinical record could not be saved: '+(err instanceof Error?err.message:'Network or database error'));
+   return false;
+  }
+ }
  async function savePrivacy(next:PrivacyChoices){
   if(!demo&&user&&supabase){
     const {error}=await supabase.from('privacy_preferences').upsert({owner_id:user.id,...next,updated_at:new Date().toISOString()},{onConflict:'owner_id'});
@@ -226,7 +285,7 @@ export default function App(){
     await Promise.all(Object.values(writeQueue.current).map(p=>p.catch(()=>{})));
     const {data,error}=await supabase.from('journeys').select('id,mother_name,due_date,baby_birth_date,baby_name,visits,daily_checks,birth_checks,growth,milestones,feeding_logs,wellbeing_entries,baby_sex,gestation_at_birth_weeks,immunizations').eq('owner_id',user.id);
     if(error)throw error;
-    records=(data??[]) as Journey[];
+    records=await loadCanonicalJourneys(supabase,(data??[]) as Journey[]);
   }
   const blob=new Blob([JSON.stringify(buildExport(records,privacy),null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob),a=document.createElement('a');
@@ -241,6 +300,7 @@ export default function App(){
     if(error)throw error;
     if(!data||data.length!==1)return false;
   }
+  persistedIds.current.delete(id);
   const remaining=journeys.filter(j=>j.id!==id);
   const next=current.current?.id===id?(remaining[0]??null):current.current;
   setJourneys(remaining);setJourney(next);current.current=next;
@@ -253,15 +313,16 @@ export default function App(){
  function enterTab(next:Tab){setTab(next);setMenuOpen(false);window.scrollTo({top:0,behavior:'smooth'});}
  function selectJourney(selected:Journey){current.current=selected;setJourney(selected);setCreatingJourney(false);setWeekView(null);setMilestoneFilter(null);setSaveStatus('saved');enterTab('home');}
  function createAnotherJourney(){setCreatingJourney(true);setWeekView(null);setMenuOpen(false);}
- function signOut(){if(demo)setDemo(false);else void supabase?.auth.signOut();setJourneys([]);setJourney(null);current.current=null;setCreatingJourney(false);setTab('home');}
+ function signOut(){if(demo)setDemo(false);else void supabase?.auth.signOut();setJourneys([]);setJourney(null);current.current=null;persistedIds.current.clear();setDataError('');setCreatingJourney(false);setTab('home');}
  function markBirth(date:string,name:string){modify(j=>({...j,baby_birth_date:date,baby_name:name}));setBirthOpen(false);enterTab('baby');setToast('Welcome, '+name+'! Your pregnancy journey remains connected.');}
- function saveGrowth(e:FormEvent){e.preventDefault();const weight=growthWeight===''?null:Number(growthWeight),length=growthLength===''?null:Number(growthLength);
+ async function saveGrowth(e:FormEvent){e.preventDefault();const weight=growthWeight===''?null:Number(growthWeight),length=growthLength===''?null:Number(growthLength);
   if(!isDate(growthDate)||!journey?.baby_birth_date||daysBetween(journey.baby_birth_date,growthDate)<0||daysBetween(growthDate,todayISO())<0){setToast('Choose a valid measurement date after your baby’s birth.');return;}
   if(weight===null&&length===null){setToast('Enter a weight or length measurement.');return;}
   if((weight!==null&&(!Number.isFinite(weight)||weight<=0||weight>60))||(length!==null&&(!Number.isFinite(length)||length<=0||length>180))){setToast('Please enter realistic measurements and confirm them with a healthcare professional.');return;}
-  modify(j=>({...j,growth:[...j.growth,{id:crypto.randomUUID(),measured_on:growthDate,weight_kg:weight,length_cm:length}].sort((a,b)=>b.measured_on.localeCompare(a.measured_on))}));
-  setGrowthOpen(false);setGrowthWeight('');setGrowthLength('');setToast('Measurement recorded. Your clinician should interpret growth trends.');
+  const saved=await changeClinical('growth',{id:crypto.randomUUID(),measured_on:growthDate,weight_kg:weight,length_cm:length});
+  if(saved){setGrowthOpen(false);setGrowthWeight('');setGrowthLength('');setToast('Measurement recorded. Your clinician should interpret growth trends.');}
  }
+ if(!demo&&dataError)return <div className="loading-screen" role="alert"><div className="loading-icon"><ShieldAlert size={28}/></div><h2>Records are temporarily unavailable</h2><p>{dataError}</p><p>Your existing journey has not been deleted. The v0.6 database upgrade must be applied and verified before continuing.</p><Button onClick={()=>window.location.reload()}>Retry securely</Button></div>;
  if(checking||loadingJourney)return <div className="loading-screen"><div className="loading-icon"><Heart size={28}/></div><p>Preparing your MamaMwana space…</p></div>;
  if(!demo&&!user)return <AuthGate onDemo={()=>{setDemo(true);setJourney(null);setJourneys([]);current.current=null;}}/>;
  if(!journey||creatingJourney)return <Onboarding isDemo={demo} onCancel={journey?()=>{setCreatingJourney(false);enterTab('family');}:undefined} onCreate={j=>{setCreatingJourney(false);persist(j);enterTab('home');}}/>;
@@ -352,11 +413,11 @@ export default function App(){
  return <div className="page-content"><SectionTitle eyebrow="CARE CONNECTIONS" title="Antenatal visits" subtitle="Your own appointment journal. The schedule is always set with your healthcare team." action={<Button Icon={Plus} onClick={()=>setNewVisit(true)}>Add visit</Button>}/>
   <Panel className="anc-intro"><div className="anc-icon"><Stethoscope size={28}/></div><div><h3>Stay connected with your care team</h3><p>WHO describes a model with at least eight antenatal contacts across pregnancy. These weeks are general educational reference points—not appointments booked for you.</p></div></Panel>
   <Panel className="anc-timeline"><div className="panel-heading"><div><div className="eyebrow">REFERENCE TIMELINE</div><h3>Eight WHO contact points</h3></div><span className="soft-label">Illustrative only</span></div><div className="weeks-strip">{ANC_WEEKS.map((w,i)=><div key={w} className={'week-chip '+(w<=preg.week?'passed':'')}><small>{i+1}</small><strong>{w===12?'≤12':String(w)}</strong><span>wks</span></div>)}</div><p className="footnote">Ask your clinic which contact dates, examinations and follow-ups are right for your pregnancy.</p></Panel>
-  {newVisit&&<Panel className="form-panel"><h3>Plan an appointment</h3><NewVisitForm onSave={v=>{modify(j=>({...j,visits:[...j.visits,v]}));setNewVisit(false);setToast('Visit added to your personal journal.');}} onCancel={()=>setNewVisit(false)}/></Panel>}
+  {newVisit&&<Panel className="form-panel"><h3>Plan an appointment</h3><NewVisitForm onSave={v=>{void changeClinical('visit',v).then(ok=>{if(ok){setNewVisit(false);setToast('Visit added to your personal journal.');}});}} onCancel={()=>setNewVisit(false)}/></Panel>}
   {reminders.length>0&&<Panel className="reminders-panel"><div className="panel-heading"><div><div className="eyebrow">APPOINTMENT REMINDERS</div><h3>Dates to follow up</h3></div><Bell size={20}/></div><p className="muted">In-app reminders appear when you open MamaMwana. For an external reminder, add a visit to your own calendar.</p><div className="reminder-items">{reminders.map(v=><div key={v.id} className="reminder-item"><span className={'reminder-signal '+(reminderStatus(v)==='overdue'?'overdue':'')}/><span><strong>{v.clinic}</strong><small>{readable(v.scheduled_on)} · {reminderStatus(v)==='overdue'?'Date passed — confirm with clinic':reminderStatus(v)==='today'?'Today':'Within seven days'}</small></span></div>)}</div></Panel>}
    <Panel className="appointment-panel"><div className="panel-heading"><div><div className="eyebrow">YOUR VISITS</div><h3>Appointment journal</h3></div><span className="count-label">{activeJourney.visits.length} visits</span></div>
    {activeJourney.visits.length===0?<div className="empty-state"><CalendarDays size={32}/><h4>No visits yet</h4><p>Once you book with your clinic, add the appointment here so it stays part of your journey.</p><Button variant="secondary" Icon={Plus} onClick={()=>setNewVisit(true)}>Add your first visit</Button></div>:
-   <div className="appointments">{[...activeJourney.visits].sort((a,b)=>a.scheduled_on.localeCompare(b.scheduled_on)).map(v=><div className="appointment-row" key={v.id}><div className="appointment-date"><strong>{new Date(v.scheduled_on+'T12:00:00Z').getUTCDate()}</strong><small>{new Intl.DateTimeFormat('en-KE',{month:'short',timeZone:'UTC'}).format(new Date(v.scheduled_on+'T12:00:00Z'))}</small></div><div className="appointment-info"><strong>{v.clinic}</strong><small>{v.notes||'No notes added'}</small><span className={'status-inline '+(v.attended?'done':'')}>{v.attended?'Attended':v.scheduled_on<todayISO()?'Date passed — confirm status':'Upcoming / planned'}</span></div><div className="appointment-actions"><button onClick={()=>modify(j=>({...j,visits:j.visits.map(a=>a.id===v.id?{...a,attended:!a.attended}:a)}))}>{v.attended?'Mark planned':'Mark attended'}</button>{!v.attended&&<a className="calendar-link" href={visitCalendarUrl(v)} download={'mamamwana-visit-'+v.scheduled_on+'.ics'} title="Export to calendar; external calendars may store visit details"><Download size={14}/> Calendar</a>}<button aria-label={'Remove visit '+v.clinic} onClick={()=>modify(j=>({...j,visits:j.visits.filter(a=>a.id!==v.id)}))}><X size={16}/></button></div></div>)}</div>}
+   <div className="appointments">{[...activeJourney.visits].sort((a,b)=>a.scheduled_on.localeCompare(b.scheduled_on)).map(v=><div className="appointment-row" key={v.id}><div className="appointment-date"><strong>{new Date(v.scheduled_on+'T12:00:00Z').getUTCDate()}</strong><small>{new Intl.DateTimeFormat('en-KE',{month:'short',timeZone:'UTC'}).format(new Date(v.scheduled_on+'T12:00:00Z'))}</small></div><div className="appointment-info"><strong>{v.clinic}</strong><small>{v.notes||'No notes added'}</small><span className={'status-inline '+(v.attended?'done':'')}>{v.attended?'Attended':v.scheduled_on<todayISO()?'Date passed — confirm status':'Upcoming / planned'}</span></div><div className="appointment-actions"><button onClick={()=>{void changeClinical('visit',{...v,attended:!v.attended});}}>{v.attended?'Mark planned':'Mark attended'}</button>{!v.attended&&<a className="calendar-link" href={visitCalendarUrl(v)} download={'mamamwana-visit-'+v.scheduled_on+'.ics'} title="Export to calendar; external calendars may store visit details"><Download size={14}/> Calendar</a>}<button aria-label={'Remove visit '+v.clinic} onClick={()=>{if(window.confirm('Remove this visit record?'))void changeClinical('visit',v,true);}}><X size={16}/></button></div></div>)}</div>}
   </Panel><SourcesSmall/>
  </div>;
  }
@@ -379,7 +440,7 @@ export default function App(){
    {growthOpen&&<form className="inline-form" onSubmit={saveGrowth}><div className="form-row three"><label>Measurement date<input type="date" required min={activeJourney.baby_birth_date!} max={todayISO()} value={growthDate} onChange={e=>setGrowthDate(e.target.value)}/></label><label>Weight (kg)<input type="number" min="0.1" max="60" step="0.01" value={growthWeight} onChange={e=>setGrowthWeight(e.target.value)} placeholder="e.g. 3.4"/></label><label>Length (cm)<input type="number" min="1" max="180" step="0.1" value={growthLength} onChange={e=>setGrowthLength(e.target.value)} placeholder="e.g. 50"/></label></div><div className="button-row"><Button type="submit">Save measurement</Button><Button variant="subtle" onClick={()=>setGrowthOpen(false)}>Cancel</Button></div></form>}
    {activeJourney.growth.length===0?<div className="empty-state compact"><TrendingUp size={30}/><h4>No measurements recorded yet</h4><p>Add measurements from your baby’s health visits.</p></div>:<div className="growth-table" role="table"><div className="growth-th" role="row"><span>Date</span><span>Weight</span><span>Length</span></div>{activeJourney.growth.map(g=><div className="growth-tr" role="row" key={g.id}><span>{readable(g.measured_on)}</span><span>{g.weight_kg!=null?g.weight_kg+' kg':'—'}</span><span>{g.length_cm!=null?g.length_cm+' cm':'—'}</span></div>)}</div>}
   </Panel>
-  <ChildHealthV03 journey={activeJourney} update={persist}/>
+  <ChildHealthV03 journey={activeJourney} update={persist} onRecordDose={dose=>changeClinical('immunization',dose)} onRemoveDose={dose=>changeClinical('immunization',dose,true)}/>
    {babyMonths<=12&&<Panel className="feeding-panel"><div className="panel-heading"><div><div className="eyebrow">NEWBORN CARE JOURNAL</div><h3>Feeding moments</h3></div><span className="soft-label">Optional log</span></div>
     <p className="muted">Record feeding type for your own reference. This does not prescribe feeding times or quantities. Contact your health provider for feeding difficulties.</p>
     <div className="feeding-entry"><label>Feeding type<select value={feedingMethod} onChange={e=>setFeedingMethod(e.target.value as FeedingMethod)}><option value="breast">Breastfeeding</option><option value="expressed">Expressed milk</option><option value="formula">Formula</option><option value="other">Other / mixed feeding</option></select></label><Button Icon={Plus} onClick={()=>modify(j=>({...j,feeding_logs:[{id:crypto.randomUUID(),recorded_at:new Date().toISOString(),method:feedingMethod},...(j.feeding_logs??[])].slice(0,200)}))}>Log feeding now</Button></div>
@@ -409,7 +470,7 @@ export default function App(){
    <nav className="sidebar-nav" aria-label="Primary navigation">{NAV.map(({id,label,Icon})=><button key={id} onClick={()=>enterTab(id)} className={'nav-item '+(tab===id?'selected':'')} aria-current={tab===id?'page':undefined}><Icon size={19} strokeWidth={1.9}/>{label}{tab===id&&<span className="nav-active-dot"/>}</button>)}</nav>
    <div className="sidebar-spacer"/>
    <div className="sidebar-support"><span className="sidebar-support-icon"><ShieldCheck size={21}/></span><strong>Your health matters</strong><p>Medical concerns always deserve a real healthcare professional.</p><button onClick={()=>setWarningOpen(true)}>When to seek help <ArrowRight size={14}/></button></div>
-   <div className="sidebar-footer"><button onClick={signOut}><LogOut size={17}/>{demo?'Exit demo':'Sign out'}</button><span>© 2026 MamaMwana • v0.5</span></div>
+   <div className="sidebar-footer"><button onClick={signOut}><LogOut size={17}/>{demo?'Exit demo':'Sign out'}</button><span>© 2026 MamaMwana • v0.6</span></div>
   </aside>
   {menuOpen&&<button className="drawer-backdrop" aria-label="Close menu" onClick={()=>setMenuOpen(false)}/>}
   <div className="app-main">

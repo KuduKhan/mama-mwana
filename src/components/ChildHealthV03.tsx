@@ -3,10 +3,10 @@ import type { FormEvent } from 'react';
 import { Activity, Check, CircleHelp, ClipboardCheck, ExternalLink, Info, Plus, Ruler, ShieldCheck, Syringe, TrendingUp, X } from 'lucide-react';
 import type { ChildSex, ImmunizationRecord, Journey } from '../lib/domain';
 import { daysBetween, readable, todayISO } from '../lib/domain';
-import { CLINICAL_REFERENCES, growthTrend, KENYA_IMMUNIZATIONS, referenceDate, referenceForSex, referenceStage, recordImmunization, validateImmunization } from '../lib/childHealth';
+import { CLINICAL_REFERENCES, growthTrend, KENYA_IMMUNIZATIONS, referenceDate, referenceForSex, referenceStage, validateImmunization } from '../lib/childHealth';
 import type { GrowthMetric, TrendPoint, VaccineDose } from '../lib/childHealth';
 
-interface Props { journey:Journey; update:(j:Journey)=>void }
+interface Props { journey:Journey; update:(j:Journey)=>void; onRecordDose:(entry:ImmunizationRecord)=>Promise<boolean>; onRemoveDose:(entry:ImmunizationRecord)=>Promise<boolean> }
 const CHART_WIDTH=680, CHART_HEIGHT=210;
 const MARGINS={left:45,right:18,top:16,bottom:34};
 function TrendChart({points,metric}:{points:TrendPoint[];metric:GrowthMetric}){
@@ -49,7 +49,7 @@ function NeonatalGuide({ageDays}:{ageDays:number}){
  <div className="ch-clinical-note"><ShieldCheck size={18}/><p>Urgent warning signs—including difficulty breathing, convulsions, unusual unresponsiveness, serious fever, or poor feeding in a newborn—require immediate medical assessment. This app cannot determine if a child is safe.</p></div>
  </section>;
 }
-export default function ChildHealthV03({journey,update}:Props){
+export default function ChildHealthV03({journey,update,onRecordDose,onRemoveDose}:Props){
  const birth=journey.baby_birth_date;
  const [sex,setSex]=useState<ChildSex>(journey.baby_sex??'unknown');
  const [gestation,setGestation]=useState(journey.gestation_at_birth_weeks==null?'':String(journey.gestation_at_birth_weeks));
@@ -79,20 +79,18 @@ export default function ChildHealthV03({journey,update}:Props){
   const previous=records.find(r=>r.dose_id===d.id);
   setGivenDate(previous?.given_on??todayISO());setFacility(previous?.facility??'');setNote(previous?.note??'');
  }
- function saveDose(e:FormEvent){
+ async function saveDose(e:FormEvent){
   e.preventDefault();if(!selectedDose)return;
   const err=validateImmunization(givenDate,birth!,facility);
   if(err){setDoseError(err);return;}
   const previous=records.find(v=>v.dose_id===selectedDose.id);
   const next:ImmunizationRecord={id:previous?.id??crypto.randomUUID(),dose_id:selectedDose.id,given_on:givenDate,facility:facility.trim().slice(0,100),note:note.trim().slice(0,200)};
-  update({...journey,immunizations:recordImmunization(records,next)});
-  setSelectedDose(null);
+  if(await onRecordDose(next))setSelectedDose(null);
  }
- function removeDose(){
+ async function removeDose(){
   if(!selectedDose||!existing)return;
   if(!window.confirm('Remove this caregiver-entered vaccination record? Your clinic handbook is unaffected.'))return;
-  update({...journey,immunizations:records.filter(r=>r.dose_id!==selectedDose.id)});
-  setSelectedDose(null);
+  if(await onRemoveDose(existing))setSelectedDose(null);
  }
  return <div className="ch-stack">
   <section className="ch-card">

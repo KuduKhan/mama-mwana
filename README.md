@@ -165,3 +165,27 @@ No dedicated MamaMwana Supabase project was available to the assistant, so the S
 ### Boundaries
 v0.5 does not introduce clinical diagnosis, AI triage, prescriptions, verified medical records, automatic Auth account deletion, automatic backend erasure or certified reviewer accreditation.
 Source: https://supabase.com/docs/guides/database/postgres/row-level-security
+
+## MamaMwana v0.6 — canonical clinical records and controlled erasure
+
+### Code delivered
+- Canonical, versioned PostgreSQL visits, growth measurements and vaccination entries. v0.6 removes the legacy JSONB-to-normalized mirror trigger and rejects old-style clinical array edits; historical JSONB snapshots remain preserved but no longer authoritative.
+- Authenticated clinical mutations use one narrowly scoped Supabase RPC (`apply_clinical_change`) with account ownership verification, atomic version check, row locking, validation, and metadata-only audit events. Direct client writes to normalized clinical tables are revoked.
+- Frontend hydrates journeys from canonical clinical tables, creates and edits clinical entries through the versioned RPC, and refreshes after optimistic-lock conflicts rather than overwriting another session's edits.
+- Ordinary journey persistence omits clinical arrays and distinguishes inserts from updates. If v0.6 canonical records cannot load, an authenticated user sees a migration error rather than an empty first-time onboarding screen.
+- Two-person authorization for erasure requests and a server-only Supabase Edge Function at `supabase/functions/process-erasure/index.ts`, disabled by default. No service-role key is placed in browser code.
+- CI unit tests for canonical-row hydration, optimistic lock conflict identification, and no clinical-array leakage in profile writes. An opt-in *real database* integration test exercises two test users, RLS, version retries and audit metadata.
+
+### Required upgrade sequence and deployment gates
+**Nothing has been run on a MamaMwana Supabase project.** Back up the database and test the full chain of v0.1–v0.6 scripts against a disposable dedicated database. Existing v0.5 installations apply only `supabase/migrations/20261024_000006_v06_authoritative_clinical.sql` after checking migrations v0.1–v0.5.
+
+Only after SQL migration tests pass and users have upgraded their clients should `main` be deployed to Vercel. An old client will be unable to write the legacy clinical JSONB fields; forcing an old build on a v0.6 database risks failed writes.
+
+### Safe erasure operator instructions
+Read [docs/ERASURE_RUNBOOK.md](docs/ERASURE_RUNBOOK.md). The erasure executor MUST remain disabled until staff authorization, independent approvals, backup retention and lawful-basis review are in place. Deleting a Supabase Auth user cascades appropriately configured database rows but does NOT erase archived backups, external processors or already-exported JSON files. An accountable staff process remains mandatory.
+
+### Automated tests
+`npm run typecheck`, `npm run test`, `npm run build` execute in GitHub Actions. The database-level tests in `tests/clinical.integration.test.ts` run ONLY with `MAMA_TEST_CONFIRM_DISPOSABLE=true` and dedicated `MAMA_TEST_*` secrets for two disposable test accounts and a fixture journey. Do not use real users or production credentials.
+
+### Pending
+Live Supabase migration execution, independent RLS integration test results, browser/mobile E2E, Vercel deployment, medical review, legal compliance assessment, and erasure function activation. These are not demonstrated by a passing Vite build.
