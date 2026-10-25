@@ -286,6 +286,7 @@ export default function App(){
   setPrivacy(next);
  }
  async function exportAllData(){
+  let extra=emptyPrivateExportRows();
   let records:Journey[]=journeys;
   if(!demo&&user&&supabase){
     await Promise.all(Object.values(writeQueue.current).map(p=>p.catch(()=>{})));
