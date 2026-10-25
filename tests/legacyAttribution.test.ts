@@ -2,7 +2,7 @@ import {describe,it,expect} from 'vitest';
 import {findLegacyAssignment,legacyEntries} from '../src/lib/legacyAttribution';
 describe('original record provenance',()=>{
  it('does not clone clinical observations into another child',()=>{
-  const source={growth:[{id:'g',measured_on:'2026-10-20',weight_kg:3.4,length_cm:52}],immunizations:[{id:'i',dose_id:'BCG',given_on:'2026-10-20'}]};
+  const source={growth:[{id:'g',measured_on:'2026-10-20',weight_kg:3.4,length_cm:52}],immunizations:[{id:'i',dose_id:'BCG',given_on:'2026-10-20',facility:'',note:''}]};
   const list=legacyEntries(source);
   expect(list.map(x=>x.sourceId)).toEqual(['g','i']);
   expect(source.growth).toHaveLength(1);
