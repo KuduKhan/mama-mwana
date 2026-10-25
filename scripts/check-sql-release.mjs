@@ -34,7 +34,7 @@ for(const file of files){
 const attribution=readFileSync(files[0],'utf8'),sharing=readFileSync(files[1],'utf8');
 for(const [re,message] of [
  [/confirmed_by\s+is\s+distinct\s+from\s+auth\.uid\(\)/i,'attributions require authenticated actor'],
- [/child_id\s*=\s*new\.child_id\s+and\s+c\.journey_id\s*=\s*new\.journey_id/i,'attribution must link within same journey'],
+ [/c\.id\s*=\s*new\.child_id\s+and\s+c\.journey_id\s*=\s*new\.journey_id/i,'attribution must link within same journey'],
  [/source_id\s*=\s*new\.source_id\s+and\s+m\.owner_id\s*=\s*new\.owner_id/i,'growth source must be owner scoped'],
  [/source_id\s*=\s*new\.source_id\s+and\s+v\.owner_id\s*=\s*new\.owner_id/i,'vaccination source must be owner scoped'],
  [/MM_LINK_CONFLICT/,'version conflict must be rejected'],
