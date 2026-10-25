@@ -68,7 +68,7 @@ const uniqueToggle=(a:string[],id:string)=>a.includes(id)?a.filter(v=>v!==id):[.
 const isTab=(value:unknown):value is Tab=>typeof value==='string'&&NAV.some(item=>item.id===value);
 
 /** Keyboard-only modal behavior: trap Tab, support Escape, restore original focus. */
-function useModalFocus(open:boolean,onDismiss:()=>void){
+function useModalFocus(open:boolean,onDismiss:()=>void,restoreSelector?:string){
  const dialogRef=useRef<HTMLDivElement|null>(null);
  const dismissRef=useRef(onDismiss);
  dismissRef.current=onDismiss;
@@ -93,7 +93,15 @@ function useModalFocus(open:boolean,onDismiss:()=>void){
    }
   };
   document.addEventListener('keydown',onKey,true);
-  return ()=>{document.removeEventListener('keydown',onKey,true);if(before?.isConnected)before.focus();};
+  return ()=>{
+   document.removeEventListener('keydown',onKey,true);
+   // Some parent sections are recreated on close. Resolve the returned focus
+   // target from the new DOM instead of relying on a detached button node.
+   if(before?.isConnected)before.focus();
+   else if(restoreSelector)queueMicrotask(()=>{
+    document.querySelector<HTMLElement>(restoreSelector)?.focus();
+   });
+  };
  },[open]);
  return dialogRef;
 }
@@ -174,7 +182,7 @@ function NewVisitForm({onSave,onCancel}:{onSave:(v:Visit)=>void;onCancel:()=>voi
 }
 function BirthModal({onClose,onBirth,dueDate}:{onClose:()=>void;onBirth:(date:string,name:string)=>void;dueDate:string}){
  const [date,setDate]=useState(todayISO()),[name,setName]=useState(''),[error,setError]=useState('');
- const dialogRef=useModalFocus(true,onClose);
+ const dialogRef=useModalFocus(true,onClose,'.baby-locked .btn');
  function submit(e:FormEvent){e.preventDefault();if(!isValidBirthDate(date,dueDate)){setError('Please enter a valid birth date. Contact your care provider if your dates need correcting.');return;}if(name.trim().length<1||name.trim().length>80){setError('Enter your baby’s name (up to 80 characters).');return;}onBirth(date,name.trim());}
  return <div className="modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)onClose();}}><div className="modal" ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="birth-title"><button className="modal-close" aria-label="Close" onClick={onClose}><X size={20}/></button><div className="modal-mark"><Baby size={26}/></div><h2 id="birth-title">Hello, little one! <span aria-hidden="true">♡</span></h2><p className="muted">This special moment connects your pregnancy journal with your baby’s growth tracker and your postpartum recovery guidance.</p><form className="stack-form" onSubmit={submit}><label>Baby’s name<input value={name} maxLength={80} required placeholder="Your baby’s name" onChange={e=>setName(e.target.value)}/></label><label>Date of birth<input type="date" required max={todayISO()} value={date} onChange={e=>setDate(e.target.value)}/></label><div className="inline-note">Birth and recovery information should be confirmed with your maternity care team. This does not replace medical discharge instructions.</div>{error&&<div role="alert" className="error">{error}</div>}<Button type="submit">Begin our next chapter <ArrowRight size={16}/></Button></form></div></div>;
 }
