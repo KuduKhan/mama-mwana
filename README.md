@@ -214,3 +214,16 @@ All care questions and notes are caregiver-authored and educational. They are no
 ### Deployment dependencies
 
 v0.7 depends on v0.6 canonical clinical API and should be deployed after v0.6 data migrations have been verified. Vercel deployment and live Supabase testing were not performed by this release branch.
+
+## v0.7 premium interface refresh (October 2026)
+
+The full screen system now uses a consistent botanical design palette, an improved icon set, elevated cards, expressive editorial headings, and handwritten-style visual accents in a few short headings. Instructional, clinical, and form text remains a readable system sans-serif. The typography uses system/local fonts only—**no third-party font request or personal health context is sent to a font CDN**.
+
+The app layout and navigation were refined on small phones, tablets, short-height laptops, desktops, and narrow panes. Sidebar navigation is scrollable without hiding sign-out, and five mobile quick-navigation destinations include the Care Planner. Page context appears in the top bar; the mobile menu supports Escape and accessibility attributes. The responsive layer lives in `src/premium.css` and is loaded after v0.7 styles to avoid altering clinical and data-rights behavior.
+
+Design tokens:
+- forest `#153f36`, botanical green `#277b5e`, warm ivory `#faf9f4`, coral `#c07567`, lilac `#76678e`.
+- System text stack `Avenir Next / Segoe UI / Inter / sans-serif`; display serif `Iowan Old Style / Baskerville / Georgia`; short decorative script `Segoe Print / Bradley Hand / cursive`.
+- Safe mobile navigation + container min-width rules, responsive grid breakpoints at 1200/1000/760/570/400 px, small viewport height adaptation, high-contrast and reduced-motion alternatives.
+
+**Verification boundary:** CI checks type safety, unit tests and production build. A successful build is not a guarantee of pixel-perfect rendering. Manually inspect 320, 360, 390, 430, 768, 1024, 1280, 1440 and 1920 px widths, with Safari/iOS, Chrome/Android and desktop browsers. Test longer translated/custom names, zoom to 200%, focus indicators, keyboard tab order, menu/scrolling, complex clinical/timeline tables, and font fallback. Run real-browser visual regression and accessibility audits before production release. All clinical/privacy approval gates remain mandatory and the production project is unchanged.

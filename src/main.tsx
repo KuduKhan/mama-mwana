@@ -6,4 +6,5 @@ import './v03.css';
 import './v04.css';
 import './v05.css';
 import './v07.css';
+import './premium.css';
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><App /></React.StrictMode>);
