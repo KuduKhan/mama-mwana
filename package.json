@@ -7,8 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "test": "vitest run tests",
+    "typecheck": "tsc --noEmit",
+    "test:ui": "playwright test -c playwright.config.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.58.0",
