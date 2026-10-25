@@ -1,10 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import FailureBoundary from './components/FailureBoundary';
 import './styles.css';
 import './v03.css';
 import './v04.css';
 import './v05.css';
 import './v07.css';
 import './premium.css';
-ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><App /></React.StrictMode>);
+ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><FailureBoundary><App /></FailureBoundary></React.StrictMode>);
