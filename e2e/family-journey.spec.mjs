@@ -6,7 +6,7 @@ test('separate child records work in the local-only demo',async({page})=>{
  await page.locator('.sidebar-nav').getByRole('button',{name:'Family journeys',exact:true}).click();
  await expect(page.locator('.family09')).toBeVisible();
  const profile=page.locator('.family09-form').first();
- await profile.locator('input[type=text]').first().fill('Sample Child');
+ await profile.locator('input').first().fill('Sample Child');
  await profile.getByRole('button',{name:/Add child profile/i}).click();
  await expect(page.locator('.family09-profiles')).toContainText('Sample Child');
  await expect(page.locator('.family09-records')).toBeVisible();
