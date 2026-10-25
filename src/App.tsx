@@ -62,7 +62,7 @@ const URGENT=[
 const uniqueToggle=(a:string[],id:string)=>a.includes(id)?a.filter(v=>v!==id):[...a,id];
 function Brand({inverse=false}:{inverse?:boolean}){
  return <div className={'brand '+(inverse?'brand-inverse':'')}>
-   <div className="brand-icon" aria-hidden="true"><Heart size={19} strokeWidth={2.5}/><span className="brand-dot"/></div>
+   <div className="brand-icon" aria-hidden="true"><HeartHandshake size={23} strokeWidth={1.85}/><span className="brand-dot"/></div>
    <div className="brand-title">mama<span>mwana</span><small>EVERY LITTLE BEGINNING MATTERS</small></div>
  </div>;
 }
@@ -95,7 +95,7 @@ function AuthGate({onDemo}:{onDemo:()=>void}){
  }
  return <div className="auth-layout">
    <div className="auth-story"><Brand inverse/><div className="auth-art" aria-hidden="true"><div className="art-orbit orbit-one"/><div className="art-orbit orbit-two"/><div className="art-center"><Heart size={76} strokeWidth={1.15}/><span className="art-small-dot"/></div><Sparkles className="art-spark-one"/><Sparkles className="art-spark-two"/></div>
-     <div className="auth-story-copy"><div className="eyebrow pale">A GENTLER WAY TO GROW</div><h1>Every beginning<br/>deserves <em>care.</em></h1><p>From the first exciting weeks through your baby’s earliest milestones—one thoughtful place for your whole journey.</p><div className="auth-micro"><span><CheckCircle2 size={16}/> Pregnancy to parenthood</span><span><ShieldCheck size={16}/> Private by design</span></div></div>
+     <div className="auth-story-copy"><div className="eyebrow pale">A GENTLER WAY TO GROW</div><h1>Every beginning<br/>deserves <em className="handwritten-accent">care.</em></h1><p>From the first exciting weeks through your baby’s earliest milestones—one thoughtful place for your whole journey.</p><div className="auth-micro"><span><CheckCircle2 size={16}/> Pregnancy to parenthood</span><span><ShieldCheck size={16}/> Private by design</span></div></div>
    </div>
    <div className="auth-form-side"><div className="auth-mobile-brand"><Brand/></div><div className="auth-panel">
    <div className="badge-soft"><Sparkles size={14}/> Welcome to MamaMwana</div>
@@ -118,7 +118,7 @@ function Onboarding({onCreate,isDemo,onCancel}:{onCreate:(j:Journey)=>void;isDem
  function submit(e:FormEvent){e.preventDefault();const validation=validateOnboarding(name,due);if(validation){setError(validation);return;}onCreate(makeJourney(name,due));}
  return <div className="onboarding">
    <div className="onboarding-top"><Brand/><div className="onboarding-top-actions">{onCancel&&<Button variant="subtle" Icon={ArrowLeft} onClick={onCancel}>Back to family</Button>}<span className="mini-pill">{isDemo?'Preview mode':'Private profile setup'}</span></div></div>
-   <div className="onboarding-grid"><div className="onboarding-intro"><div className="badge-soft"><Heart size={14}/> First things first</div><h1>Tell us a little<br/>about <em>your journey.</em></h1><p>We’ll use your estimated due date to help you discover pregnancy stages, suggested learning and gentle everyday reminders.</p>
+   <div className="onboarding-grid"><div className="onboarding-intro"><div className="badge-soft"><Heart size={14}/> First things first</div><h1>Tell us a little<br/>about <em className="handwritten-accent">your journey.</em></h1><p>We’ll use your estimated due date to help you discover pregnancy stages, suggested learning and gentle everyday reminders.</p>
      <div className="setup-benefits"><span><CheckCircle2/> Week-by-week guidance</span><span><CheckCircle2/> Personal appointment journal</span><span><CheckCircle2/> One continuous baby journey</span></div>
      <div className="onboard-decoration"><Heart size={72} strokeWidth={1}/></div></div>
    <Panel className="onboard-form"><h2>Create your pregnancy profile</h2><p className="muted">You can adjust your plan with advice from your healthcare professional.</p>
@@ -158,6 +158,7 @@ export default function App(){
  const [loadingJourney,setLoadingJourney]=useState(false);
  const [tab,setTab]=useState<Tab>('home');
  const [menuOpen,setMenuOpen]=useState(false);
+ useEffect(()=>{if(!menuOpen)return;const dismiss=(e:KeyboardEvent)=>{if(e.key==='Escape')setMenuOpen(false);};window.addEventListener('keydown',dismiss);return()=>window.removeEventListener('keydown',dismiss);},[menuOpen]);
  const [toast,setToast]=useState('');
  const [warningOpen,setWarningOpen]=useState(false);
  const [birthOpen,setBirthOpen]=useState(false);
@@ -347,8 +348,9 @@ export default function App(){
  function Home(){
  return <div className="page-content">
    <div className="hero-card">
+    <div className="hero-warmth" aria-hidden="true"/>
     <div className="hero-copy"><span className="hero-eyebrow"><Sparkles size={14}/> {topLabel}</span>
-      <h2>{phase==='pregnancy'?'A beautiful chapter,':phase==='postpartum'?'A new kind of love,':'Every tiny milestone,'}<br/><em>{phase==='pregnancy'?'one day at a time.':phase==='postpartum'?'a brand-new chapter.':'a wonderful big step.'}</em></h2>
+      <h2>{phase==='pregnancy'?'A beautiful chapter,':phase==='postpartum'?'A new kind of love,':'Every tiny milestone,'}<br/><em className="handwritten-accent">{phase==='pregnancy'?'one day at a time.':phase==='postpartum'?'a brand-new chapter.':'a wonderful big step.'}</em></h2>
       <p>{phase==='pregnancy'?'Your baby is growing, and so are you. Let’s make room for little moments of care each day.':phase==='postpartum'?'Gentle support for your recovery and your newborn’s earliest days.':'Celebrate '+(activeJourney.baby_name||'your little one')+'’s discoveries and keep growing together.'}</p>
       <Button variant="secondary" onClick={()=>enterTab(phase==='pregnancy'?'pregnancy':'baby')}>Explore your journey <ArrowRight size={16}/></Button>
     </div>
@@ -465,18 +467,18 @@ export default function App(){
  </div>;
  }
  return <div className="app-shell">
-  <aside className={'sidebar '+(menuOpen?'sidebar-open':'')}>
+  <aside id="mamamwana-primary-navigation" className={'sidebar '+(menuOpen?'sidebar-open':'')}>
    <div className="sidebar-header"><Brand/><button className="mobile-close" aria-label="Close navigation" onClick={()=>setMenuOpen(false)}><X size={20}/></button></div>
-   <div className="sidebar-intro"><span className="eyebrow">YOUR SAFE SPACE</span><div className="sidebar-greeting">Growing together <span>♡</span></div></div>
+   <div className="sidebar-intro"><span className="eyebrow">YOUR SAFE SPACE</span><div className="sidebar-greeting">Growing together <Heart size={17} strokeWidth={1.8} aria-hidden="true"/></div></div>
    <div className="nav-heading">YOUR JOURNEY</div>
-   <nav className="sidebar-nav" aria-label="Primary navigation">{NAV.map(({id,label,Icon})=><button key={id} onClick={()=>enterTab(id)} className={'nav-item '+(tab===id?'selected':'')} aria-current={tab===id?'page':undefined}><Icon size={19} strokeWidth={1.9}/>{label}{tab===id&&<span className="nav-active-dot"/>}</button>)}</nav>
+   <nav className="sidebar-nav" aria-label="Primary navigation">{NAV.map(({id,label,Icon})=><button key={id} onClick={()=>enterTab(id)} className={'nav-item '+(tab===id?'selected':'')} aria-current={tab===id?'page':undefined}><Icon size={19} strokeWidth={1.9} aria-hidden="true"/>{label}{tab===id&&<span className="nav-active-dot"/>}</button>)}</nav>
    <div className="sidebar-spacer"/>
    <div className="sidebar-support"><span className="sidebar-support-icon"><ShieldCheck size={21}/></span><strong>Your health matters</strong><p>Medical concerns always deserve a real healthcare professional.</p><button onClick={()=>setWarningOpen(true)}>When to seek help <ArrowRight size={14}/></button></div>
    <div className="sidebar-footer"><button onClick={signOut}><LogOut size={17}/>{demo?'Exit demo':'Sign out'}</button><span>© 2026 MamaMwana • v0.7</span></div>
   </aside>
   {menuOpen&&<button className="drawer-backdrop" aria-label="Close menu" onClick={()=>setMenuOpen(false)}/>}
   <div className="app-main">
-   <header className="topbar"><div className="topbar-left"><button className="hamburger" aria-label="Open navigation" onClick={()=>setMenuOpen(true)}><Menu size={22}/></button><div className="topbar-context"><div className="topbar-hello">Hello, {displayName} <span>✳</span></div><div className="topbar-subtitle">A little love and care for today</div></div></div><div className="topbar-actions">
+   <header className="topbar"><div className="topbar-left"><button className="hamburger" aria-label="Open navigation" aria-expanded={menuOpen} aria-controls="mamamwana-primary-navigation" onClick={()=>setMenuOpen(true)}><Menu size={22}/></button><div className="topbar-context"><div className="topbar-hello">Hello, {displayName} <Sparkles className="topbar-spark" size={18} strokeWidth={1.8} aria-hidden="true"/></div><div className="topbar-subtitle"><span className="topbar-current-page">{NAV.find(item=>item.id===tab)?.label??'Your journey'}</span><span className="topbar-subtitle-divider" aria-hidden="true">•</span> Growing with care</div></div></div><div className="topbar-actions">
      {demo?<span className="env-label"><Cloud size={15}/> Unsaved demo</span>:<span className={'env-label '+(saveStatus==='error'?'env-error':'')}><CheckCircle2 size={15}/>{saveStatus==='saving'?'Saving…':saveStatus==='error'?'Save failed':'Private account'}</span>}
      <button className="topbar-family" onClick={()=>enterTab('family')}><Users size={16}/> Family ({journeys.length})</button><button aria-label="Health warning signs" className="topbar-icon" onClick={()=>setWarningOpen(true)}><ShieldAlert size={19}/></button><span className="avatar">{displayName.slice(0,1).toUpperCase()}</span>
    </div></header>
@@ -484,7 +486,7 @@ export default function App(){
    <main>{tab==='home'?<Home/>:tab==='family'?<Family/>:tab==='pregnancy'?<Pregnancy/>:tab==='care'?<Care/>:tab==='visits'?<Visits/>:tab==='birth'?<Birth/>:tab==='baby'?<BabyPage/>:tab==='planner'?<CarePlannerV07 journey={activeJourney} isDemo={demo} userId={user?.id??null}/>:tab==='records'?<ClinicalRecordsV04 journey={activeJourney} isDemo={demo}/>:tab==='guidance'?<GuidanceV04 stage={phase} allowStageContext={privacy.guidance_context} userId={user?.id??null} isDemo={demo}/>:tab==='privacy'?<PrivacyV04 journeys={journeys} selectedId={activeJourney.id} choices={privacy} isDemo={demo} userId={user?.id??null} onChange={savePrivacy} onExport={exportAllData} onDelete={deleteJourney}/>:<Library/>}</main>
    <footer className="app-footer"><span>MamaMwana • Made for every little beginning</span><span>Educational support, never a substitute for professional healthcare</span></footer>
   </div>
-  <nav className="mobile-tabs" aria-label="Quick navigation">{[{id:'home' as Tab,label:'Home',Icon:House},{id:'care' as Tab,label:'Today',Icon:Heart},{id:'visits' as Tab,label:'Visits',Icon:CalendarDays},{id:'baby' as Tab,label:'Baby',Icon:Baby}].map(({id,label,Icon})=><button key={id} className={tab===id?'active':''} onClick={()=>enterTab(id)}><Icon size={21}/><span>{label}</span></button>)}</nav>
+  <nav className="mobile-tabs" aria-label="Quick navigation">{[{id:'home' as Tab,label:'Home',Icon:House},{id:'care' as Tab,label:'Today',Icon:Heart},{id:'planner' as Tab,label:'Planner',Icon:ListTodo},{id:'visits' as Tab,label:'Visits',Icon:CalendarDays},{id:'baby' as Tab,label:'Baby',Icon:Baby}].map(({id,label,Icon})=><button key={id} className={tab===id?'active':''} aria-current={tab===id?'page':undefined} onClick={()=>enterTab(id)}><Icon size={21} strokeWidth={1.85} aria-hidden="true"/><span>{label}</span></button>)}</nav>
   {warningOpen&&<div className="modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setWarningOpen(false);}}><div className="modal warning-modal" role="dialog" aria-modal="true" aria-labelledby="urgent-title"><button className="modal-close" aria-label="Close" onClick={()=>setWarningOpen(false)}><X size={20}/></button><div className="modal-mark danger"><ShieldAlert size={26}/></div><h2 id="urgent-title">When to seek urgent help</h2><p className="muted">If you or your baby has any of these concerns, seek immediate in-person medical assessment or contact local emergency services. Do not wait for an app response.</p><ul className="urgent-list">{URGENT.map(t=><li key={t}><span className="urgent-dot"/>{t}</li>)}</ul><p className="footnote">This is not an exhaustive list. If something feels seriously wrong, get checked promptly. For urgent warning signs, follow your local emergency care instructions.</p><Button onClick={()=>setWarningOpen(false)}>I understand</Button></div></div>}
   {birthOpen&&<BirthModal dueDate={activeJourney.due_date} onClose={()=>setBirthOpen(false)} onBirth={markBirth}/>}
   {toast&&<Notification message={toast} onClose={()=>setToast('')}/>}
