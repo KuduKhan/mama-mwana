@@ -1,7 +1,7 @@
 import type {SupabaseClient} from '@supabase/supabase-js';
 import type {Journey} from './domain';
 import type {PrivacyChoices} from './privacy';
-const TABLES=['family_children','family_growth_entries','family_vaccine_entries','family_legacy_links','family_legacy_link_events','care_plan_items','family_record_events','care_plan_events','clinical_record_events','data_rights_requests'] as const;
+const TABLES=['family_children','family_growth_entries','family_vaccine_entries','family_legacy_links','family_legacy_link_events','caregiver_invitations','caregiver_invitation_events','care_plan_items','family_record_events','care_plan_events','clinical_record_events','data_rights_requests'] as const;
 type Table=typeof TABLES[number];
 export type PrivateExportRows=Record<Table,Record<string,unknown>[]>;
 export function emptyPrivateExportRows():PrivateExportRows{
@@ -33,6 +33,8 @@ export function buildCompleteExport(journeys:readonly Journey[],privacy:PrivacyC
   child_vaccinations:rows.family_vaccine_entries,
   legacy_record_attributions:rows.family_legacy_links,
   legacy_attribution_history:rows.family_legacy_link_events,
+  caregiver_invitations:rows.caregiver_invitations,
+  caregiver_invitation_history:rows.caregiver_invitation_events,
   care_planner:rows.care_plan_items,
   change_history:{family:rows.family_record_events,care_plan:rows.care_plan_events,clinical:rows.clinical_record_events},
   data_rights_requests:rows.data_rights_requests
