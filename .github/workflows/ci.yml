@@ -20,6 +20,12 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Reject administrative credentials in browser source
         run: npm run security:client
+      - name: Check clinical SQL authorization contracts
+        run: npm run security:sql
+      - name: Validate normalized local migration workspace
+        run: npm run test:local:prepare
+      - name: Check local Auth fixture runner syntax
+        run: node --check scripts/run-local-security.mjs && node --check scripts/prepare-local-migrations.mjs
       - name: Typecheck
         run: npm run typecheck
       - name: Domain unit tests

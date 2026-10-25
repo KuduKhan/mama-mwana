@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import {LocaleProvider} from './lib/locale';
 import FailureBoundary from './components/FailureBoundary';
 import './styles.css';
 import './v03.css';
@@ -10,4 +11,6 @@ import './v07.css';
 import './premium.css';
 import './v09.css';
 import './v10.css';
-ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><FailureBoundary><App /></FailureBoundary></React.StrictMode>);
+import './v10-legacy.css';
+import './v11-sharing.css';
+ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><FailureBoundary><LocaleProvider><App /></LocaleProvider></FailureBoundary></React.StrictMode>);

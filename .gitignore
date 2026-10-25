@@ -6,3 +6,6 @@ dist
 .DS_Store
 coverage
 *.tsbuildinfo
+
+# Generated, disposable Supabase migration testing workspace.
+.mamamwana-local/

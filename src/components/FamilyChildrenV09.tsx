@@ -2,6 +2,8 @@ import {useEffect,useMemo,useState} from 'react';
 import type {FormEvent} from 'react';
 import {Baby,Plus,RefreshCw,ShieldCheck,TrendingUp,CalendarCheck} from 'lucide-react';
 import {supabase} from '../lib/supabase';
+import LegacyAttributionV10 from './LegacyAttributionV10';
+import {CaregiverOwnerPanel} from './CaregiverAccessV10';
 import {readable,todayISO} from '../lib/domain';
 import type {Journey} from '../lib/domain';
 import {nextBirthOrder,validateChildDraft,validateGrowthDraft,validateVaccineDraft} from '../lib/family';
@@ -145,6 +147,8 @@ export default function FamilyChildrenV09({journey,isDemo,userId}:Props){
     </div>
    </div>}
   </>}
+  <LegacyAttributionV10 journey={journey} child={child??null} userId={userId} isDemo={demo}/>
+  <CaregiverOwnerPanel child={child??null} userId={userId} demo={demo}/>
   {demo&&<p className="muted">Demo entries are temporary and not saved.</p>}
  </section>;
 }
