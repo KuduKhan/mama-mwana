@@ -1,0 +1,299 @@
+@font-face{
+ font-family:"MamaMwana Script";
+ src:url("/fonts/DancingScript-Variable.ttf") format("truetype");
+ font-style:normal;
+ font-weight:400 700;
+ font-display:swap;
+}
+/* Self-hosted under SIL Open Font License; see public/fonts/OFL-DancingScript.txt. */
+/* MamaMwana Studio v1.1.1 — mobile-first repair. This final layer intentionally supersedes
+   inherited tablet/phone styles without changing clinical behavior or hiding readable text. */
+:root{
+ --mm-mobile-radius:19px;
+ --mm-mobile-pad:clamp(13px,4vw,20px);
+ --mm-script-font:"MamaMwana Script","Segoe Script","Bradley Hand","Apple Chancery",cursive;
+}
+.mobile-header-brand,.mobile-welcome{display:none}
+:where(.app-main,.app-main>main,.page-content,.panel,.ch-card,.auth-layout,.auth-form-side,.auth-panel,.onboarding,.onboarding-grid,.baby-hero,.family09,.care07,.v4-page,.studio-command){min-width:0;max-width:100%}
+:where(.page-content,.panel,.ch-card,.care07,.v4-page,.family09) :is(h1,h2,h3,h4,p,small,strong,label,span){overflow-wrap:break-word}
+:where(.page-content,.panel,.ch-card,.care07,.v4-page,.family09) :is(button,a){min-width:0;max-width:100%;white-space:normal}
+:where(.page-content,.panel,.ch-card,.care07,.v4-page,.family09) :is(input,textarea,select){min-width:0;max-width:100%;box-sizing:border-box}
+:where(.page-content,.panel,.ch-card,.care07,.v4-page,.family09) :is(pre,table){max-width:100%}
+:where(.page-content,.panel,.ch-card,.care07,.v4-page,.family09) :is(pre){overflow-x:auto}
+:where(.page-content,.panel,.ch-card,.care07,.v4-page,.family09) :is(table){display:block;overflow-x:auto}
+:where(.page-content,.panel,.ch-card,.care07,.v4-page,.family09) :is(img,video){max-width:100%;height:auto}
+/* The script is expressive but always optional. Long clinical instructions stay in sans serif. */
+.handwritten-accent{
+ font-family:var(--mm-script-font);
+ font-weight:500;
+ font-style:normal;
+ font-synthesis:style;
+ font-size:1em;
+ letter-spacing:-.012em;
+ line-height:1.4;
+ color:var(--studio-warm);
+ background:linear-gradient(transparent 83%,rgba(208,135,118,.20) 83%,rgba(208,135,118,.20) 92%,transparent 92%);
+ -webkit-box-decoration-break:clone;
+ box-decoration-break:clone;
+ padding-inline:.065em;
+ text-decoration:none;
+ overflow-wrap:normal;
+ word-break:normal;
+ hyphens:none;
+}
+.hero-copy h2 .handwritten-accent,
+.auth-story-copy h1 .handwritten-accent,
+.onboarding-intro h1 .handwritten-accent{
+ font-family:var(--mm-script-font);
+ font-size:.99em;
+ line-height:1.4;
+ font-weight:500;
+ letter-spacing:-.012em;
+}
+.auth-story-copy .handwritten-accent{color:#fbe1c3;background:linear-gradient(transparent 84%,rgba(255,230,193,.24) 84%,rgba(255,230,193,.24) 90%,transparent 90%)}
+/* Let parent containers grow with real content, rather than forcing long text into fixed heights. */
+.hero-copy h2,.auth-story-copy h1,.onboarding-intro h1{
+ text-wrap:balance;
+ overflow:visible;
+ word-break:normal;
+ line-height:1.25;
+}
+.hero-card,.hero-copy,.hero-copy h2,.auth-story-copy,.onboarding-intro{min-width:0}
+.hero-copy p,.auth-story-copy p,.onboarding-intro>p{overflow-wrap:break-word}
+
+/* One consistent mobile shell below desktop sidebar breakpoint */
+@media(max-width:760px){
+ html,body,#root{max-width:100%;margin:0}
+ .app-shell{width:100%;min-width:0;display:block}
+ .app-main{width:100%;max-width:100%;min-width:0}
+ .app-main>main{width:100%;max-width:100%;min-width:0;overflow-x:visible}
+ .sidebar{width:min(340px,87vw);max-width:87vw;height:100dvh;min-height:0;position:fixed;top:0;left:0;overflow:hidden}
+ .sidebar-header{padding:19px 17px;gap:9px}
+ .sidebar-header .brand{flex:1;min-width:0}
+ .sidebar-header .brand-title{font-size:21px}
+ .sidebar-nav{min-height:0;overflow-y:auto;overscroll-behavior:contain;padding-bottom:25px}
+ .sidebar-support{padding:11px 14px;margin:8px 13px 7px}
+ .sidebar-footer{padding:8px 17px calc(12px + env(safe-area-inset-bottom,0px))}
+ .sidebar-footer>span{margin-top:5px}
+ .drawer-backdrop{inset:0;touch-action:none}
+ /* A clean single-line command row: no greeting or account labels competing for width. */
+ .topbar{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;gap:7px;
+  height:65px;min-height:65px;
+  width:100%;padding:0 max(12px,env(safe-area-inset-left,0px)) 0 max(12px,env(safe-area-inset-right,0px));
+  position:sticky;top:0;z-index:30;
+  background:rgba(255,254,251,.965);
+  box-shadow:0 6px 25px rgba(24,64,45,.045)
+ }
+ .topbar-left{display:flex;gap:8px;align-items:center;min-width:0}
+ .topbar-context,.topbar-actions .env-label,.topbar-family,.topbar .avatar,.topbar-icon{display:none!important}
+ .hamburger{display:grid;flex:0 0 43px;width:43px;min-width:43px;height:43px;min-height:43px;border-radius:13px}
+ .mobile-header-brand{display:inline-flex;align-items:baseline;gap:0;min-width:0;white-space:nowrap;
+  color:var(--studio-accent-deep);font-family:var(--studio-sans);font-weight:840;
+  font-size:clamp(14px,3.5vw,19px);letter-spacing:-.06em;line-height:1.1}
+ .mobile-header-brand>span{color:var(--studio-warm)}
+ .mobile-header-brand svg{align-self:center;flex:0 0 auto;margin-left:3px;color:var(--studio-warm)}
+ .topbar-actions{display:flex;align-items:center;justify-content:flex-end;flex:0 0 auto;min-width:0;gap:5px}
+ .topbar-actions .studio-action,.topbar-actions .studio-theme-button{width:42px;height:43px;min-width:42px;min-height:43px;padding:0}
+ .topbar-actions .studio-action span,.topbar-actions .studio-action kbd{display:none}
+ .topbar-actions .locale-switch{display:block;flex:0 0 auto}
+ .topbar-actions .locale-switch select{
+  width:46px;max-width:46px;min-width:46px;
+  height:43px;min-height:43px;padding:4px 3px;
+  border-radius:12px;background:var(--studio-surface);
+  color:var(--studio-accent-deep);font-size:12px;font-weight:800;text-align:center;
+ }
+ /* Full greeting is deliberately moved to its own fluid, accessible row. */
+ .mobile-welcome{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;padding:14px 17px;
+  background:linear-gradient(118deg,var(--studio-highlight),var(--studio-surface));
+  border-bottom:1px solid var(--studio-line);min-width:0;min-height:75px
+ }
+ .mobile-welcome-copy{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}
+ .mobile-welcome-eyebrow{text-transform:uppercase;letter-spacing:.13em;font-weight:820;font-size:9px;color:var(--studio-accent);line-height:1.45}
+ .mobile-welcome-copy>strong{font-family:var(--studio-heading);font-weight:680;color:var(--studio-ink);
+  letter-spacing:-.025em;line-height:1.25;font-size:clamp(17px,4.6vw,22px);overflow-wrap:anywhere}
+ .mobile-welcome-copy>strong svg{display:inline-block;color:var(--studio-warm);vertical-align:baseline;margin-left:5px}
+ .mobile-welcome-current{font-size:11px;color:var(--studio-ink-soft);font-weight:700;line-height:1.4}
+ .mobile-welcome-status{flex:0 0 auto;max-width:40%;min-width:0;
+  display:flex;align-items:center;gap:7px;
+  padding:8px 10px;border-radius:99px;border:1px solid var(--studio-line);
+  background:var(--studio-surface);font-size:10px;color:var(--studio-accent-deep);
+  font-weight:800;line-height:1.25;overflow-wrap:break-word}
+ .mobile-welcome-status.is-error{background:#fff1ef;color:#a33a32}
+ .mobile-status-dot{display:block;width:7px;height:7px;flex:0 0 7px;border-radius:50%;background:var(--studio-accent)}
+ .mobile-welcome-status.is-error .mobile-status-dot{background:#bb524a}
+ .demo-banner{display:flex;align-items:flex-start;gap:9px;padding:11px 16px;line-height:1.55;min-width:0}
+ .demo-banner>span{min-width:0;flex:1;font-size:11px}
+ .demo-banner svg{flex-shrink:0}
+ .demo-banner button{min-width:0;white-space:nowrap;margin-left:auto;font-size:11px}
+ .page-content{
+  width:100%;max-width:100%;min-width:0;
+  padding:clamp(18px,4.5vw,27px) clamp(12px,3.8vw,21px)
+   calc(93px + env(safe-area-inset-bottom,0px));
+ }
+ .page-content>*{min-width:0}
+ .section-heading{display:flex;flex-direction:column;align-items:stretch;gap:10px;margin-bottom:22px}
+ .section-heading h2{font-family:var(--studio-heading);font-size:clamp(28px,6.5vw,37px);line-height:1.18;letter-spacing:-.035em}
+ .section-heading p{font-size:13px;line-height:1.65}
+ .section-heading>.btn,.section-heading>span{align-self:flex-start}
+ .panel,.ch-card{padding:clamp(16px,4vw,23px);border-radius:var(--mm-mobile-radius)}
+ .panel-heading{align-items:flex-start;flex-wrap:wrap;gap:10px}
+ .panel-heading>div,.panel-heading>*{min-width:0;max-width:100%}
+ .dashboard-grid,.pregnancy-grid,.family09-columns,.two-columns{grid-template-columns:minmax(0,1fr)}
+ .aside-stack{display:grid;grid-template-columns:minmax(0,1fr)}
+ .hero-card{min-width:0}
+ .hero-copy h2{font-family:var(--studio-heading);line-height:1.26;letter-spacing:-.035em}
+ .hero-copy h2 .handwritten-accent{line-height:1.43}
+ .hero-copy p{line-height:1.7;font-size:13px}
+ .hero-card .btn{min-height:45px}
+ .metric-card{overflow:visible;min-width:0;border-radius:18px}
+ .metric-card>strong{overflow-wrap:anywhere}
+ .care07-form-grid,.family09-grid,.v5-rights-options{grid-template-columns:1fr}
+ .family09-profiles{grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr))}
+ .family09-profiles button{min-width:0}
+ .family09-profiles button>span{min-width:0}
+ .family09-form{padding:clamp(13px,3.7vw,19px);margin-inline:0}
+ .family09-form button{justify-self:stretch;max-width:100%}
+ .care07-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .care07-metrics>div:last-child{grid-column:1/-1}
+ .care07-entry-actions,.appointment-actions{padding-left:0;width:100%;display:flex;flex-wrap:wrap;gap:7px}
+ .care07-entry-actions button,.appointment-actions button{flex:1 1 auto;min-width:0}
+ .care07-tabs{min-width:0;display:flex;flex-wrap:wrap;gap:6px}
+ .care07-tabs button{min-height:42px;flex:1 1 83px;white-space:normal}
+ .care07-entry,.family-journey,.legacy10-row,.sharing10-list article{min-width:0}
+ .care07-form-bottom button,.care07-brief-controls>button{max-width:100%}
+ .legacy10-row,.sharing10-list article{flex-direction:column;align-items:stretch;gap:10px}
+ .legacy10-row button{width:100%;min-width:0}
+ .sharing10-actions button{flex:1 1 100px;min-width:0}
+ .milestone-tabs{scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;max-width:100%}
+ .milestone-tabs button{scroll-snap-align:start;flex-shrink:0}
+ .mobile-tabs{
+  position:fixed;bottom:0;left:0;right:0;width:100%;
+  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
+  z-index:29;gap:2px;padding:7px max(7px,env(safe-area-inset-right,0px))
+   calc(9px + env(safe-area-inset-bottom,0px));
+  border-top:1px solid var(--studio-line);
+  background:rgba(255,254,251,.96);backdrop-filter:blur(18px);
+ }
+ .mobile-tabs button{min-width:0;width:100%;min-height:55px;max-width:100%;
+  border-radius:13px;display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:5px;padding:6px 1px;
+  font-weight:740;font-size:clamp(9px,2.5vw,11px);line-height:1.15}
+ .mobile-tabs button span{overflow-wrap:normal;white-space:nowrap}
+ .mobile-tabs button svg{width:21px;height:21px}
+ .mobile-tabs button.active{background:var(--studio-highlight);color:var(--studio-accent-deep)}
+ .app-footer{padding:15px 15px calc(105px + env(safe-area-inset-bottom,0px));display:grid;gap:5px}
+ .app-footer span{overflow-wrap:break-word;max-width:100%}
+ .modal,.warning-modal{width:min(calc(100vw - 24px),480px);max-height:calc(100dvh - 24px);overflow-y:auto}
+ .studio-command{width:min(100%,600px);max-height:calc(100dvh - 45px)}
+ .studio-theme-popover{position:fixed;right:12px;top:68px;z-index:100;width:min(290px,calc(100vw - 24px));max-height:calc(100dvh - 84px);overflow-y:auto}
+ .onboarding{padding:18px 15px min(50px,5vh);min-height:100dvh;max-width:100%}
+ .onboarding-top{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap}
+ .onboarding-top-actions{min-width:0;max-width:100%;gap:8px}
+ .onboarding-grid{width:100%;max-width:640px;margin:25px auto 0;gap:14px;display:grid;grid-template-columns:minmax(0,1fr)}
+ .onboarding-intro{padding:0 1px 4px}
+ .onboarding-intro h1{font-size:clamp(31px,7.4vw,43px);line-height:1.25;margin-top:12px}
+ .onboarding-intro>p{font-size:13px;line-height:1.7}
+ .onboard-decoration{display:none}
+ .onboard-form{min-width:0}
+ .auth-layout{display:grid;grid-template-columns:minmax(0,1fr);min-height:100dvh}
+ .auth-story{padding:27px clamp(17px,4.3vw,32px);min-height:0}
+ .auth-story>.brand{display:none}
+ .auth-art{display:none}
+ .auth-story-copy{padding:4px 0 8px;margin:0}
+ .auth-story-copy h1{font-size:clamp(34px,8vw,44px);margin:6px 0 8px;line-height:1.25}
+ .auth-story-copy p{font-size:12px;line-height:1.65;max-width:53ch;margin:4px 0 12px}
+ .auth-micro{gap:12px;flex-wrap:wrap}
+ .auth-form-side{padding:24px 17px 44px;min-width:0}
+ .auth-panel{width:100%;max-width:500px;margin-inline:auto}
+ .auth-panel h2{font-size:clamp(29px,7vw,36px);line-height:1.2}
+ .auth-mobile-brand{min-width:0}
+ .auth-mobile-brand .brand{white-space:normal}
+}
+@media(max-width:570px){
+ .hero-card{
+  display:flex;flex-direction:column;gap:15px;height:auto;min-height:0;
+  padding:24px 21px 22px;overflow:hidden;position:relative
+ }
+ .hero-copy{width:100%;max-width:100%;min-width:0;position:relative;z-index:2}
+ .hero-copy h2{font-size:clamp(29px,7.5vw,39px);line-height:1.3;max-width:100%;margin:14px 0 12px}
+ .hero-copy h2 .handwritten-accent{font-size:.94em;line-height:1.42}
+ .hero-copy p{font-size:13px;max-width:100%;margin:0 0 16px}
+ .hero-card .hero-visual{display:none}
+ .hero-floating{
+  position:relative;right:auto;left:auto;top:auto;bottom:auto;
+  margin:0;display:inline-flex;align-self:flex-start;min-width:0;max-width:100%;
+  background:rgba(255,255,255,.86);padding:10px 15px;z-index:2
+ }
+ .hero-floating strong{font-size:20px}
+ .metrics-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .metrics-grid .metric-card{min-width:0;min-height:148px;padding:15px}
+ .metrics-grid .metric-card:last-child{grid-column:1/-1;min-height:118px}
+ .metric-card>strong{font-size:clamp(16px,4.2vw,20px)}
+ .library-grid,.baby-grid,.family-list,.form-row,.form-row.three,.ch-profile-form{grid-template-columns:minmax(0,1fr)}
+ .baby-hero{display:flex;align-items:flex-start;gap:14px;padding:18px 16px;flex-wrap:wrap;min-height:0}
+ .baby-hero-circle{width:75px;height:75px;min-width:75px;border-width:5px}
+ .baby-hero h3{font-size:clamp(22px,5vw,29px)}
+ :where(.stack-form,.inline-form) input:not([type=checkbox]),:where(.stack-form,.inline-form) select,
+ :where(.stack-form,.inline-form) textarea{font-size:16px}
+ .studio-command-backdrop{padding:16px 9px 9px;align-items:center}
+ .studio-command-bottom{flex-wrap:wrap;gap:7px}
+}
+@media(max-width:370px){
+ .topbar{padding-inline:9px;gap:4px}
+ .topbar-left{gap:6px}
+ .mobile-header-brand{font-size:14px;letter-spacing:-.07em}
+ .mobile-header-brand svg{display:none}
+ .hamburger{width:41px;min-width:41px;flex-basis:41px}
+ .topbar-actions{gap:3px}
+ .topbar-actions .studio-action,.topbar-actions .studio-theme-button{width:39px;min-width:39px}
+ .topbar-actions .locale-switch select{width:42px;min-width:42px;max-width:42px}
+ .mobile-welcome{padding:12px 12px;gap:9px}
+ .mobile-welcome-status{font-size:9px;padding:7px 8px;max-width:43%}
+ .page-content{padding-inline:11px}
+ .metrics-grid{grid-template-columns:minmax(0,1fr);gap:9px}
+ .metrics-grid .metric-card{display:grid;grid-template-columns:46px minmax(0,1fr);
+  align-items:center;column-gap:12px;row-gap:3px;padding:13px 14px;min-height:0}
+ .metrics-grid .metric-card:last-child{grid-column:auto;min-height:0}
+ .metric-card .metric-icon{grid-column:1;grid-row:1/span 3;align-self:center;width:43px;height:43px}
+ .metric-card>.metric-label,.metric-card>strong,.metric-card>.metric-foot,.metric-card>.progress-rail{grid-column:2}
+ .metrics-grid .metric-card>strong{font-size:17px}
+ .hero-card{padding:20px 16px 18px;gap:13px}
+ .hero-copy h2{font-size:clamp(27px,8vw,32px)}
+ .hero-copy p{font-size:12.5px}
+ .care07-metrics{grid-template-columns:minmax(0,1fr)}
+ .care07-metrics>div:last-child{grid-column:auto}
+ .care07-metrics>div{min-height:0;padding:14px 16px}
+ .section-heading h2{font-size:clamp(27px,7.8vw,31px)}
+ .panel,.ch-card{padding:15px}
+ .mobile-tabs button svg{width:20px;height:20px}
+ .mobile-tabs button{font-size:10.5px;min-height:56px;line-height:1.2}
+ .auth-story{padding:22px 17px}
+ .auth-story-copy h1{font-size:32px}
+}
+@media (max-width:760px) and (orientation:landscape) and (max-height:490px){
+ .mobile-welcome{padding-block:8px;min-height:0}
+ .mobile-welcome-eyebrow{display:none}
+ .mobile-tabs button{min-height:44px;gap:3px}
+ .mobile-tabs{padding-block:5px}
+ .sidebar-support{display:none}
+ .studio-command-backdrop{padding:6px}
+ .studio-command{max-height:calc(100dvh - 12px)}
+}
+@media (prefers-reduced-motion:reduce){
+ .mobile-tabs button,.topbar button,.hero-card,.panel{animation:none!important;transition:none!important}
+}
+
+/* Keep the hero's milestone completely outside the heading flow even on small tablets.
+   Older absolute-positioned variants collided in the 571–760px gap. */
+@media(min-width:571px) and (max-width:760px){
+ .hero-card{display:flex;flex-direction:column;gap:17px;min-height:0;height:auto;padding:31px 28px 25px}
+ .hero-copy{max-width:100%;width:100%;min-width:0}
+ .hero-copy h2{font-size:clamp(33px,5vw,43px);max-width:100%}
+ .hero-copy p{max-width:58ch;line-height:1.75}
+ .hero-card .hero-visual{display:none}
+ .hero-card .hero-floating{position:relative;right:auto;bottom:auto;top:auto;left:auto;align-self:flex-start;min-width:0;max-width:100%;margin:0;padding:11px 17px}
+}
