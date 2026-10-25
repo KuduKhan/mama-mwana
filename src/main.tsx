@@ -13,6 +13,4 @@ import './v09.css';
 import './v10.css';
 import './v10-legacy.css';
 import './v11-sharing.css';
-import './studio-v11.css';
-import './mobile-v112.css';
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><FailureBoundary><LocaleProvider><App /></LocaleProvider></FailureBoundary></React.StrictMode>);
