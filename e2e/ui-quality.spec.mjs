@@ -38,7 +38,7 @@ test('original UI colors and artwork are retained at phone and desktop sizes',as
   const fit=await viewportFit(page);
   expect(fit.scroll,'horizontal page scroll at '+width).toBeLessThanOrEqual(fit.client+2);
   await page.screenshot({path:testInfo.outputPath('original-home-'+width+'.png'),fullPage:true,animations:'disabled'});
- });
+ }
 });
 test('important card labels now meet text contrast and dates remain legible at 320px',async({page})=>{
  await page.setViewportSize({width:320,height:840});
