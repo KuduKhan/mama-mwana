@@ -1,11 +1,11 @@
-name: MamaMwana v0.6 disposable database security tests
+name: MamaMwana v0.7 disposable database security tests
 on:
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   verify-isolation:
-    name: Two-account RLS and clinical conflict integration
+    name: Two-account clinical and care-planner RLS integration
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: database-security-test
@@ -42,7 +42,7 @@ jobs:
             process.exit(1);
           }
           NODE
-      - name: Verify two-account isolation, clinical CAS and record event audit
+      - name: Verify cross-account isolation, clinical concurrency and care-plan audit
         env:
           MAMA_TEST_CONFIRM_DISPOSABLE: ${{ vars.MAMA_TEST_CONFIRM_DISPOSABLE }}
           MAMA_TEST_SUPABASE_URL: ${{ secrets.MAMA_TEST_SUPABASE_URL }}
@@ -52,4 +52,4 @@ jobs:
           MAMA_TEST_USER_B_EMAIL: ${{ secrets.MAMA_TEST_USER_B_EMAIL }}
           MAMA_TEST_USER_B_PASSWORD: ${{ secrets.MAMA_TEST_USER_B_PASSWORD }}
           MAMA_TEST_A_JOURNEY_ID: ${{ secrets.MAMA_TEST_A_JOURNEY_ID }}
-        run: npx vitest run tests/clinical.integration.test.ts
+        run: npx vitest run tests/clinical.integration.test.ts tests/carePlanner.integration.test.ts
