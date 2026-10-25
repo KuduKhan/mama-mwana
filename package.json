@@ -1,7 +1,7 @@
 {
   "name": "mama-mwana",
   "private": true,
-  "version": "0.7.0",
+  "version": "0.8.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "test": "vitest run tests",
     "typecheck": "tsc --noEmit",
-    "test:ui": "playwright test -c playwright.config.mjs"
+    "test:ui": "playwright test -c playwright.config.mjs",
+    "test:security": "vitest run tests/v08Security.test.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.58.0",

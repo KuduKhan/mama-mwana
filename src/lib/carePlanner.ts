@@ -1,3 +1,4 @@
+import {isDate} from './domain';
 import type {Journey, Visit} from './domain';
 
 export type CareItemKind='question'|'preparation'|'follow_up';
@@ -33,12 +34,12 @@ export interface CareDraft {
  due_on:string|null;
  visit_source_id:string|null;
 }
-const iso=/^\d{4}-\d{2}-\d{2}$/;
+
 export function validateCareDraft(d:CareDraft,visits:readonly Visit[]):string|null {
  if(d.title.trim().length<3||d.title.trim().length>160)return 'Use a clear title between 3 and 160 characters.';
  if(d.detail.length>1200)return 'Notes must be 1200 characters or fewer.';
  if(!['question','preparation','follow_up'].includes(d.kind))return 'Select a valid item category.';
- if(d.due_on!==null&&(!iso.test(d.due_on)||Number.isNaN(Date.parse(d.due_on+'T12:00:00Z'))))return 'Enter a valid follow-up date.';
+ if(d.due_on!==null&&!isDate(d.due_on))return 'Enter a valid follow-up date.';
  if(d.visit_source_id!==null&&!visits.some(v=>v.id===d.visit_source_id))return 'Select an appointment already recorded in this journey.';
  return null;
 }
