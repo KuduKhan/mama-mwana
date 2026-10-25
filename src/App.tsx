@@ -6,7 +6,7 @@ import {
   Check, CheckCircle2, CircleHelp, ClipboardList,
   Cloud, Droplets, ExternalLink, Footprints, Heart, HeartHandshake, HeartPulse,
   House, Leaf, LockKeyhole, LogOut, Menu, Moon, Plus, ShieldAlert, ShieldCheck, Users, Bell, Download, NotebookPen, ChevronRight,
-  Sparkles, Stethoscope, Sun, TrendingUp, Utensils, X, ScrollText, Bot, ListTodo, Palette, Search
+  Sparkles, Stethoscope, Sun, TrendingUp, Utensils, X, ScrollText, Palette, Search
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { configured, supabase } from './lib/supabase';
