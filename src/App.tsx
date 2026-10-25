@@ -521,6 +521,18 @@ export default function App(){
    <header className="topbar"><div className="topbar-left"><button className="hamburger" aria-label="Open navigation" aria-expanded={menuOpen} aria-controls="mamamwana-primary-navigation" onClick={()=>setMenuOpen(true)}><Menu size={22}/></button><div className="topbar-context"><div className="topbar-hello">{t('app.hello')}, {displayName} <Sparkles className="topbar-spark" size={18} strokeWidth={1.8} aria-hidden="true"/></div><div className="topbar-subtitle"><span className="topbar-current-page">{t('nav.'+tab,NAV.find(item=>item.id===tab)?.label??'Your journey')}</span><span className="topbar-subtitle-divider" aria-hidden="true">•</span> Growing with care</div></div></div><div className="topbar-actions">
      {demo?<span className="env-label"><Cloud size={15}/> {t('app.demo')}</span>:<span className={'env-label '+(saveStatus==='error'?'env-error':'')}><CheckCircle2 size={15}/>{saveStatus==='saving'?t('app.saving'):saveStatus==='error'?t('app.saved'):t('app.private')}</span>}
      <label className="locale-switch"><span className="sr-only">{t('app.language')}</span><select aria-label="Language / Lugha" value={locale} onChange={e=>setLocale(e.target.value==='sw'?'sw':'en')}><option value="en">EN</option><option value="sw">SW</option></select></label><button className="topbar-family" aria-label="Family journeys" onClick={()=>enterTab('family')}><Users size={16}/> {t('app.family')} ({journeys.length})</button><button aria-label="Health warning signs" className="topbar-icon" onClick={()=>setWarningOpen(true)}><ShieldAlert size={19}/></button><span className="avatar">{displayName.slice(0,1).toUpperCase()}</span>
+     <button className="studio-action" aria-label="Search and navigate pages" title="Quick navigation (Ctrl+K)" onClick={()=>{setQuickNavQuery('');setQuickNavOpen(true);setStudioThemeOpen(false);}}><Search size={18}/><span>Jump to</span><kbd aria-hidden="true">Ctrl K</kbd></button>
+     <div className="studio-theme-wrap">
+      <button className="studio-theme-button" aria-label="Customize visual atmosphere" aria-expanded={studioThemeOpen} title="Customize atmosphere" onClick={()=>setStudioThemeOpen(v=>!v)}><Palette size={18}/></button>
+      {studioThemeOpen&&<div className="studio-theme-popover" role="group" aria-label="Choose visual atmosphere">
+       <strong>Make it your space</strong><p>Choose a softer look. Your health records aren't used for personalization.</p>
+       <div className="studio-theme-list">
+        {([{id:'botanical',name:'Botanical Garden',description:'Calm forest and sage'},{id:'blush',name:'Gentle Bloom',description:'Rose and warm ivory'},{id:'sunrise',name:'Golden Morning',description:'Honey and cream'}] as const).map(item=><button type="button" key={item.id} className={'studio-theme-choice '+(studioTheme===item.id?'selected':'')} aria-pressed={studioTheme===item.id} onClick={()=>{setStudioTheme(item.id);setStudioThemeOpen(false);}}>
+         <span className={'studio-theme-swatch '+item.id} aria-hidden="true"/><span><strong>{item.name}</strong><small>{item.description}</small></span>{studioTheme===item.id&&<Check size={17}/>}
+        </button>)}
+       </div>
+      </div>}
+     </div>
    </div></header>
    {!demo&&<BetaNoticeV10/>}
     {demo&&<div className="demo-banner"><Sparkles size={16}/><span><strong>Interactive preview:</strong> use sample details only. Changes disappear when you leave this page.</span><button onClick={signOut}>Exit <ArrowRight size={14}/></button></div>}
@@ -528,7 +540,21 @@ export default function App(){
     <main id="mamamwana-main" tabIndex={-1}>{tab==='home'?<Home/>:tab==='family'?<Family/>:tab==='pregnancy'?<Pregnancy/>:tab==='care'?<Care/>:tab==='visits'?<Visits/>:tab==='birth'?<Birth/>:tab==='baby'?<BabyPage/>:tab==='planner'?<CarePlannerV07 journey={activeJourney} isDemo={demo} userId={user?.id??null}/>:tab==='records'?<ClinicalRecordsV04 journey={activeJourney} isDemo={demo}/>:tab==='guidance'?<GuidanceV04 stage={phase} allowStageContext={privacy.guidance_context} userId={user?.id??null} isDemo={demo}/>:tab==='privacy'?<PrivacyV04 journeys={journeys} selectedId={activeJourney.id} choices={privacy} isDemo={demo} userId={user?.id??null} onChange={savePrivacy} onExport={exportAllData} onDelete={deleteJourney}/>:<Library/>}</main>
    <footer className="app-footer"><span>MamaMwana • Made for every little beginning</span><span>{t('app.educational')}</span></footer>
   </div>
-  <nav className="mobile-tabs" aria-label="Quick navigation">{[{id:'home' as Tab,label:'Home',Icon:House},{id:'care' as Tab,label:'Today',Icon:Heart},{id:'planner' as Tab,label:'Planner',Icon:NotebookPen},{id:'visits' as Tab,label:'Visits',Icon:CalendarDays},{id:'baby' as Tab,label:'Baby',Icon:Baby}].map(({id,label,Icon})=><button key={id} className={tab===id?'active':''} aria-current={tab===id?'page':undefined} onClick={()=>enterTab(id)}><Icon size={21} strokeWidth={1.85} aria-hidden="true"/><span>{label}</span></button>)}</nav>
+  {quickNavOpen&&<div className="studio-command-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setQuickNavOpen(false);}}>
+    <section className="studio-command" role="dialog" aria-modal="true" aria-label="Quick navigation">
+     <div className="studio-command-head"><Search size={20} aria-hidden="true"/><input autoFocus type="search" aria-label="Search MamaMwana pages" placeholder="Where would you like to go?" value={quickNavQuery} onChange={e=>setQuickNavQuery(e.target.value)} />
+      <button className="studio-command-dismiss" aria-label="Close quick navigation" onClick={()=>setQuickNavOpen(false)}><X size={19}/></button></div>
+     <div className="studio-command-caption">Explore your space</div>
+     <div className="studio-command-list">
+      {NAV.filter(item=>t('nav.'+item.id,item.label).toLocaleLowerCase().includes(quickNavQuery.trim().toLocaleLowerCase())).map(({id,label,Icon})=><button type="button" key={id} className="studio-command-item" onClick={()=>enterTab(id)}>
+       <span className="studio-command-item-icon"><Icon size={19} aria-hidden="true"/></span><span>{t('nav.'+id,label)}</span><ArrowRight size={16} aria-hidden="true"/>
+      </button>)}
+      {!NAV.some(item=>t('nav.'+item.id,item.label).toLocaleLowerCase().includes(quickNavQuery.trim().toLocaleLowerCase()))&&<p className="studio-command-empty">No matching page. Try “baby”, “care” or “visits”.</p>}
+     </div>
+     <div className="studio-command-bottom"><span><kbd>Esc</kbd> to close</span><span>Navigation only · no records are searched or uploaded</span></div>
+    </section>
+   </div>}
+<nav className="mobile-tabs" aria-label="Quick navigation">{[{id:'home' as Tab,label:'Home',Icon:House},{id:'care' as Tab,label:'Today',Icon:Heart},{id:'planner' as Tab,label:'Planner',Icon:NotebookPen},{id:'visits' as Tab,label:'Visits',Icon:CalendarDays},{id:'baby' as Tab,label:'Baby',Icon:Baby}].map(({id,label,Icon})=><button key={id} className={tab===id?'active':''} aria-current={tab===id?'page':undefined} onClick={()=>enterTab(id)}><Icon size={21} strokeWidth={1.85} aria-hidden="true"/><span>{label}</span></button>)}</nav>
   {warningOpen&&<div className="modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setWarningOpen(false);}}><div className="modal warning-modal" role="dialog" aria-modal="true" aria-labelledby="urgent-title"><button className="modal-close" aria-label="Close" onClick={()=>setWarningOpen(false)}><X size={20}/></button><div className="modal-mark danger"><ShieldAlert size={26}/></div><h2 id="urgent-title">When to seek urgent help</h2><p className="muted">If you or your baby has any of these concerns, seek immediate in-person medical assessment or contact local emergency services. Do not wait for an app response.</p><ul className="urgent-list">{URGENT.map(t=><li key={t}><span className="urgent-dot"/>{t}</li>)}</ul><p className="footnote">This is not an exhaustive list. If something feels seriously wrong, get checked promptly. For urgent warning signs, follow your local emergency care instructions.</p><Button onClick={()=>setWarningOpen(false)}>I understand</Button></div></div>}
   {birthOpen&&<BirthModal dueDate={activeJourney.due_date} onClose={()=>setBirthOpen(false)} onBirth={markBirth}/>}
   {toast&&<Notification message={toast} onClose={()=>setToast('')}/>}
