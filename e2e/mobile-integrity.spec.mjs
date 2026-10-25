@@ -1,7 +1,7 @@
 import {test,expect} from '@playwright/test';
 
 // Component-level fit and collision checks supplement the existing page-wide overflow suite.
-const compact=[320,360,390,412,430,480,570,760];
+const compact=[320,360,390,412,430,480,570,600,640,700,760];
 const NAV=['Overview','Family journeys','My pregnancy','Daily care','Antenatal visits','My care planner',
  'Birth preparation','Baby & growth','Clinical timeline','Care guidance','Privacy & records','Health library'];
 
