@@ -17,6 +17,7 @@ import GuidanceV04 from './components/GuidanceV04';
 import PrivacyV04 from './components/PrivacyV04';
 import ClinicalRecordsV04 from './components/ClinicalRecordsV04';
 import CarePlannerV07 from './components/CarePlannerV07';
+import CareJourneyHubV12 from './components/CareJourneyHubV12';
 import FamilyChildrenV09 from './components/FamilyChildrenV09';
 import {CaregiverInbox} from './components/CaregiverAccessV10';
 import {DEFAULT_PRIVACY,exportFilename} from './lib/privacy';
@@ -35,7 +36,7 @@ import {
   CARE_TASKS, CHILDHOOD_TASKS, educationForWeek, MILESTONES, POSTPARTUM_TASKS, SOURCES
 } from './content/education';
 
-type Tab = 'home'|'family'|'pregnancy'|'care'|'visits'|'birth'|'baby'|'records'|'guidance'|'privacy'|'library'|'planner';
+type Tab = 'home'|'family'|'pregnancy'|'care'|'visits'|'birth'|'baby'|'records'|'guidance'|'privacy'|'library'|'planner'|'hub';
 type NavItem = {id:Tab; label:string; Icon:LucideIcon};
 const NAV:NavItem[]=[
  {id:'home',label:'Overview',Icon:House},
@@ -44,6 +45,7 @@ const NAV:NavItem[]=[
  {id:'care',label:'Daily care',Icon:Leaf},
  {id:'visits',label:'Antenatal visits',Icon:CalendarDays},
  {id:'planner',label:'My care planner',Icon:ListTodo},
+ {id:'hub',label:'Care journey hub',Icon:NotebookPen},
  {id:'birth',label:'Birth preparation',Icon:ClipboardList},
  {id:'baby',label:'Baby & growth',Icon:Baby},
  {id:'records',label:'Clinical timeline',Icon:ScrollText},
@@ -430,6 +432,7 @@ export default function App(){
      <div className="metric-card"><span className="metric-icon lilac">{isBorn?<Baby size={20}/>:<Stethoscope size={20}/>}</span><span className="metric-label">{isBorn?'Baby’s age':'Next antenatal visit'}</span><strong>{isBorn?formatAge(babyMonths):(nextVisit?readable(nextVisit.scheduled_on):'Not booked')}</strong><span className="metric-foot">{isBorn?'Your growing little one':nextVisit?nextVisit.clinic:'Add your next clinic visit'}</span></div>
    </div>
    {reminders.length>0&&<button className="reminder-banner" onClick={()=>enterTab('visits')}><Bell size={19}/><span><strong>{reminders.length} appointment{reminders.length===1?' needs':'s need'} your attention</strong><small>{reminders.some(v=>reminderStatus(v)==='overdue')?'A visit date has passed. Confirm the outcome with your care team.':'You have an upcoming visit within seven days.'}</small></span><ArrowRight size={18}/></button>}
+   <button type="button" className="m12-dashboard-link" onClick={()=>enterTab('hub')}><span className="m12-dashboard-mark"><NotebookPen size={20} aria-hidden="true"/></span><span><strong>See your care journey in one place</strong><small>Recorded visits, baby moments and visit preparation notes</small></span><ArrowRight size={19} aria-hidden="true"/></button>
    <div className="dashboard-grid">
      <Panel className="today-panel"><div className="panel-heading"><div><div className="eyebrow">YOUR DAILY RHYTHM</div><h3>A little care, every day</h3></div><div className="date-tag"><Sun size={16}/>{readable(todayISO())}</div></div>
        <p className="muted">Thoughtful reminders, not a medical prescription.</p>
@@ -543,7 +546,7 @@ export default function App(){
    <nav className="sidebar-nav" aria-label="Primary navigation">{NAV.map(({id,label,Icon})=><button key={id} onClick={()=>enterTab(id)} className={'nav-item '+(tab===id?'selected':'')} aria-current={tab===id?'page':undefined}><Icon size={19} strokeWidth={1.9} aria-hidden="true"/>{t('nav.'+id,label)}{tab===id&&<span className="nav-active-dot"/>}</button>)}</nav>
    <div className="sidebar-spacer"/>
    <div className="sidebar-support"><span className="sidebar-support-icon"><ShieldCheck size={21}/></span><strong>Your health matters</strong><p>Medical concerns always deserve a real healthcare professional.</p><button onClick={()=>setWarningOpen(true)}>When to seek help <ArrowRight size={14}/></button></div>
-   <div className="sidebar-footer"><button onClick={signOut}><LogOut size={17}/>{demo?t('app.demoExit'):t('app.logout')}</button><span>© 2026 MamaMwana • v0.7</span></div>
+   <div className="sidebar-footer"><button onClick={signOut}><LogOut size={17}/>{demo?t('app.demoExit'):t('app.logout')}</button><span>© 2026 MamaMwana • v1.2</span></div>
   </aside>
   {menuOpen&&<button className="drawer-backdrop" aria-label="Close menu" onClick={()=>setMenuOpen(false)}/>}
   <div className="app-main">
@@ -554,7 +557,7 @@ export default function App(){
    {!demo&&<BetaNoticeV10/>}
     {demo&&<div className="demo-banner"><Sparkles size={16}/><span><strong>Interactive preview:</strong> use sample details only. Changes disappear when you leave this page.</span><button onClick={signOut}>Exit <ArrowRight size={14}/></button></div>}
    {locale==='sw'&&<p className="locale-clinical-review" role="status">{t('app.review')}</p>}
-    <main id="mamamwana-main" tabIndex={-1}>{tab==='home'?<Home/>:tab==='family'?<Family/>:tab==='pregnancy'?<Pregnancy/>:tab==='care'?<Care/>:tab==='visits'?<Visits/>:tab==='birth'?<Birth/>:tab==='baby'?<BabyPage/>:tab==='planner'?<CarePlannerV07 journey={activeJourney} isDemo={demo} userId={user?.id??null}/>:tab==='records'?<ClinicalRecordsV04 journey={activeJourney} isDemo={demo}/>:tab==='guidance'?<GuidanceV04 stage={phase} allowStageContext={privacy.guidance_context} userId={user?.id??null} isDemo={demo}/>:tab==='privacy'?<PrivacyV04 journeys={journeys} selectedId={activeJourney.id} choices={privacy} isDemo={demo} userId={user?.id??null} onChange={savePrivacy} onExport={exportAllData} onDelete={deleteJourney}/>:<Library/>}</main>
+    <main id="mamamwana-main" tabIndex={-1}>{tab==='home'?<Home/>:tab==='family'?<Family/>:tab==='pregnancy'?<Pregnancy/>:tab==='care'?<Care/>:tab==='visits'?<Visits/>:tab==='birth'?<Birth/>:tab==='baby'?<BabyPage/>:tab==='planner'?<CarePlannerV07 journey={activeJourney} isDemo={demo} userId={user?.id??null}/>:tab==='hub'?<CareJourneyHubV12 journey={activeJourney} isDemo={demo}/>:tab==='records'?<ClinicalRecordsV04 journey={activeJourney} isDemo={demo}/>:tab==='guidance'?<GuidanceV04 stage={phase} allowStageContext={privacy.guidance_context} userId={user?.id??null} isDemo={demo}/>:tab==='privacy'?<PrivacyV04 journeys={journeys} selectedId={activeJourney.id} choices={privacy} isDemo={demo} userId={user?.id??null} onChange={savePrivacy} onExport={exportAllData} onDelete={deleteJourney}/>:<Library/>}</main>
    <footer className="app-footer"><span>MamaMwana • Made for every little beginning</span><span>{t('app.educational')}</span></footer>
   </div>
   <nav className="mobile-tabs" aria-label="Quick navigation">{[{id:'home' as Tab,label:'Home',Icon:House},{id:'care' as Tab,label:'Today',Icon:Heart},{id:'planner' as Tab,label:'Planner',Icon:ListTodo},{id:'visits' as Tab,label:'Visits',Icon:CalendarDays},{id:'baby' as Tab,label:'Baby',Icon:Baby}].map(({id,label,Icon})=><button key={id} className={tab===id?'active':''} aria-current={tab===id?'page':undefined} onClick={()=>enterTab(id)}><Icon size={21} strokeWidth={1.85} aria-hidden="true"/><span>{label}</span></button>)}</nav>
