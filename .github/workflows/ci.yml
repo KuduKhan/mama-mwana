@@ -22,6 +22,8 @@ jobs:
         run: npm run security:client
       - name: Check clinical SQL authorization contracts
         run: npm run security:sql
+      - name: Check local Auth fixture runner syntax
+        run: node --check scripts/run-local-security.mjs
       - name: Typecheck
         run: npm run typecheck
       - name: Domain unit tests
