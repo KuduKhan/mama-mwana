@@ -1,9 +1,17 @@
+@font-face{
+ font-family:"MamaMwana Script";
+ src:url("/fonts/DancingScript-Variable.ttf") format("truetype");
+ font-style:normal;
+ font-weight:400 700;
+ font-display:swap;
+}
+/* Self-hosted under SIL Open Font License; see public/fonts/OFL-DancingScript.txt. */
 /* MamaMwana Studio v1.1.1 — mobile-first repair. This final layer intentionally supersedes
    inherited tablet/phone styles without changing clinical behavior or hiding readable text. */
 :root{
  --mm-mobile-radius:19px;
  --mm-mobile-pad:clamp(13px,4vw,20px);
- --mm-script-font:"Segoe Script","Bradley Hand","Snell Roundhand","Apple Chancery","URW Chancery L",cursive;
+ --mm-script-font:"MamaMwana Script","Segoe Script","Bradley Hand","Apple Chancery",cursive;
 }
 .mobile-header-brand,.mobile-welcome{display:none}
 :where(.app-main,.app-main>main,.page-content,.panel,.ch-card,.auth-layout,.auth-form-side,.auth-panel,.onboarding,.onboarding-grid,.baby-hero,.family09,.care07,.v4-page,.studio-command){min-width:0;max-width:100%}
@@ -21,7 +29,7 @@
  font-style:normal;
  font-synthesis:style;
  font-size:1em;
- letter-spacing:-.045em;
+ letter-spacing:-.012em;
  line-height:1.4;
  color:var(--studio-warm);
  background:linear-gradient(transparent 83%,rgba(208,135,118,.20) 83%,rgba(208,135,118,.20) 92%,transparent 92%);
@@ -40,7 +48,7 @@
  font-size:.99em;
  line-height:1.4;
  font-weight:500;
- letter-spacing:-.04em;
+ letter-spacing:-.012em;
 }
 .auth-story-copy .handwritten-accent{color:#fbe1c3;background:linear-gradient(transparent 84%,rgba(255,230,193,.24) 84%,rgba(255,230,193,.24) 90%,transparent 90%)}
 /* Let parent containers grow with real content, rather than forcing long text into fixed heights. */
