@@ -189,3 +189,47 @@ Read [docs/ERASURE_RUNBOOK.md](docs/ERASURE_RUNBOOK.md). The erasure executor MU
 
 ### Pending
 Live Supabase migration execution, independent RLS integration test results, browser/mobile E2E, Vercel deployment, medical review, legal compliance assessment, and erasure function activation. These are not demonstrated by a passing Vite build.
+
+## v0.7 — Private Care Planner & Visit Preparation
+
+### Shipped to the codebase
+
+- New **My care planner** navigation destination with three caregiver-authored item types: questions to ask clinicians, things to prepare for a visit, and personal follow-up actions. Optional association to an actual visit already recorded in the journey, due dates, written notes and open/completed states.
+- A responsive activity dashboard, quick-start editable suggestions, filtered lists, completed/reopened status and deletion confirmation. **No automatic medical decisions, appointments or push notifications.**
+- **Private visit brief:** locally compose current open questions and follow-ups, scoped to the chosen recorded visit (plus general items). Clipboard export requires explicit confirmation; there is no automatic network sharing or medical-record certificate.
+- New owner-isolated `public.care_plan_items` table with strict RLS, server-side title/content constraints, version-bumped updates for optimistic concurrency and metadata-only audit via protected `public.care_plan_events`.
+- Signed-in users see only server-loaded private records. Demo data is ephemeral and in-memory. Every failed write shows an error; stale version conflicts force a reload rather than silently overwriting a newer item.
+- Unit tests validate care-plan drafts, sorting, scoped visit summaries and multi-line text handling.
+
+### Required migration and database validation
+
+Before deploying this authenticated UI, apply `supabase/migrations/20261025_000007_v07_care_planner.sql` to a **disposable, backed-up** MamaMwana test database after successful migrations v0.1 through v0.6. The migration does not intentionally modify existing maternal/child journey data.
+
+No MamaMwana database was connected for this work. Backend RLS and trigger behavior are **not verified by GitHub TypeScript CI**. Required security tests: two test accounts must be unable to list/create/update/delete one another's plans or audit events, versioned concurrent updates must reject stale writes, a care item cannot be reassigned to a different owner or journey, and on-delete cascades must preserve remaining journeys.
+
+### User privacy and clinical limitations
+
+All care questions and notes are caregiver-authored and educational. They are not diagnoses, appointments booked with a provider, treatment plans or prescriptions. Clipboard content can be read by other apps, so only copy into trusted channels. If no migration has been applied, the app will not claim records are saved; do not use real patient data until clinical and data-protection review has been completed.
+
+### Deployment dependencies
+
+v0.7 depends on v0.6 canonical clinical API and should be deployed after v0.6 data migrations have been verified. Vercel deployment and live Supabase testing were not performed by this release branch.
+
+## v0.7 premium interface refresh (October 2026)
+
+The full screen system now uses a consistent botanical design palette, an improved icon set, elevated cards, expressive editorial headings, and handwritten-style visual accents in a few short headings. Instructional, clinical, and form text remains a readable system sans-serif. The typography uses system/local fonts only—**no third-party font request or personal health context is sent to a font CDN**.
+
+The app layout and navigation were refined on small phones, tablets, short-height laptops, desktops, and narrow panes. Sidebar navigation is scrollable without hiding sign-out, and five mobile quick-navigation destinations include the Care Planner. Page context appears in the top bar; the mobile menu supports Escape and accessibility attributes. The responsive layer lives in `src/premium.css` and is loaded after v0.7 styles to avoid altering clinical and data-rights behavior.
+
+Design tokens:
+- forest `#153f36`, botanical green `#277b5e`, warm ivory `#faf9f4`, coral `#c07567`, lilac `#76678e`.
+- System text stack `Avenir Next / Segoe UI / Inter / sans-serif`; display serif `Iowan Old Style / Baskerville / Georgia`; short decorative script `Segoe Print / Bradley Hand / cursive`.
+- Safe mobile navigation + container min-width rules, responsive grid breakpoints at 1200/1000/760/570/400 px, small viewport height adaptation, high-contrast and reduced-motion alternatives.
+
+**Verification boundary:** CI checks type safety, unit tests and production build. A successful build is not a guarantee of pixel-perfect rendering. Manually inspect 320, 360, 390, 430, 768, 1024, 1280, 1440 and 1920 px widths, with Safari/iOS, Chrome/Android and desktop browsers. Test longer translated/custom names, zoom to 200%, focus indicators, keyboard tab order, menu/scrolling, complex clinical/timeline tables, and font fallback. Run real-browser visual regression and accessibility audits before production release. All clinical/privacy approval gates remain mandatory and the production project is unchanged.
+
+### Automated UI/layout regression suite
+
+The repository includes real Chromium checks for the interactive demo in `e2e/responsive.spec.mjs`, run automatically from `.github/workflows/ui-responsive.yml` on pull requests. The suite exercises 320, 360, 390, 430, 570, 768, 1024, 1280, 1440 and 1920 px widths. It checks visible card bounds, horizontal document overflow, all main app sections at representative breakpoints, five-item mobile navigation, Escape-to-dismiss, and handwritten fallback typography.
+
+For local development: `npm install`, `npx playwright install chromium`, then `npm run test:ui`. The tests use in-memory demo content and do not create real healthcare records. Browser screenshot/trace artifacts are uploaded only on CI failures. The suite does **not** replace human visual review, zoom/assistive-technology testing, real Auth sessions or medical content/privacy approvals.
