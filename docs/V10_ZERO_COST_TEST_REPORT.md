@@ -51,3 +51,11 @@ The protected `database-security-test` workflow has an explicit production-proje
 Reproduce offline CI checks: `npm run security:sql && npm run typecheck && npm run test && npm run build`.
 
 GitHub review: https://github.com/KuduKhan/mama-mwana/pull/10
+
+## New local verified-Auth test route (prepared, not yet executed)
+
+Added `scripts/prepare-local-migrations.mjs` to copy all eleven nonstandard historical migrations into ignored `.mamamwana-local/supabase/migrations` with correctly formatted 14-digit CLI timestamps. The original tracked schema and remote migration history remain unchanged.
+
+Added `scripts/run-local-security.mjs` and `npm run test:local:security`, which refuse non-loopback endpoints, create temporary **genuine verified Auth** test identities using only the local Supabase administrative key, seed a newborn, run all four RLS integration suites through signed-in REST clients, and delete identities afterward. Loopback rejection has regression tests. User can run this with Docker Desktop and the instructions in `docs/V10_LOCAL_SECURITY_TEST.md` without renting a separate Supabase branch.
+
+**This full local Auth suite has not been executed here.** The developer container does not have an operational Docker-backed Supabase runtime. Continue to classify real two-account Auth as **PENDING** until its run log is available.
