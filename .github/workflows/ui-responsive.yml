@@ -24,6 +24,14 @@ jobs:
         run: npx playwright test -c playwright.config.mjs
         env:
           CI: true
+      - name: Preserve original-style demo screenshots for visual review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mamamwana-original-ui-review
+          path: test-results/**/original-home-*.png
+          if-no-files-found: warn
+          retention-days: 3
       - name: Keep failure screenshots and traces
         if: failure()
         uses: actions/upload-artifact@v4

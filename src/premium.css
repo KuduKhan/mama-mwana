@@ -483,3 +483,42 @@ a{color:var(--mm-botanical);text-underline-offset:3px}
  *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
  .family-journey:hover,.btn-primary:hover,.nav-item:hover{transform:none}
 }
+
+/* v1.0.1 UI quality maintenance. Preserve every original palette, illustration,
+   gradient, typography style, component shape and animation above. */
+/* Secondary information should be legible at ordinary text contrast, not pale mint. */
+.metric-label,.metric-foot,.task-description small,.source-row,.sidebar-support p{
+ color:#476451;
+}
+.metric-label,.metric-foot{font-size:12px;line-height:1.55}
+.source-row,.source-row a{color:#476451}
+.task-description small{font-size:12px}
+.sidebar-support p{font-size:12px}
+
+/* Browser keyboard navigation and focus cues. Invisible until tabbed to. */
+.ui-skip-link{
+ position:fixed;left:12px;top:10px;z-index:100;
+ transform:translateY(-160%);padding:11px 16px;
+ border-radius:11px;background:#185541;color:#fff;
+ font-weight:750;font-size:13px;text-decoration:none
+}
+.ui-skip-link:focus{transform:translateY(0)}
+:where(.app-shell button,.app-shell a,.app-shell input,.app-shell textarea,.app-shell select):focus-visible{
+ outline:3px solid #267e59;outline-offset:3px
+}
+:where(.modal,.warning-modal):focus{outline:none}
+.topbar-left,.topbar-context,.topbar-hello,.panel-heading>*{min-width:0}
+.topbar-hello{overflow-wrap:anywhere}
+:where(.panel,.ch-card,.page-content) :is(input,textarea,select){max-width:100%}
+:where(.panel,.ch-card,.page-content) :is(h2,h3,h4,strong,p){overflow-wrap:break-word}
+@media(max-width:520px){
+ .panel-heading{flex-wrap:wrap;align-items:flex-start}
+ .date-tag{font-size:11px;display:inline-flex;gap:7px;max-width:100%;white-space:normal}
+ .date-tag svg{flex-shrink:0}
+ .metric-label,.metric-foot,.task-description small{font-size:12px}
+ .topbar-left,.topbar-context{min-width:0}
+ .mobile-tabs button{min-height:44px}
+}
+@media(prefers-reduced-motion:reduce){
+ .ui-skip-link{transition:none}
+}
