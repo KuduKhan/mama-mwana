@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit",
     "test:ui": "playwright test -c playwright.config.mjs",
     "test:security": "vitest run tests/v08Security.test.ts",
-    "security:client": "node scripts/check-client-bundle.mjs"
+    "security:client": "node scripts/check-client-bundle.mjs",
+    "security:sql": "node scripts/check-sql-release.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.58.0",
