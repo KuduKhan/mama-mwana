@@ -18,6 +18,7 @@ import PrivacyV04 from './components/PrivacyV04';
 import ClinicalRecordsV04 from './components/ClinicalRecordsV04';
 import CarePlannerV07 from './components/CarePlannerV07';
 import FamilyChildrenV09 from './components/FamilyChildrenV09';
+import {CaregiverInbox} from './components/CaregiverAccessV10';
 import {DEFAULT_PRIVACY,exportFilename} from './lib/privacy';
 import {buildCompleteExport,emptyPrivateExportRows,fetchPrivateExportRows} from './lib/privateExport';
 import BetaNoticeV10 from './components/BetaNoticeV10';
@@ -336,7 +337,7 @@ export default function App(){
  if(!demo&&dataError)return <div className="loading-screen" role="alert"><div className="loading-icon"><ShieldAlert size={28}/></div><h2>Records are temporarily unavailable</h2><p>{dataError}</p><p>Your existing journey has not been deleted. The v0.6 database upgrade must be applied and verified before continuing.</p><Button onClick={()=>window.location.reload()}>Retry securely</Button></div>;
  if(checking||loadingJourney)return <div className="loading-screen"><div className="loading-icon"><Heart size={28}/></div><p>Preparing your MamaMwana space…</p></div>;
  if(!demo&&!user)return <AuthGate onDemo={()=>{setDemo(true);setJourney(null);setJourneys([]);current.current=null;}}/>;
- if(!journey||creatingJourney)return <Onboarding isDemo={demo} onCancel={journey?()=>{setCreatingJourney(false);enterTab('family');}:undefined} onCreate={j=>{setCreatingJourney(false);persist(j);enterTab('home');}}/>;
+ if(!journey||creatingJourney)return <><CaregiverInbox userId={user?.id??null} demo={demo}/><Onboarding isDemo={demo} onCancel={journey?()=>{setCreatingJourney(false);enterTab('family');}:undefined} onCreate={j=>{setCreatingJourney(false);persist(j);enterTab('home');}}/></>;
  const activeJourney:Journey = journey;
  const phase=getPhase(journey),preg=pregnancyStage(activeJourney.due_date,activeJourney.baby_birth_date??todayISO());
  const isBorn=Boolean(activeJourney.baby_birth_date);
@@ -390,6 +391,7 @@ export default function App(){
    <div className="family-list">{journeys.map(j=>{const born=Boolean(j.baby_birth_date);return <button key={j.id} className={'family-journey '+(j.id===activeJourney.id?'current':'')} onClick={()=>selectJourney(j)}>
      <span className="family-avatar">{born?<Baby size={25}/>:<Heart size={25}/>}</span><span className="family-journey-copy"><strong>{born?j.baby_name+'’s journey':'Pregnancy journey'}</strong><small>{born?'Born '+readable(j.baby_birth_date!):'Estimated due '+readable(j.due_date)} · {j.mother_name}</small></span><span className="family-tag">{j.id===activeJourney.id?'Viewing':'Open'}</span><ChevronRight size={18}/></button>;})}</div>
    <FamilyChildrenV09 journey={activeJourney} isDemo={demo} userId={user?.id??null}/>
+   <CaregiverInbox userId={user?.id??null} demo={demo}/>
     <p className="footnote">Profiles belong to the signed-in account, and are not automatically shared with healthcare providers.</p>
   </div>;
  }
