@@ -146,6 +146,7 @@ export default function FamilyChildrenV09({journey,isDemo,userId}:Props){
     </div>
    </div>}
   </>}
+  <LegacyAttributionV10 journey={journey} child={child??null} userId={userId} isDemo={demo}/>
   {demo&&<p className="muted">Demo entries are temporary and not saved.</p>}
  </section>;
 }
