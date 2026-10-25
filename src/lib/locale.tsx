@@ -6,6 +6,7 @@ const strings:Record<string,readonly [string,string]>={
  'nav.pregnancy':['My pregnancy','Ujauzito wangu'],'nav.care':['Daily care','Huduma ya kila siku'],
  'nav.visits':['Antenatal visits','Ziara za kliniki ya ujauzito'],
  'nav.planner':['My care planner','Mpango wangu wa huduma'],
+ 'nav.hub':['Care journey hub','Safari ya huduma'],
  'nav.birth':['Birth preparation','Maandalizi ya kujifungua'],
  'nav.baby':['Baby & growth','Mtoto na ukuaji'],
  'nav.records':['Clinical timeline','Historia ya taarifa za kliniki'],
