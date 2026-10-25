@@ -6,7 +6,7 @@ import {
   Check, CheckCircle2, CircleHelp, ClipboardList,
   Cloud, Droplets, ExternalLink, Footprints, Heart, HeartHandshake, HeartPulse,
   House, Leaf, LockKeyhole, LogOut, Menu, Moon, Plus, ShieldAlert, ShieldCheck, Users, Bell, Download, NotebookPen, ChevronRight,
-  Sparkles, Stethoscope, Sun, TrendingUp, Utensils, X, ScrollText, Bot
+  Sparkles, Stethoscope, Sun, TrendingUp, Utensils, X, ScrollText, Bot, ListTodo
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { configured, supabase } from './lib/supabase';
@@ -15,6 +15,7 @@ import type {ClinicalKind,ClinicalVersioned} from './lib/clinical';
 import GuidanceV04 from './components/GuidanceV04';
 import PrivacyV04 from './components/PrivacyV04';
 import ClinicalRecordsV04 from './components/ClinicalRecordsV04';
+import CarePlannerV07 from './components/CarePlannerV07';
 import {buildExport,DEFAULT_PRIVACY,exportFilename} from './lib/privacy';
 import type {PrivacyChoices} from './lib/privacy';
 import ChildHealthV03 from './components/ChildHealthV03';
@@ -29,7 +30,7 @@ import {
   CARE_TASKS, CHILDHOOD_TASKS, educationForWeek, MILESTONES, POSTPARTUM_TASKS, SOURCES
 } from './content/education';
 
-type Tab = 'home'|'family'|'pregnancy'|'care'|'visits'|'birth'|'baby'|'records'|'guidance'|'privacy'|'library';
+type Tab = 'home'|'family'|'pregnancy'|'care'|'visits'|'birth'|'baby'|'records'|'guidance'|'privacy'|'library'|'planner';
 type NavItem = {id:Tab; label:string; Icon:LucideIcon};
 const NAV:NavItem[]=[
  {id:'home',label:'Overview',Icon:House},
@@ -37,6 +38,7 @@ const NAV:NavItem[]=[
  {id:'pregnancy',label:'My pregnancy',Icon:Heart},
  {id:'care',label:'Daily care',Icon:Leaf},
  {id:'visits',label:'Antenatal visits',Icon:CalendarDays},
+ {id:'planner',label:'My care planner',Icon:ListTodo},
  {id:'birth',label:'Birth preparation',Icon:ClipboardList},
  {id:'baby',label:'Baby & growth',Icon:Baby},
  {id:'records',label:'Clinical timeline',Icon:ScrollText},
@@ -470,7 +472,7 @@ export default function App(){
    <nav className="sidebar-nav" aria-label="Primary navigation">{NAV.map(({id,label,Icon})=><button key={id} onClick={()=>enterTab(id)} className={'nav-item '+(tab===id?'selected':'')} aria-current={tab===id?'page':undefined}><Icon size={19} strokeWidth={1.9}/>{label}{tab===id&&<span className="nav-active-dot"/>}</button>)}</nav>
    <div className="sidebar-spacer"/>
    <div className="sidebar-support"><span className="sidebar-support-icon"><ShieldCheck size={21}/></span><strong>Your health matters</strong><p>Medical concerns always deserve a real healthcare professional.</p><button onClick={()=>setWarningOpen(true)}>When to seek help <ArrowRight size={14}/></button></div>
-   <div className="sidebar-footer"><button onClick={signOut}><LogOut size={17}/>{demo?'Exit demo':'Sign out'}</button><span>© 2026 MamaMwana • v0.6</span></div>
+   <div className="sidebar-footer"><button onClick={signOut}><LogOut size={17}/>{demo?'Exit demo':'Sign out'}</button><span>© 2026 MamaMwana • v0.7</span></div>
   </aside>
   {menuOpen&&<button className="drawer-backdrop" aria-label="Close menu" onClick={()=>setMenuOpen(false)}/>}
   <div className="app-main">
@@ -479,7 +481,7 @@ export default function App(){
      <button className="topbar-family" onClick={()=>enterTab('family')}><Users size={16}/> Family ({journeys.length})</button><button aria-label="Health warning signs" className="topbar-icon" onClick={()=>setWarningOpen(true)}><ShieldAlert size={19}/></button><span className="avatar">{displayName.slice(0,1).toUpperCase()}</span>
    </div></header>
    {demo&&<div className="demo-banner"><Sparkles size={16}/><span><strong>Interactive preview:</strong> use sample details only. Changes disappear when you leave this page.</span><button onClick={signOut}>Exit <ArrowRight size={14}/></button></div>}
-   <main>{tab==='home'?<Home/>:tab==='family'?<Family/>:tab==='pregnancy'?<Pregnancy/>:tab==='care'?<Care/>:tab==='visits'?<Visits/>:tab==='birth'?<Birth/>:tab==='baby'?<BabyPage/>:tab==='records'?<ClinicalRecordsV04 journey={activeJourney} isDemo={demo}/>:tab==='guidance'?<GuidanceV04 stage={phase} allowStageContext={privacy.guidance_context} userId={user?.id??null} isDemo={demo}/>:tab==='privacy'?<PrivacyV04 journeys={journeys} selectedId={activeJourney.id} choices={privacy} isDemo={demo} userId={user?.id??null} onChange={savePrivacy} onExport={exportAllData} onDelete={deleteJourney}/>:<Library/>}</main>
+   <main>{tab==='home'?<Home/>:tab==='family'?<Family/>:tab==='pregnancy'?<Pregnancy/>:tab==='care'?<Care/>:tab==='visits'?<Visits/>:tab==='birth'?<Birth/>:tab==='baby'?<BabyPage/>:tab==='planner'?<CarePlannerV07 journey={activeJourney} isDemo={demo} userId={user?.id??null}/>:tab==='records'?<ClinicalRecordsV04 journey={activeJourney} isDemo={demo}/>:tab==='guidance'?<GuidanceV04 stage={phase} allowStageContext={privacy.guidance_context} userId={user?.id??null} isDemo={demo}/>:tab==='privacy'?<PrivacyV04 journeys={journeys} selectedId={activeJourney.id} choices={privacy} isDemo={demo} userId={user?.id??null} onChange={savePrivacy} onExport={exportAllData} onDelete={deleteJourney}/>:<Library/>}</main>
    <footer className="app-footer"><span>MamaMwana • Made for every little beginning</span><span>Educational support, never a substitute for professional healthcare</span></footer>
   </div>
   <nav className="mobile-tabs" aria-label="Quick navigation">{[{id:'home' as Tab,label:'Home',Icon:House},{id:'care' as Tab,label:'Today',Icon:Heart},{id:'visits' as Tab,label:'Visits',Icon:CalendarDays},{id:'baby' as Tab,label:'Baby',Icon:Baby}].map(({id,label,Icon})=><button key={id} className={tab===id?'active':''} onClick={()=>enterTab(id)}><Icon size={21}/><span>{label}</span></button>)}</nav>

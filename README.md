@@ -189,3 +189,28 @@ Read [docs/ERASURE_RUNBOOK.md](docs/ERASURE_RUNBOOK.md). The erasure executor MU
 
 ### Pending
 Live Supabase migration execution, independent RLS integration test results, browser/mobile E2E, Vercel deployment, medical review, legal compliance assessment, and erasure function activation. These are not demonstrated by a passing Vite build.
+
+## v0.7 — Private Care Planner & Visit Preparation
+
+### Shipped to the codebase
+
+- New **My care planner** navigation destination with three caregiver-authored item types: questions to ask clinicians, things to prepare for a visit, and personal follow-up actions. Optional association to an actual visit already recorded in the journey, due dates, written notes and open/completed states.
+- A responsive activity dashboard, quick-start editable suggestions, filtered lists, completed/reopened status and deletion confirmation. **No automatic medical decisions, appointments or push notifications.**
+- **Private visit brief:** locally compose current open questions and follow-ups, scoped to the chosen recorded visit (plus general items). Clipboard export requires explicit confirmation; there is no automatic network sharing or medical-record certificate.
+- New owner-isolated `public.care_plan_items` table with strict RLS, server-side title/content constraints, version-bumped updates for optimistic concurrency and metadata-only audit via protected `public.care_plan_events`.
+- Signed-in users see only server-loaded private records. Demo data is ephemeral and in-memory. Every failed write shows an error; stale version conflicts force a reload rather than silently overwriting a newer item.
+- Unit tests validate care-plan drafts, sorting, scoped visit summaries and multi-line text handling.
+
+### Required migration and database validation
+
+Before deploying this authenticated UI, apply `supabase/migrations/20261025_000007_v07_care_planner.sql` to a **disposable, backed-up** MamaMwana test database after successful migrations v0.1 through v0.6. The migration does not intentionally modify existing maternal/child journey data.
+
+No MamaMwana database was connected for this work. Backend RLS and trigger behavior are **not verified by GitHub TypeScript CI**. Required security tests: two test accounts must be unable to list/create/update/delete one another's plans or audit events, versioned concurrent updates must reject stale writes, a care item cannot be reassigned to a different owner or journey, and on-delete cascades must preserve remaining journeys.
+
+### User privacy and clinical limitations
+
+All care questions and notes are caregiver-authored and educational. They are not diagnoses, appointments booked with a provider, treatment plans or prescriptions. Clipboard content can be read by other apps, so only copy into trusted channels. If no migration has been applied, the app will not claim records are saved; do not use real patient data until clinical and data-protection review has been completed.
+
+### Deployment dependencies
+
+v0.7 depends on v0.6 canonical clinical API and should be deployed after v0.6 data migrations have been verified. Vercel deployment and live Supabase testing were not performed by this release branch.
