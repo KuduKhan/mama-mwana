@@ -37,7 +37,13 @@ jobs:
             console.error('Disposable database approval or protected test credentials missing. Refusing to skip security checks.');
             process.exit(1);
           }
-          if (!new URL(process.env.MAMA_TEST_SUPABASE_URL).hostname.endsWith('.supabase.co')) {
+          const host = new URL(process.env.MAMA_TEST_SUPABASE_URL).hostname.toLowerCase();
+          const productionRef = 'jkazrgobphetdbfdvotf';
+          if (host === productionRef + '.supabase.co') {
+            console.error('Refusing to run destructive fixture tests against the dedicated MamaMwana production database.');
+            process.exit(1);
+          }
+          if (!host.endsWith('.supabase.co')) {
             console.error('Use a dedicated Supabase test project.');
             process.exit(1);
           }
