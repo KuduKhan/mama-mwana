@@ -18,6 +18,8 @@ jobs:
           package-manager-cache: false
       - name: Install dependencies
         run: npm install --no-audit --no-fund
+      - name: Reject administrative credentials in browser source
+        run: npm run security:client
       - name: Typecheck
         run: npm run typecheck
       - name: Domain unit tests

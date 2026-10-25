@@ -54,8 +54,8 @@ export default function PrivacyV04({journeys,selectedId,choices,isDemo,userId,on
    {isDemo&&<p className="v4-inline-info"><Info size={16}/> Demo preferences are not saved after leaving the page.</p>}
   </section>
   <section className="panel v4-privacy-section"><div className="panel-heading"><div><div className="eyebrow">PERSONAL DATA PORTABILITY</div><h3>Download your records</h3></div><Download size={20}/></div>
-   <p className="muted">Export all of your MamaMwana journeys and care diaries as a human-readable JSON file. This file may contain names, due dates, birth dates, notes, vaccinations and wellbeing information. It is not encrypted by the app.</p>
-   <button className="v4-main-button" onClick={()=>{void exportData()}} disabled={working}><FileLock2 size={17}/> Export all my journeys <Download size={15}/></button>
+   <p className="muted">Export pregnancy journeys, child-specific journals and care-planning entries as a human-readable JSON file. This file may contain names, due dates, birth dates, notes, vaccinations and wellbeing information. It is not encrypted by the app.</p>
+   <button className="v4-main-button" onClick={()=>{void exportData()}} disabled={working}><FileLock2 size={17}/> Export my private records <Download size={15}/></button>
    <p className="footnote"><Archive size={14}/> Store the downloaded file in a safe location. Export does not remove the server copy. It includes your current records rather than the full Supabase audit or backup history.</p>
   </section>
   <section className="panel v4-privacy-section"><div className="panel-heading"><div><div className="eyebrow">CONTROL YOUR JOURNEYS</div><h3>Delete a pregnancy / child journey</h3></div><Trash2 size={19}/></div>
