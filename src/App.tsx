@@ -16,6 +16,7 @@ import GuidanceV04 from './components/GuidanceV04';
 import PrivacyV04 from './components/PrivacyV04';
 import ClinicalRecordsV04 from './components/ClinicalRecordsV04';
 import CarePlannerV07 from './components/CarePlannerV07';
+import FamilyChildrenV09 from './components/FamilyChildrenV09';
 import {buildExport,DEFAULT_PRIVACY,exportFilename} from './lib/privacy';
 import type {PrivacyChoices} from './lib/privacy';
 import ChildHealthV03 from './components/ChildHealthV03';
@@ -378,10 +379,11 @@ export default function App(){
  }
  function Family(){
   return <div className="page-content"><SectionTitle eyebrow="YOUR CONNECTED STORY" title="Family journeys" subtitle="Switch between your recorded pregnancies and children. Each journey stays private." action={<Button Icon={Plus} onClick={createAnotherJourney}>New pregnancy</Button>}/>
-   <Panel className="family-intro"><span className="small-round mint"><Users size={21}/></span><div><h3>Every chapter has its place</h3><p>Starting another journey does not erase your previous pregnancy, birth or baby records. One baby is supported per journey; twins require a future expansion.</p></div></Panel>
+   <Panel className="family-intro"><span className="small-round mint"><Users size={21}/></span><div><h3>Every chapter has its place</h3><p>Starting another journey does not erase your previous pregnancy, birth or baby records. Distinct child profiles can include twins and multiples. Legacy charts remain linked to the original journey.</p></div></Panel>
    <div className="family-list">{journeys.map(j=>{const born=Boolean(j.baby_birth_date);return <button key={j.id} className={'family-journey '+(j.id===activeJourney.id?'current':'')} onClick={()=>selectJourney(j)}>
      <span className="family-avatar">{born?<Baby size={25}/>:<Heart size={25}/>}</span><span className="family-journey-copy"><strong>{born?j.baby_name+'’s journey':'Pregnancy journey'}</strong><small>{born?'Born '+readable(j.baby_birth_date!):'Estimated due '+readable(j.due_date)} · {j.mother_name}</small></span><span className="family-tag">{j.id===activeJourney.id?'Viewing':'Open'}</span><ChevronRight size={18}/></button>;})}</div>
-   <p className="footnote">Profiles belong to the signed-in account, and are not automatically shared with healthcare providers.</p>
+   <FamilyChildrenV09 journey={activeJourney} isDemo={demo} userId={user?.id??null}/>
+    <p className="footnote">Profiles belong to the signed-in account, and are not automatically shared with healthcare providers.</p>
   </div>;
  }
  function Pregnancy(){
