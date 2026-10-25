@@ -2,6 +2,7 @@ import {useEffect,useMemo,useState} from 'react';
 import type {FormEvent} from 'react';
 import {Baby,Plus,RefreshCw,ShieldCheck,TrendingUp,CalendarCheck} from 'lucide-react';
 import {supabase} from '../lib/supabase';
+import LegacyAttributionV10 from './LegacyAttributionV10';
 import {readable,todayISO} from '../lib/domain';
 import type {Journey} from '../lib/domain';
 import {nextBirthOrder,validateChildDraft,validateGrowthDraft,validateVaccineDraft} from '../lib/family';
