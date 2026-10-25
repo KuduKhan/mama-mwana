@@ -12,6 +12,7 @@ const topics:CareItemKind[]=['question','preparation','follow_up'];
 export default function CarePlannerV07({journey,isDemo,userId}:Props){
  const [items,setItems]=useState<CareItem[]>([]);
  const [draft,setDraft]=useState<CareDraft>(empty);
+ const [editing,setEditing]=useState<CareItem|null>(null);
  const [selectedVisit,setSelectedVisit]=useState('');
  const [filter,setFilter]=useState<'open'|'done'|'all'>('open');
  const [busy,setBusy]=useState(false);
@@ -23,7 +24,7 @@ export default function CarePlannerV07({journey,isDemo,userId}:Props){
  const demo=isDemo||!userId;
  useEffect(()=>{
   let alive=true;
-  setItems([]);setDraft({...empty});setSelectedVisit('');setError('');setNotice('');setLoadFailed(false);
+  setItems([]);setDraft({...empty});setEditing(null);setSelectedVisit('');setError('');setNotice('');setLoadFailed(false);
   if(demo)return;
   if(!supabase){setLoadFailed(true);setError('Connect a secure database to save appointment planning items.');return;}
   const client=supabase;setLoading(true);
@@ -44,6 +45,8 @@ export default function CarePlannerV07({journey,isDemo,userId}:Props){
  const done=items.length-open;
  const setField=<K extends keyof CareDraft>(key:K,value:CareDraft[K])=>setDraft(d=>({...d,[key]:value}));
  function refresh(){setReloadKey(x=>x+1);}
+ function beginEdit(item:CareItem){setEditing(item);setDraft({kind:item.kind,title:item.title,detail:item.detail,due_on:item.due_on,visit_source_id:item.visit_source_id});setError('');setNotice('');}
+ function cancelEdit(){setEditing(null);setDraft({...empty});setError('');}
  const reportError=(e:unknown)=>{
   const message=e instanceof Error?e.message:String(e);
   if(message.includes('MM_CARE_CONFLICT')||message.includes('0 rows')||message.includes('Cannot coerce')){
@@ -57,6 +60,7 @@ export default function CarePlannerV07({journey,isDemo,userId}:Props){
   if(problem){setError(problem);return;}
   const normalized={kind:draft.kind,title:draft.title.trim(),detail:draft.detail.trim(),due_on:draft.due_on,visit_source_id:draft.visit_source_id};
   if(demo){
+   if(editing){setItems(current=>current.map(x=>x.id===editing.id?{...x,...normalized,version:x.version+1}:x));cancelEdit();setNotice('Demo item revised.');return;}
    const now=new Date().toISOString();
    setItems(current=>[{
     ...normalized,id:crypto.randomUUID(),journey_id:journey.id,owner_id:'demo',
@@ -65,9 +69,19 @@ export default function CarePlannerV07({journey,isDemo,userId}:Props){
   }
   if(!supabase||!userId)return;
   setBusy(true);
+  const selection='id,journey_id,owner_id,kind,title,detail,state,due_on,visit_source_id,version,created_at,updated_at';
+  if(editing){
+   const {data,error:saveError}=await supabase.from('care_plan_items')
+    .update({...normalized,version:editing.version+1})
+    .eq('id',editing.id).eq('journey_id',journey.id).eq('owner_id',userId)
+    .eq('version',editing.version).select(selection).maybeSingle();
+   setBusy(false);
+   if(saveError||!data){reportError(saveError??new Error('MM_CARE_CONFLICT'));return;}
+   setItems(current=>current.map(x=>x.id===editing.id?data as CareItem:x));cancelEdit();setNotice('Your updated care item was saved.');return;
+  }
   const {data,error:saveError}=await supabase.from('care_plan_items')
    .insert({...normalized,journey_id:journey.id,owner_id:userId,state:'open',version:1})
-   .select('id,journey_id,owner_id,kind,title,detail,state,due_on,visit_source_id,version,created_at,updated_at').single();
+   .select(selection).single();
   setBusy(false);
   if(saveError){reportError(saveError);return;}
   setItems(current=>[data as CareItem,...current]);setDraft({...empty});setNotice('Your item was saved privately.');
@@ -111,7 +125,7 @@ export default function CarePlannerV07({journey,isDemo,userId}:Props){
   <div className="section-heading"><div><div className="eyebrow">MAMAMWANA CARE CONTINUITY • V0.7</div><h2>My care planner</h2><p>Prepare for clinic conversations, organize personal questions and follow up on your own decisions.</p></div></div>
   <div className="care07-intro"><span><ShieldCheck size={25}/></span><div><strong>Your notes. Your choices.</strong><p>This is a caregiver-managed planner, not a clinician's prescription, appointment booking system, or emergency service. Always follow your care team's instructions.</p></div></div>
   <div className="care07-metrics"><div><NotebookPen size={20}/><small>Open care items</small><strong>{open}</strong></div><div><CheckCircle2 size={20}/><small>Completed notes</small><strong>{done}</strong></div><div><CalendarCheck size={20}/><small>Recorded visits</small><strong>{journey.visits.length}</strong></div></div>
-  <section className="panel care07-form"><div className="panel-heading"><div><div className="eyebrow">WRITE IT DOWN</div><h3>Add something to remember</h3></div><Plus size={21}/></div>
+  <section className="panel care07-form"><div className="panel-heading"><div><div className="eyebrow">WRITE IT DOWN</div><h3>{editing?'Edit your care item':'Add something to remember'}</h3></div><Plus size={21}/></div>
    <div className="care07-templates">{CARE_SUGGESTIONS.map(t=><button type="button" key={t.title} onClick={()=>setDraft(d=>({...d,kind:t.kind,title:t.title}))}>{t.title}</button>)}</div>
    <form onSubmit={e=>{void create(e)}}>
     <div className="care07-form-grid">
@@ -120,7 +134,7 @@ export default function CarePlannerV07({journey,isDemo,userId}:Props){
     </div>
     <label>Question or action<input value={draft.title} required maxLength={160} minLength={3} onChange={e=>setField('title',e.target.value)} placeholder="What would I like to discuss or remember?"/></label>
     <label>Supporting details (optional)<textarea rows={3} maxLength={1200} value={draft.detail} onChange={e=>setField('detail',e.target.value)} placeholder="A short note for your next visit. Avoid information you would not want on a device."/></label>
-    <div className="care07-form-bottom"><label>Target date (optional)<input type="date" value={draft.due_on??''} onChange={e=>setField('due_on',e.target.value||null)}/></label><button type="submit" disabled={busy||loading||loadFailed}><Plus size={16}/> Save to my plan</button></div>
+    <div className="care07-form-bottom"><label>Target date (optional)<input type="date" value={draft.due_on??''} onChange={e=>setField('due_on',e.target.value||null)}/></label><div className="care07-submit-actions"><button type="submit" disabled={busy||loading||loadFailed}><Plus size={16}/> {editing?'Save changes':'Save to my plan'}</button>{editing&&<button className="care07-cancel" type="button" onClick={cancelEdit} disabled={busy}>Cancel</button>}</div></div>
    </form>
    {demo&&<p className="care07-demo">Preview mode: entries are kept in this page only and disappear when you leave.</p>}
   </section>
@@ -133,7 +147,7 @@ export default function CarePlannerV07({journey,isDemo,userId}:Props){
     return <article className={'care07-entry '+(item.state==='done'?'is-done':'')} key={item.id}>
      <span className="care07-entry-icon">{item.kind==='question'?<HelpCircle size={20}/>:item.kind==='preparation'?<ClipboardList size={20}/>:<FileCheck2 size={20}/>}</span>
      <div className="care07-entry-body"><small className="care07-kind">{CARE_KINDS[item.kind]}</small><h4>{item.title}</h4>{item.detail&&<p>{item.detail}</p>}<div className="care07-entry-meta">{related&&<span><Link2 size={13}/>{related.clinic}</span>}{item.due_on&&<span><CalendarCheck size={13}/>Target {item.due_on}</span>}<span>Revision {item.version}</span></div></div>
-     <div className="care07-entry-actions"><button disabled={busy} onClick={()=>{void changeState(item,item.state==='open'?'done':'open')}}>{item.state==='open'?'Mark completed':'Reopen'}</button><button disabled={busy} aria-label={'Remove '+item.title} onClick={()=>{void remove(item)}}><Trash2 size={16}/></button></div>
+     <div className="care07-entry-actions"><button disabled={busy} onClick={()=>beginEdit(item)}>Edit</button><button disabled={busy} onClick={()=>{void changeState(item,item.state==='open'?'done':'open')}}>{item.state==='open'?'Mark completed':'Reopen'}</button><button disabled={busy} aria-label={'Remove '+item.title} onClick={()=>{void remove(item)}}><Trash2 size={16}/></button></div>
     </article>;
    })}
   </section>
