@@ -5,6 +5,7 @@
 import {execFileSync,spawnSync} from 'node:child_process';
 import {randomBytes} from 'node:crypto';
 import {createClient} from '@supabase/supabase-js';
+import {assertLocalSupabaseEndpoint} from './local-db-boundary.mjs';
 
 const npx=process.platform==='win32'?'npx.cmd':'npx';
 function localConfig(){
@@ -25,11 +26,7 @@ function localConfig(){
  const publicKey=variables.ANON_KEY||variables.PUBLISHABLE_KEY;
  const secretKey=variables.SERVICE_ROLE_KEY||variables.SECRET_KEY;
  if(!apiUrl||!publicKey||!secretKey)throw new Error('Local API URL, public key or administrative key missing from CLI status.');
- const endpoint=new URL(apiUrl);
- if(endpoint.protocol!=='http:'||!['127.0.0.1','localhost','[::1]'].includes(endpoint.hostname)){
-  throw new Error('REFUSED: fixture tests may connect only to a local loopback Supabase API.');
- }
- if(!endpoint.port)throw new Error('REFUSED: local API endpoint must have an explicit port.');
+ assertLocalSupabaseEndpoint(apiUrl);
  return {apiUrl,publicKey,secretKey};
 }
 function isoPlusDays(days){
