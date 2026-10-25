@@ -53,3 +53,7 @@
 @media(max-width:390px){.care07-metrics{gap:7px}.care07-metrics>div{padding:10px}.care07-metrics small{font-size:10px}.care07-metrics strong{font-size:19px}.care07-entry-icon{width:37px;height:37px;min-width:37px}.care07-tabs button{padding:9px 12px}}
 @media print{.care07-form,.care07-list,.care07-brief-controls,.care07-notice{break-inside:avoid}}
 @media(prefers-reduced-motion:reduce){.care07 *, .care07 *:before,.care07 *:after{animation:none!important;transition:none!important}}
+
+.care07-submit-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.care07-submit-actions .care07-cancel{background:#f3f7f0;color:#64836e;border:1px solid #d6e7d8}
+@media(max-width:700px){.care07-submit-actions{width:100%}.care07-submit-actions button{flex:1}}
