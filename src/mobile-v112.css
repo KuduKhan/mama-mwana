@@ -197,12 +197,12 @@
  .onboarding-intro{padding:0 1px 4px}
  .onboarding-intro h1{font-size:clamp(31px,7.4vw,43px);line-height:1.25;margin-top:12px}
  .onboarding-intro>p{font-size:13px;line-height:1.7}
- .onboard-decoration{display:none}
+ /* Onboarding illustration is restored below using a compact non-overlapping layout. */
  .onboard-form{min-width:0}
  .auth-layout{display:grid;grid-template-columns:minmax(0,1fr);min-height:100dvh}
  .auth-story{padding:27px clamp(17px,4.3vw,32px);min-height:0}
- .auth-story>.brand{display:none}
- .auth-art{display:none}
+ /* Preserve the original MamaMwana brand within the illustrated welcome panel. */
+ /* Preserve the original orbital heart illustration, fitted at phone scale below. */
  .auth-story-copy{padding:4px 0 8px;margin:0}
  .auth-story-copy h1{font-size:clamp(34px,8vw,44px);margin:6px 0 8px;line-height:1.25}
  .auth-story-copy p{font-size:12px;line-height:1.65;max-width:53ch;margin:4px 0 12px}
@@ -222,7 +222,7 @@
  .hero-copy h2{font-size:clamp(29px,7.5vw,39px);line-height:1.3;max-width:100%;margin:14px 0 12px}
  .hero-copy h2 .handwritten-accent{font-size:.94em;line-height:1.42}
  .hero-copy p{font-size:13px;max-width:100%;margin:0 0 16px}
- .hero-card .hero-visual{display:none}
+ /* Hero orbit illustration returns in its own fitted visual stage below. */
  .hero-floating{
   position:relative;right:auto;left:auto;top:auto;bottom:auto;
   margin:0;display:inline-flex;align-self:flex-start;min-width:0;max-width:100%;
@@ -296,4 +296,170 @@
  .hero-copy p{max-width:58ch;line-height:1.75}
  .hero-card .hero-visual{display:none}
  .hero-card .hero-floating{position:relative;right:auto;bottom:auto;top:auto;left:auto;align-self:flex-start;min-width:0;max-width:100%;margin:0;padding:11px 17px}
+}
+
+/* v1.1.2 visual restoration: retain the original Studio v1.1 illustration,
+   color, framing and warm decorative atmosphere. v1.1.1's content-fitting
+   geometry remains; art is sized INTO layout instead of hidden or overlaid. */
+@media(max-width:760px){
+ .hero-card{
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  grid-template-areas:"copy" "art" "milestone";
+  align-items:start;
+  justify-items:stretch;
+  isolation:isolate;
+  overflow:hidden;
+  gap:clamp(10px,3vw,18px);
+ }
+ .hero-copy{grid-area:copy;z-index:2;max-width:100%;width:100%;min-width:0}
+ .hero-card .hero-visual{
+  grid-area:art;
+  display:grid;
+  position:relative;
+  width:100%;
+  height:clamp(145px,29vw,206px);
+  max-width:100%;
+  min-width:0;
+  min-height:145px;
+  margin:0;
+  top:auto;left:auto;bottom:auto;right:auto;
+  opacity:.98;
+  pointer-events:none;
+  overflow:hidden;
+  align-self:center;
+  justify-self:center;
+  z-index:1;
+ }
+ .hero-card .hero-halo{
+  width:clamp(130px,31vw,210px);
+  height:clamp(130px,31vw,210px);
+  border-radius:50%;
+ }
+ .hero-card .halo-outer{
+  width:clamp(170px,39vw,250px);
+  height:clamp(170px,39vw,250px);
+  border:1px dashed rgba(110,160,130,.38);
+ }
+ .hero-card .halo-middle{
+  width:clamp(143px,35vw,222px);
+  height:clamp(143px,35vw,222px);
+  background:rgba(242,224,211,.46);
+ }
+ .hero-card .halo-inner{
+  width:clamp(113px,27vw,168px);
+  height:clamp(113px,27vw,168px);
+  border:6px solid rgba(255,255,255,.6);
+  box-shadow:0 12px 30px rgba(109,89,57,.1);
+ }
+ .hero-card .hero-emblem{
+  display:grid;
+  place-items:center;
+  width:clamp(74px,19vw,108px);
+  height:clamp(74px,19vw,108px);
+  border-radius:50%;
+  background:linear-gradient(140deg,#fae8d7,#efc7b8);
+  box-shadow:0 13px 30px rgba(90,104,75,.12);
+  color:#be896f;
+ }
+ .hero-card .hero-emblem>svg:first-child{
+  width:clamp(41px,11vw,61px);
+  height:clamp(41px,11vw,61px);
+ }
+ .hero-card .hero-emblem>svg:last-child{
+  width:clamp(25px,7vw,38px);
+  height:clamp(25px,7vw,38px);
+  bottom:-10px;right:-8px;
+ }
+ .hero-card .hero-floating{
+  grid-area:milestone;
+  justify-self:start;
+  align-self:start;
+  position:relative;
+  top:auto;bottom:auto;left:auto;right:auto;
+  min-width:0;max-width:100%;margin:0;
+  background:rgba(255,255,255,.85);
+  border:1px solid rgba(255,255,255,.95);
+  backdrop-filter:blur(8px);
+  box-shadow:0 12px 30px rgba(70,96,65,.11);
+ }
+ /* Preserve the welcome-page brand, orbital illustration and forest-green gradient. */
+ .auth-story{
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+  background:linear-gradient(158deg,#194a3c 0%,#24684f 60%,#163e35 100%);
+  isolation:isolate;
+  overflow:hidden;
+ }
+ .auth-story>.brand{
+  display:flex;
+  flex:0 0 auto;
+  align-self:flex-start;
+  width:auto;max-width:100%;
+  min-width:0;
+  position:relative;z-index:2;
+ }
+ .auth-story .auth-art{
+  display:grid;
+  position:relative;
+  width:100%;
+  max-width:100%;
+  height:clamp(135px,23vw,188px);
+  min-height:135px;
+  margin:0 auto;
+  overflow:hidden;
+  z-index:1;
+  flex:0 0 auto;
+  pointer-events:none;
+ }
+ .auth-story .art-orbit{width:clamp(142px,26vw,204px);height:clamp(142px,26vw,204px)}
+ .auth-story .orbit-one{width:clamp(174px,32vw,244px);height:clamp(174px,32vw,244px)}
+ .auth-story .orbit-two{width:clamp(157px,28vw,216px);height:clamp(157px,28vw,216px)}
+ .auth-story .art-center{
+  width:clamp(108px,20vw,151px);
+  height:clamp(108px,20vw,151px);
+  box-shadow:0 12px 34px rgba(16,48,39,.22);
+ }
+ .auth-story .art-center>svg{width:clamp(44px,8vw,67px);height:clamp(44px,8vw,67px)}
+ .auth-story .art-small-dot{width:29px;height:29px;right:11px;bottom:15px}
+ .auth-story-copy{position:relative;z-index:2;padding-bottom:6px}
+ /* Restore the original floating decorative heart in the onboarding area. */
+ .onboarding-intro{position:relative}
+ .onboard-decoration{
+  display:grid;
+  position:relative;
+  right:auto;left:auto;top:auto;bottom:auto;
+  width:clamp(65px,17vw,90px);
+  height:clamp(65px,17vw,90px);
+  margin:15px auto 1px;
+  border-radius:50%;
+  place-items:center;
+  color:#ca8e7c;
+  background:radial-gradient(circle at 34% 25%,#fff4e8,#f2ddd5);
+  border:1px solid #ecd7ce;
+  box-shadow:0 9px 23px rgba(161,118,100,.07);
+ }
+ .onboard-decoration>svg{width:55%;height:55%}
+}
+@media(max-width:570px){
+ .hero-card{display:grid;grid-template-areas:"copy" "art" "milestone"}
+ .hero-card .hero-visual{display:grid;height:155px;min-height:155px;opacity:.97}
+ .hero-card .halo-outer{width:min(207px,55vw);height:min(207px,55vw)}
+ .hero-card .halo-middle{width:min(176px,47vw);height:min(176px,47vw)}
+ .hero-card .halo-inner{width:min(132px,37vw);height:min(132px,37vw)}
+ .auth-story{min-height:0}
+}
+@media(max-width:370px){
+ .hero-card .hero-visual{height:136px;min-height:136px}
+ .hero-card .halo-outer{width:178px;height:178px}
+ .hero-card .halo-middle{width:153px;height:153px}
+ .hero-card .halo-inner{width:116px;height:116px}
+ .auth-story .auth-art{height:124px;min-height:124px}
+ .auth-story .art-center{width:102px;height:102px}
+ .onboard-decoration{margin-block:9px 0}
+}
+@media(max-width:760px) and (orientation:landscape) and (max-height:490px){
+ .hero-card .hero-visual{height:135px;min-height:135px}
+ .auth-story .auth-art{height:112px;min-height:112px}
 }
