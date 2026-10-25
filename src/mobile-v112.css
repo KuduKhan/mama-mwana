@@ -270,7 +270,7 @@
  .section-heading h2{font-size:clamp(27px,7.8vw,31px)}
  .panel,.ch-card{padding:15px}
  .mobile-tabs button svg{width:20px;height:20px}
- .mobile-tabs button{font-size:9px}
+ .mobile-tabs button{font-size:10.5px;min-height:56px;line-height:1.2}
  .auth-story{padding:22px 17px}
  .auth-story-copy h1{font-size:32px}
 }
