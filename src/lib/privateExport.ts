@@ -5,7 +5,7 @@ const TABLES=['family_children','family_growth_entries','family_vaccine_entries'
 type Table=typeof TABLES[number];
 export type PrivateExportRows=Record<Table,Record<string,unknown>[]>;
 export function emptyPrivateExportRows():PrivateExportRows{
- return Object.fromEntries(TABLES.map(t=>[t,[]])) as PrivateExportRows;
+ return Object.fromEntries(TABLES.map(t=>[t,[] as Record<string,unknown>[]])) as PrivateExportRows;
 }
 /** Export all owned records, with pagination and failure-atomic behavior. */
 export async function fetchPrivateExportRows(client:SupabaseClient,userId:string):Promise<PrivateExportRows>{
