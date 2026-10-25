@@ -9,4 +9,5 @@ import './v05.css';
 import './v07.css';
 import './premium.css';
 import './v09.css';
+import './v10.css';
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><FailureBoundary><App /></FailureBoundary></React.StrictMode>);

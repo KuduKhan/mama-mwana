@@ -17,7 +17,9 @@ import PrivacyV04 from './components/PrivacyV04';
 import ClinicalRecordsV04 from './components/ClinicalRecordsV04';
 import CarePlannerV07 from './components/CarePlannerV07';
 import FamilyChildrenV09 from './components/FamilyChildrenV09';
-import {buildExport,DEFAULT_PRIVACY,exportFilename} from './lib/privacy';
+import {DEFAULT_PRIVACY,exportFilename} from './lib/privacy';
+import {buildCompleteExport,emptyPrivateExportRows,fetchPrivateExportRows} from './lib/privateExport';
+import BetaNoticeV10 from './components/BetaNoticeV10';
 import type {PrivacyChoices} from './lib/privacy';
 import ChildHealthV03 from './components/ChildHealthV03';
 import {
@@ -290,8 +292,9 @@ export default function App(){
     const {data,error}=await supabase.from('journeys').select('id,mother_name,due_date,baby_birth_date,baby_name,visits,daily_checks,birth_checks,growth,milestones,feeding_logs,wellbeing_entries,baby_sex,gestation_at_birth_weeks,immunizations').eq('owner_id',user.id);
     if(error)throw error;
     records=await loadCanonicalJourneys(supabase,(data??[]) as Journey[]);
+    extra=await fetchPrivateExportRows(supabase,user.id);
   }
-  const blob=new Blob([JSON.stringify(buildExport(records,privacy),null,2)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify(buildCompleteExport(records,privacy,extra),null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download=exportFilename();document.body.appendChild(a);a.click();a.remove();
   window.setTimeout(()=>URL.revokeObjectURL(url),10000);
@@ -484,7 +487,8 @@ export default function App(){
      {demo?<span className="env-label"><Cloud size={15}/> Unsaved demo</span>:<span className={'env-label '+(saveStatus==='error'?'env-error':'')}><CheckCircle2 size={15}/>{saveStatus==='saving'?'Saving…':saveStatus==='error'?'Save failed':'Private account'}</span>}
      <button className="topbar-family" onClick={()=>enterTab('family')}><Users size={16}/> Family ({journeys.length})</button><button aria-label="Health warning signs" className="topbar-icon" onClick={()=>setWarningOpen(true)}><ShieldAlert size={19}/></button><span className="avatar">{displayName.slice(0,1).toUpperCase()}</span>
    </div></header>
-   {demo&&<div className="demo-banner"><Sparkles size={16}/><span><strong>Interactive preview:</strong> use sample details only. Changes disappear when you leave this page.</span><button onClick={signOut}>Exit <ArrowRight size={14}/></button></div>}
+   {!demo&&<BetaNoticeV10/>}
+    {demo&&<div className="demo-banner"><Sparkles size={16}/><span><strong>Interactive preview:</strong> use sample details only. Changes disappear when you leave this page.</span><button onClick={signOut}>Exit <ArrowRight size={14}/></button></div>}
    <main>{tab==='home'?<Home/>:tab==='family'?<Family/>:tab==='pregnancy'?<Pregnancy/>:tab==='care'?<Care/>:tab==='visits'?<Visits/>:tab==='birth'?<Birth/>:tab==='baby'?<BabyPage/>:tab==='planner'?<CarePlannerV07 journey={activeJourney} isDemo={demo} userId={user?.id??null}/>:tab==='records'?<ClinicalRecordsV04 journey={activeJourney} isDemo={demo}/>:tab==='guidance'?<GuidanceV04 stage={phase} allowStageContext={privacy.guidance_context} userId={user?.id??null} isDemo={demo}/>:tab==='privacy'?<PrivacyV04 journeys={journeys} selectedId={activeJourney.id} choices={privacy} isDemo={demo} userId={user?.id??null} onChange={savePrivacy} onExport={exportAllData} onDelete={deleteJourney}/>:<Library/>}</main>
    <footer className="app-footer"><span>MamaMwana • Made for every little beginning</span><span>Educational support, never a substitute for professional healthcare</span></footer>
   </div>
