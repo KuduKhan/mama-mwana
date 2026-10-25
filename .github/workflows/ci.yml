@@ -20,6 +20,8 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Reject administrative credentials in browser source
         run: npm run security:client
+      - name: Check clinical SQL authorization contracts
+        run: npm run security:sql
       - name: Typecheck
         run: npm run typecheck
       - name: Domain unit tests
