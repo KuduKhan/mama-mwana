@@ -65,6 +65,38 @@ const URGENT=[
  'Newborn breathing problems, poor feeding or unusual unresponsiveness'
 ];
 const uniqueToggle=(a:string[],id:string)=>a.includes(id)?a.filter(v=>v!==id):[...a,id];
+const isTab=(value:unknown):value is Tab=>typeof value==='string'&&NAV.some(item=>item.id===value);
+
+/** Keyboard-only modal behavior: trap Tab, support Escape, restore original focus. */
+function useModalFocus(open:boolean,onDismiss:()=>void){
+ const dialogRef=useRef<HTMLDivElement|null>(null);
+ const dismissRef=useRef(onDismiss);
+ dismissRef.current=onDismiss;
+ useEffect(()=>{
+  if(!open||!dialogRef.current)return;
+  const dialog=dialogRef.current;
+  const before=document.activeElement instanceof HTMLElement?document.activeElement:null;
+  const focusable=()=>Array.from(dialog.querySelectorAll<HTMLElement>(
+   'button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])'
+  )).filter(element=>element.getClientRects().length>0);
+  (focusable()[0]??dialog).focus();
+  const onKey=(event:KeyboardEvent)=>{
+   if(event.key==='Escape'){event.preventDefault();event.stopPropagation();dismissRef.current();return;}
+   if(event.key!=='Tab')return;
+   const items=focusable();
+   if(!items.length){event.preventDefault();dialog.focus();return;}
+   const first=items[0],last=items[items.length-1];
+   if(event.shiftKey&&(document.activeElement===first||!dialog.contains(document.activeElement))){
+    event.preventDefault();last.focus();
+   }else if(!event.shiftKey&&(document.activeElement===last||!dialog.contains(document.activeElement))){
+    event.preventDefault();first.focus();
+   }
+  };
+  document.addEventListener('keydown',onKey,true);
+  return ()=>{document.removeEventListener('keydown',onKey,true);if(before?.isConnected)before.focus();};
+ },[open]);
+ return dialogRef;
+}
 function Brand({inverse=false}:{inverse?:boolean}){
  return <div className={'brand '+(inverse?'brand-inverse':'')}>
    <div className="brand-icon" aria-hidden="true"><HeartHandshake size={23} strokeWidth={1.85}/><span className="brand-dot"/></div>
@@ -142,8 +174,9 @@ function NewVisitForm({onSave,onCancel}:{onSave:(v:Visit)=>void;onCancel:()=>voi
 }
 function BirthModal({onClose,onBirth,dueDate}:{onClose:()=>void;onBirth:(date:string,name:string)=>void;dueDate:string}){
  const [date,setDate]=useState(todayISO()),[name,setName]=useState(''),[error,setError]=useState('');
+ const dialogRef=useModalFocus(true,onClose);
  function submit(e:FormEvent){e.preventDefault();if(!isValidBirthDate(date,dueDate)){setError('Please enter a valid birth date. Contact your care provider if your dates need correcting.');return;}if(name.trim().length<1||name.trim().length>80){setError('Enter your baby’s name (up to 80 characters).');return;}onBirth(date,name.trim());}
- return <div className="modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)onClose();}}><div className="modal" role="dialog" aria-modal="true" aria-labelledby="birth-title"><button className="modal-close" aria-label="Close" onClick={onClose}><X size={20}/></button><div className="modal-mark"><Baby size={26}/></div><h2 id="birth-title">Hello, little one! <span aria-hidden="true">♡</span></h2><p className="muted">This special moment connects your pregnancy journal with your baby’s growth tracker and your postpartum recovery guidance.</p><form className="stack-form" onSubmit={submit}><label>Baby’s name<input value={name} maxLength={80} required placeholder="Your baby’s name" onChange={e=>setName(e.target.value)}/></label><label>Date of birth<input type="date" required max={todayISO()} value={date} onChange={e=>setDate(e.target.value)}/></label><div className="inline-note">Birth and recovery information should be confirmed with your maternity care team. This does not replace medical discharge instructions.</div>{error&&<div role="alert" className="error">{error}</div>}<Button type="submit">Begin our next chapter <ArrowRight size={16}/></Button></form></div></div>;
+ return <div className="modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)onClose();}}><div className="modal" ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="birth-title"><button className="modal-close" aria-label="Close" onClick={onClose}><X size={20}/></button><div className="modal-mark"><Baby size={26}/></div><h2 id="birth-title">Hello, little one! <span aria-hidden="true">♡</span></h2><p className="muted">This special moment connects your pregnancy journal with your baby’s growth tracker and your postpartum recovery guidance.</p><form className="stack-form" onSubmit={submit}><label>Baby’s name<input value={name} maxLength={80} required placeholder="Your baby’s name" onChange={e=>setName(e.target.value)}/></label><label>Date of birth<input type="date" required max={todayISO()} value={date} onChange={e=>setDate(e.target.value)}/></label><div className="inline-note">Birth and recovery information should be confirmed with your maternity care team. This does not replace medical discharge instructions.</div>{error&&<div role="alert" className="error">{error}</div>}<Button type="submit">Begin our next chapter <ArrowRight size={16}/></Button></form></div></div>;
 }
 function WarningCard({onOpen}:{onOpen:()=>void}){return <button className="warning-card" onClick={onOpen}><span className="warning-icon"><ShieldAlert size={20}/></span><span><strong>Know when to get help</strong><small>Important signs for mother and baby</small></span><ArrowRight size={18}/></button>;}
 function SourcesSmall(){return <div className="source-row">Sources: {SOURCES.slice(0,3).map((s,i)=><a key={s.url} href={s.url} target="_blank" rel="noreferrer">{i>0?' · ':''}{s.title.replace(' recommendations','')}</a>)}</div>;}
@@ -164,10 +197,23 @@ export default function App(){
  const [saveStatus,setSaveStatus]=useState<'saved'|'saving'|'error'>('saved');
  const [loadingJourney,setLoadingJourney]=useState(false);
  const [tab,setTab]=useState<Tab>('home');
+ // History records only a public page name; never include a patient or journey identifier.
+ useEffect(()=>{
+  const existing=window.history.state;
+  const safe=(typeof existing==='object'&&existing!==null?existing:{}) as Record<string,unknown>;
+  window.history.replaceState({...safe,mmPage:'home'},'');
+  const onPop=(event:PopStateEvent)=>{
+   setTab(isTab(event.state?.mmPage)?event.state.mmPage:'home');
+   setMenuOpen(false);
+  };
+  window.addEventListener('popstate',onPop);
+  return()=>window.removeEventListener('popstate',onPop);
+ },[]);
  const [menuOpen,setMenuOpen]=useState(false);
  useEffect(()=>{if(!menuOpen)return;const dismiss=(e:KeyboardEvent)=>{if(e.key==='Escape')setMenuOpen(false);};window.addEventListener('keydown',dismiss);return()=>window.removeEventListener('keydown',dismiss);},[menuOpen]);
  const [toast,setToast]=useState('');
  const [warningOpen,setWarningOpen]=useState(false);
+ const warningDialogRef=useModalFocus(warningOpen,()=>setWarningOpen(false));
  const [birthOpen,setBirthOpen]=useState(false);
  const [weekView,setWeekView]=useState<number|null>(null);
  const [newVisit,setNewVisit]=useState(false);
@@ -316,16 +362,20 @@ export default function App(){
   const remaining=journeys.filter(j=>j.id!==id);
   const next=current.current?.id===id?(remaining[0]??null):current.current;
   setJourneys(remaining);setJourney(next);current.current=next;
-  if(!next)setTab('home');
+  if(!next){setTab('home');window.history.replaceState({...window.history.state,mmPage:'home'},'');}
   return true;
  }
  function modify(fn:(j:Journey)=>Journey){const active=current.current;if(active)persist(fn(active));}
  function toggleDaily(id:string){modify(j=>({...j,daily_checks:{...j.daily_checks,[todayISO()]:uniqueToggle(j.daily_checks[todayISO()]||[],id)}}));}
  function toggleBirth(key:string){modify(j=>({...j,birth_checks:uniqueToggle(j.birth_checks,key)}));}
- function enterTab(next:Tab){setTab(next);setMenuOpen(false);window.scrollTo({top:0,behavior:'smooth'});}
+ function enterTab(next:Tab){
+  if(tab!==next)window.history.pushState({...window.history.state,mmPage:next},'');
+  setTab(next);setMenuOpen(false);
+  window.scrollTo({top:0,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+ }
  function selectJourney(selected:Journey){current.current=selected;setJourney(selected);setCreatingJourney(false);setWeekView(null);setMilestoneFilter(null);setSaveStatus('saved');enterTab('home');}
  function createAnotherJourney(){setCreatingJourney(true);setWeekView(null);setMenuOpen(false);}
- function signOut(){if(demo)setDemo(false);else void supabase?.auth.signOut();setJourneys([]);setJourney(null);current.current=null;persistedIds.current.clear();setDataError('');setCreatingJourney(false);setTab('home');}
+ function signOut(){if(demo)setDemo(false);else void supabase?.auth.signOut();setJourneys([]);setJourney(null);current.current=null;persistedIds.current.clear();setDataError('');setCreatingJourney(false);setTab('home');window.history.replaceState({...window.history.state,mmPage:'home'},'');}
  function markBirth(date:string,name:string){modify(j=>({...j,baby_birth_date:date,baby_name:name}));setBirthOpen(false);enterTab('baby');setToast('Welcome, '+name+'! Your pregnancy journey remains connected.');}
  async function saveGrowth(e:FormEvent){e.preventDefault();const weight=growthWeight===''?null:Number(growthWeight),length=growthLength===''?null:Number(growthLength);
   if(!isDate(growthDate)||!journey?.baby_birth_date||daysBetween(journey.baby_birth_date,growthDate)<0||daysBetween(growthDate,todayISO())<0){setToast('Choose a valid measurement date after your baby’s birth.');return;}
@@ -477,7 +527,7 @@ export default function App(){
   <WarningCard onOpen={()=>setWarningOpen(true)}/>
  </div>;
  }
- return <div className="app-shell">
+ return <div className="app-shell"><a className="ui-skip-link" href="#mamamwana-main">Skip to main content</a>
   <aside id="mamamwana-primary-navigation" className={'sidebar '+(menuOpen?'sidebar-open':'')}>
    <div className="sidebar-header"><Brand/><button className="mobile-close" aria-label="Close navigation" onClick={()=>setMenuOpen(false)}><X size={20}/></button></div>
    <div className="sidebar-intro"><span className="eyebrow">{t('app.space')}</span><div className="sidebar-greeting">{t('app.growing')} <Heart size={17} strokeWidth={1.8} aria-hidden="true"/></div></div>
@@ -491,16 +541,16 @@ export default function App(){
   <div className="app-main">
    <header className="topbar"><div className="topbar-left"><button className="hamburger" aria-label="Open navigation" aria-expanded={menuOpen} aria-controls="mamamwana-primary-navigation" onClick={()=>setMenuOpen(true)}><Menu size={22}/></button><div className="topbar-context"><div className="topbar-hello">{t('app.hello')}, {displayName} <Sparkles className="topbar-spark" size={18} strokeWidth={1.8} aria-hidden="true"/></div><div className="topbar-subtitle"><span className="topbar-current-page">{t('nav.'+tab,NAV.find(item=>item.id===tab)?.label??'Your journey')}</span><span className="topbar-subtitle-divider" aria-hidden="true">•</span> Growing with care</div></div></div><div className="topbar-actions">
      {demo?<span className="env-label"><Cloud size={15}/> {t('app.demo')}</span>:<span className={'env-label '+(saveStatus==='error'?'env-error':'')}><CheckCircle2 size={15}/>{saveStatus==='saving'?t('app.saving'):saveStatus==='error'?t('app.saved'):t('app.private')}</span>}
-     <label className="locale-switch"><span className="sr-only">{t('app.language')}</span><select aria-label="Language / Lugha" value={locale} onChange={e=>setLocale(e.target.value==='sw'?'sw':'en')}><option value="en">EN</option><option value="sw">SW</option></select></label><button className="topbar-family" onClick={()=>enterTab('family')}><Users size={16}/> {t('app.family')} ({journeys.length})</button><button aria-label="Health warning signs" className="topbar-icon" onClick={()=>setWarningOpen(true)}><ShieldAlert size={19}/></button><span className="avatar">{displayName.slice(0,1).toUpperCase()}</span>
+     <label className="locale-switch"><span className="sr-only">{t('app.language')}</span><select aria-label="Language / Lugha" value={locale} onChange={e=>setLocale(e.target.value==='sw'?'sw':'en')}><option value="en">EN</option><option value="sw">SW</option></select></label><button className="topbar-family" aria-label="Family journeys" onClick={()=>enterTab('family')}><Users size={16}/> {t('app.family')} ({journeys.length})</button><button aria-label="Health warning signs" className="topbar-icon" onClick={()=>setWarningOpen(true)}><ShieldAlert size={19}/></button><span className="avatar">{displayName.slice(0,1).toUpperCase()}</span>
    </div></header>
    {!demo&&<BetaNoticeV10/>}
     {demo&&<div className="demo-banner"><Sparkles size={16}/><span><strong>Interactive preview:</strong> use sample details only. Changes disappear when you leave this page.</span><button onClick={signOut}>Exit <ArrowRight size={14}/></button></div>}
    {locale==='sw'&&<p className="locale-clinical-review" role="status">{t('app.review')}</p>}
-    <main>{tab==='home'?<Home/>:tab==='family'?<Family/>:tab==='pregnancy'?<Pregnancy/>:tab==='care'?<Care/>:tab==='visits'?<Visits/>:tab==='birth'?<Birth/>:tab==='baby'?<BabyPage/>:tab==='planner'?<CarePlannerV07 journey={activeJourney} isDemo={demo} userId={user?.id??null}/>:tab==='records'?<ClinicalRecordsV04 journey={activeJourney} isDemo={demo}/>:tab==='guidance'?<GuidanceV04 stage={phase} allowStageContext={privacy.guidance_context} userId={user?.id??null} isDemo={demo}/>:tab==='privacy'?<PrivacyV04 journeys={journeys} selectedId={activeJourney.id} choices={privacy} isDemo={demo} userId={user?.id??null} onChange={savePrivacy} onExport={exportAllData} onDelete={deleteJourney}/>:<Library/>}</main>
+    <main id="mamamwana-main" tabIndex={-1}>{tab==='home'?<Home/>:tab==='family'?<Family/>:tab==='pregnancy'?<Pregnancy/>:tab==='care'?<Care/>:tab==='visits'?<Visits/>:tab==='birth'?<Birth/>:tab==='baby'?<BabyPage/>:tab==='planner'?<CarePlannerV07 journey={activeJourney} isDemo={demo} userId={user?.id??null}/>:tab==='records'?<ClinicalRecordsV04 journey={activeJourney} isDemo={demo}/>:tab==='guidance'?<GuidanceV04 stage={phase} allowStageContext={privacy.guidance_context} userId={user?.id??null} isDemo={demo}/>:tab==='privacy'?<PrivacyV04 journeys={journeys} selectedId={activeJourney.id} choices={privacy} isDemo={demo} userId={user?.id??null} onChange={savePrivacy} onExport={exportAllData} onDelete={deleteJourney}/>:<Library/>}</main>
    <footer className="app-footer"><span>MamaMwana • Made for every little beginning</span><span>{t('app.educational')}</span></footer>
   </div>
   <nav className="mobile-tabs" aria-label="Quick navigation">{[{id:'home' as Tab,label:'Home',Icon:House},{id:'care' as Tab,label:'Today',Icon:Heart},{id:'planner' as Tab,label:'Planner',Icon:ListTodo},{id:'visits' as Tab,label:'Visits',Icon:CalendarDays},{id:'baby' as Tab,label:'Baby',Icon:Baby}].map(({id,label,Icon})=><button key={id} className={tab===id?'active':''} aria-current={tab===id?'page':undefined} onClick={()=>enterTab(id)}><Icon size={21} strokeWidth={1.85} aria-hidden="true"/><span>{label}</span></button>)}</nav>
-  {warningOpen&&<div className="modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setWarningOpen(false);}}><div className="modal warning-modal" role="dialog" aria-modal="true" aria-labelledby="urgent-title"><button className="modal-close" aria-label="Close" onClick={()=>setWarningOpen(false)}><X size={20}/></button><div className="modal-mark danger"><ShieldAlert size={26}/></div><h2 id="urgent-title">When to seek urgent help</h2><p className="muted">If you or your baby has any of these concerns, seek immediate in-person medical assessment or contact local emergency services. Do not wait for an app response.</p><ul className="urgent-list">{URGENT.map(t=><li key={t}><span className="urgent-dot"/>{t}</li>)}</ul><p className="footnote">This is not an exhaustive list. If something feels seriously wrong, get checked promptly. For urgent warning signs, follow your local emergency care instructions.</p><Button onClick={()=>setWarningOpen(false)}>I understand</Button></div></div>}
+  {warningOpen&&<div className="modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setWarningOpen(false);}}><div className="modal warning-modal" ref={warningDialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="urgent-title"><button className="modal-close" aria-label="Close" onClick={()=>setWarningOpen(false)}><X size={20}/></button><div className="modal-mark danger"><ShieldAlert size={26}/></div><h2 id="urgent-title">When to seek urgent help</h2><p className="muted">If you or your baby has any of these concerns, seek immediate in-person medical assessment or contact local emergency services. Do not wait for an app response.</p><ul className="urgent-list">{URGENT.map(t=><li key={t}><span className="urgent-dot"/>{t}</li>)}</ul><p className="footnote">This is not an exhaustive list. If something feels seriously wrong, get checked promptly. For urgent warning signs, follow your local emergency care instructions.</p><Button onClick={()=>setWarningOpen(false)}>I understand</Button></div></div>}
   {birthOpen&&<BirthModal dueDate={activeJourney.due_date} onClose={()=>setBirthOpen(false)} onBirth={markBirth}/>}
   {toast&&<Notification message={toast} onClose={()=>setToast('')}/>}
  </div>;
