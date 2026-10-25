@@ -13,16 +13,17 @@ This workflow uses the Supabase CLI and a Docker-compatible local container runt
 
 ```powershell
 npm install
-npx supabase init
-npx supabase start
+npm run test:local:prepare
+npx supabase --workdir .mamamwana-local init
+npx supabase --workdir .mamamwana-local start
 npm run test:local:security
 ```
 
-Run `npx supabase init` only once, if `supabase/config.toml` does not exist. Later runs only need `npx supabase start` when stopped.
+Run local init only once, if `.mamamwana-local/supabase/config.toml` does not yet exist. Preparation copies the existing eleven SQL source files into this ignored local workspace with 14-digit CLI migration timestamps. This avoids migration-version conflicts and never renames tracked sources or changes hosted migration history. Later runs only need to start the same local workdir.
 
 **Do not link to the hosted MamaMwana project.** No `supabase link`, `db push` or hosted project connection is required.
 
-The Supabase CLI automatically discovers `supabase/migrations` in the repository and initializes a local database. The runner reads local keys directly from `supabase status -o env`, refuses any non-loopback API URL, creates two different random verified test users using only the **local** administrative key, seeds one clinical journey, checks birth-to-child creation and runs the existing Vitest integration suites.
+The Supabase CLI reads `.mamamwana-local/supabase/migrations` and initializes a completely local database. The runner reads local keys directly from `supabase status -o env`, refuses any non-loopback API URL, creates two different random verified test users using only the **local** administrative key, seeds one clinical journey, checks birth-to-child creation and runs the existing Vitest integration suites.
 
 The suites exercise:
 - Genuine separate Auth sign-ins via the local GoTrue API;
@@ -46,7 +47,7 @@ Fixture accounts are deleted in a `finally` block, triggering normal cascade del
 For local stack shutdown without erasing its persisted container volume:
 
 ```powershell
-npx supabase stop
+npx supabase --workdir .mamamwana-local stop
 ```
 
 Documentation: https://supabase.com/docs/guides/local-development/cli/getting-started
