@@ -53,7 +53,7 @@ describe.skipIf(!enabled)('v1.0 caregiver access: verified, revocable and read-o
   const direct=await b.from('family_children').select('id').eq('id',childId);
   expect(direct.error).toBeNull();expect(direct.data).toEqual([]);
   const wrong=await b.from('family_growth_entries').insert({
-   owner_id:ownerId,child_id:childId,measured_on:'2026-10-24',weight_kg:2.5,version:1
+   owner_id:ownerId,child_id:childId,measured_on:new Date().toISOString().slice(0,10),weight_kg:2.5,version:1
   });
   expect(wrong.error).not.toBeNull();
  });
