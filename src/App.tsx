@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { configured, supabase } from './lib/supabase';
+import {useMamaLocale} from './lib/locale';
 import {applyClinicalMutation,editJourneyClinical,isClinicalConflict,loadCanonicalJourneys,nonClinicalJourneyPayload} from './lib/clinical';
 import type {ClinicalKind,ClinicalVersioned} from './lib/clinical';
 import GuidanceV04 from './components/GuidanceV04';
@@ -81,6 +82,7 @@ function formatAge(months:number){return months<1?'Under 1 month':months<12?mont
 function Notification({message,onClose}:{message:string;onClose:()=>void}){return <div className="toast" role="status">{message}<button aria-label="Dismiss notification" onClick={onClose}><X size={16}/></button></div>;}
 
 function AuthGate({onDemo}:{onDemo:()=>void}){
+ const {locale,setLocale,t}=useMamaLocale();
  const [mode,setMode]=useState<'signin'|'signup'>('signup');
  const [email,setEmail]=useState('');
  const [password,setPassword]=useState('');
@@ -100,16 +102,16 @@ function AuthGate({onDemo}:{onDemo:()=>void}){
    <div className="auth-story"><Brand inverse/><div className="auth-art" aria-hidden="true"><div className="art-orbit orbit-one"/><div className="art-orbit orbit-two"/><div className="art-center"><Heart size={76} strokeWidth={1.15}/><span className="art-small-dot"/></div><Sparkles className="art-spark-one"/><Sparkles className="art-spark-two"/></div>
      <div className="auth-story-copy"><div className="eyebrow pale">A GENTLER WAY TO GROW</div><h1>Every beginning<br/>deserves <em className="handwritten-accent">care.</em></h1><p>From the first exciting weeks through your baby’s earliest milestones—one thoughtful place for your whole journey.</p><div className="auth-micro"><span><CheckCircle2 size={16}/> Pregnancy to parenthood</span><span><ShieldCheck size={16}/> Private by design</span></div></div>
    </div>
-   <div className="auth-form-side"><div className="auth-mobile-brand"><Brand/></div><div className="auth-panel">
-   <div className="badge-soft"><Sparkles size={14}/> Welcome to MamaMwana</div>
-   <h2>{configured?(mode==='signup'?'Begin your beautiful journey':'Welcome back, mama'):'Explore the MamaMwana preview'}</h2>
+   <div className="auth-form-side"><div className="locale-auth"><label htmlFor="mamamwana-auth-locale">{t('app.language')}</label><select id="mamamwana-auth-locale" aria-label="Language / Lugha" value={locale} onChange={e=>setLocale(e.target.value==='sw'?'sw':'en')}><option value="en">English</option><option value="sw">Kiswahili</option></select></div><div className="auth-mobile-brand"><Brand/></div><div className="auth-panel">
+   <div className="badge-soft"><Sparkles size={14}/> {t('auth.welcome')}</div>
+   <h2>{configured?(mode==='signup'?t('auth.begin'):t('auth.return')):'Explore the MamaMwana preview'}</h2>
    <p className="muted">{configured?'Your personal pregnancy and early childhood companion starts here.':'This repository is ready for Supabase. You can explore all journeys in an interactive demo without saving personal data.'}</p>
-   {configured&&<><div className="auth-switch"><button className={mode==='signup'?'active':''} onClick={()=>{setMode('signup');setMessage('');}}>Create account</button><button className={mode==='signin'?'active':''} onClick={()=>{setMode('signin');setMessage('');}}>Sign in</button></div>
-     <form onSubmit={submit} className="stack-form"><label>Email address<input type="email" required autoComplete="email" placeholder="mama@example.com" value={email} onChange={e=>setEmail(e.target.value)}/></label><label>Password<input type="password" required minLength={8} autoComplete={mode==='signup'?'new-password':'current-password'} placeholder="At least 8 characters" value={password} onChange={e=>setPassword(e.target.value)}/></label>
+   {configured&&<><div className="auth-switch"><button className={mode==='signup'?'active':''} onClick={()=>{setMode('signup');setMessage('');}}>{t('auth.signup')}</button><button className={mode==='signin'?'active':''} onClick={()=>{setMode('signin');setMessage('');}}>{t('auth.signin')}</button></div>
+     <form onSubmit={submit} className="stack-form"><label>{t('auth.email')}<input type="email" required autoComplete="email" placeholder="mama@example.com" value={email} onChange={e=>setEmail(e.target.value)}/></label><label>{t('auth.password')}<input type="password" required minLength={8} autoComplete={mode==='signup'?'new-password':'current-password'} placeholder="At least 8 characters" value={password} onChange={e=>setPassword(e.target.value)}/></label>
      {message&&<div className="inline-note" role="status">{message}</div>}
      <Button type="submit" disabled={busy}>{busy?'Please wait...':mode==='signup'?'Create my account':'Sign in'} <ArrowRight size={16}/></Button></form></>}
    <div className="demo-divider">{configured?'OR TRY THE EXPERIENCE':'INTERACTIVE PRODUCT PREVIEW'}</div>
-   <button className="demo-button" onClick={onDemo}><span className="demo-symbol"><Sparkles size={19}/></span><span><strong>Explore interactive demo</strong><small>Sample entries only • Nothing stored</small></span><ArrowRight size={18}/></button>
+   <button className="demo-button" onClick={onDemo}><span className="demo-symbol"><Sparkles size={19}/></span><span><strong>{t('auth.demo')}</strong><small>{t('auth.demoDetails')}</small></span><ArrowRight size={18}/></button>
    <p className="footnote"><LockKeyhole size={14}/> Medical information should only be entered after your private database is connected. This app supports—not replaces—professional care.</p>
    </div></div>
  </div>;
@@ -146,6 +148,7 @@ function WarningCard({onOpen}:{onOpen:()=>void}){return <button className="warni
 function SourcesSmall(){return <div className="source-row">Sources: {SOURCES.slice(0,3).map((s,i)=><a key={s.url} href={s.url} target="_blank" rel="noreferrer">{i>0?' · ':''}{s.title.replace(' recommendations','')}</a>)}</div>;}
 
 export default function App(){
+ const {locale,setLocale,t}=useMamaLocale();
  const [user,setUser]=useState<User|null>(null);
  const [checking,setChecking]=useState(configured);
  const [demo,setDemo]=useState(false);
@@ -475,23 +478,24 @@ export default function App(){
  return <div className="app-shell">
   <aside id="mamamwana-primary-navigation" className={'sidebar '+(menuOpen?'sidebar-open':'')}>
    <div className="sidebar-header"><Brand/><button className="mobile-close" aria-label="Close navigation" onClick={()=>setMenuOpen(false)}><X size={20}/></button></div>
-   <div className="sidebar-intro"><span className="eyebrow">YOUR SAFE SPACE</span><div className="sidebar-greeting">Growing together <Heart size={17} strokeWidth={1.8} aria-hidden="true"/></div></div>
-   <div className="nav-heading">YOUR JOURNEY</div>
-   <nav className="sidebar-nav" aria-label="Primary navigation">{NAV.map(({id,label,Icon})=><button key={id} onClick={()=>enterTab(id)} className={'nav-item '+(tab===id?'selected':'')} aria-current={tab===id?'page':undefined}><Icon size={19} strokeWidth={1.9} aria-hidden="true"/>{label}{tab===id&&<span className="nav-active-dot"/>}</button>)}</nav>
+   <div className="sidebar-intro"><span className="eyebrow">{t('app.space')}</span><div className="sidebar-greeting">{t('app.growing')} <Heart size={17} strokeWidth={1.8} aria-hidden="true"/></div></div>
+   <div className="nav-heading">{t('app.journey')}</div>
+   <nav className="sidebar-nav" aria-label="Primary navigation">{NAV.map(({id,label,Icon})=><button key={id} onClick={()=>enterTab(id)} className={'nav-item '+(tab===id?'selected':'')} aria-current={tab===id?'page':undefined}><Icon size={19} strokeWidth={1.9} aria-hidden="true"/>{t('nav.'+id,label)}{tab===id&&<span className="nav-active-dot"/>}</button>)}</nav>
    <div className="sidebar-spacer"/>
    <div className="sidebar-support"><span className="sidebar-support-icon"><ShieldCheck size={21}/></span><strong>Your health matters</strong><p>Medical concerns always deserve a real healthcare professional.</p><button onClick={()=>setWarningOpen(true)}>When to seek help <ArrowRight size={14}/></button></div>
-   <div className="sidebar-footer"><button onClick={signOut}><LogOut size={17}/>{demo?'Exit demo':'Sign out'}</button><span>© 2026 MamaMwana • v0.7</span></div>
+   <div className="sidebar-footer"><button onClick={signOut}><LogOut size={17}/>{demo?t('app.demoExit'):t('app.logout')}</button><span>© 2026 MamaMwana • v0.7</span></div>
   </aside>
   {menuOpen&&<button className="drawer-backdrop" aria-label="Close menu" onClick={()=>setMenuOpen(false)}/>}
   <div className="app-main">
-   <header className="topbar"><div className="topbar-left"><button className="hamburger" aria-label="Open navigation" aria-expanded={menuOpen} aria-controls="mamamwana-primary-navigation" onClick={()=>setMenuOpen(true)}><Menu size={22}/></button><div className="topbar-context"><div className="topbar-hello">Hello, {displayName} <Sparkles className="topbar-spark" size={18} strokeWidth={1.8} aria-hidden="true"/></div><div className="topbar-subtitle"><span className="topbar-current-page">{NAV.find(item=>item.id===tab)?.label??'Your journey'}</span><span className="topbar-subtitle-divider" aria-hidden="true">•</span> Growing with care</div></div></div><div className="topbar-actions">
-     {demo?<span className="env-label"><Cloud size={15}/> Unsaved demo</span>:<span className={'env-label '+(saveStatus==='error'?'env-error':'')}><CheckCircle2 size={15}/>{saveStatus==='saving'?'Saving…':saveStatus==='error'?'Save failed':'Private account'}</span>}
-     <button className="topbar-family" onClick={()=>enterTab('family')}><Users size={16}/> Family ({journeys.length})</button><button aria-label="Health warning signs" className="topbar-icon" onClick={()=>setWarningOpen(true)}><ShieldAlert size={19}/></button><span className="avatar">{displayName.slice(0,1).toUpperCase()}</span>
+   <header className="topbar"><div className="topbar-left"><button className="hamburger" aria-label="Open navigation" aria-expanded={menuOpen} aria-controls="mamamwana-primary-navigation" onClick={()=>setMenuOpen(true)}><Menu size={22}/></button><div className="topbar-context"><div className="topbar-hello">{t('app.hello')}, {displayName} <Sparkles className="topbar-spark" size={18} strokeWidth={1.8} aria-hidden="true"/></div><div className="topbar-subtitle"><span className="topbar-current-page">{t('nav.'+tab,NAV.find(item=>item.id===tab)?.label??'Your journey')}</span><span className="topbar-subtitle-divider" aria-hidden="true">•</span> Growing with care</div></div></div><div className="topbar-actions">
+     {demo?<span className="env-label"><Cloud size={15}/> {t('app.demo')}</span>:<span className={'env-label '+(saveStatus==='error'?'env-error':'')}><CheckCircle2 size={15}/>{saveStatus==='saving'?t('app.saving'):saveStatus==='error'?t('app.saved'):t('app.private')}</span>}
+     <label className="locale-switch"><span className="sr-only">{t('app.language')}</span><select aria-label="Language / Lugha" value={locale} onChange={e=>setLocale(e.target.value==='sw'?'sw':'en')}><option value="en">EN</option><option value="sw">SW</option></select></label><button className="topbar-family" onClick={()=>enterTab('family')}><Users size={16}/> {t('app.family')} ({journeys.length})</button><button aria-label="Health warning signs" className="topbar-icon" onClick={()=>setWarningOpen(true)}><ShieldAlert size={19}/></button><span className="avatar">{displayName.slice(0,1).toUpperCase()}</span>
    </div></header>
    {!demo&&<BetaNoticeV10/>}
     {demo&&<div className="demo-banner"><Sparkles size={16}/><span><strong>Interactive preview:</strong> use sample details only. Changes disappear when you leave this page.</span><button onClick={signOut}>Exit <ArrowRight size={14}/></button></div>}
-   <main>{tab==='home'?<Home/>:tab==='family'?<Family/>:tab==='pregnancy'?<Pregnancy/>:tab==='care'?<Care/>:tab==='visits'?<Visits/>:tab==='birth'?<Birth/>:tab==='baby'?<BabyPage/>:tab==='planner'?<CarePlannerV07 journey={activeJourney} isDemo={demo} userId={user?.id??null}/>:tab==='records'?<ClinicalRecordsV04 journey={activeJourney} isDemo={demo}/>:tab==='guidance'?<GuidanceV04 stage={phase} allowStageContext={privacy.guidance_context} userId={user?.id??null} isDemo={demo}/>:tab==='privacy'?<PrivacyV04 journeys={journeys} selectedId={activeJourney.id} choices={privacy} isDemo={demo} userId={user?.id??null} onChange={savePrivacy} onExport={exportAllData} onDelete={deleteJourney}/>:<Library/>}</main>
-   <footer className="app-footer"><span>MamaMwana • Made for every little beginning</span><span>Educational support, never a substitute for professional healthcare</span></footer>
+   {locale==='sw'&&<p className="locale-clinical-review" role="status">{t('app.review')}</p>}
+    <main>{tab==='home'?<Home/>:tab==='family'?<Family/>:tab==='pregnancy'?<Pregnancy/>:tab==='care'?<Care/>:tab==='visits'?<Visits/>:tab==='birth'?<Birth/>:tab==='baby'?<BabyPage/>:tab==='planner'?<CarePlannerV07 journey={activeJourney} isDemo={demo} userId={user?.id??null}/>:tab==='records'?<ClinicalRecordsV04 journey={activeJourney} isDemo={demo}/>:tab==='guidance'?<GuidanceV04 stage={phase} allowStageContext={privacy.guidance_context} userId={user?.id??null} isDemo={demo}/>:tab==='privacy'?<PrivacyV04 journeys={journeys} selectedId={activeJourney.id} choices={privacy} isDemo={demo} userId={user?.id??null} onChange={savePrivacy} onExport={exportAllData} onDelete={deleteJourney}/>:<Library/>}</main>
+   <footer className="app-footer"><span>MamaMwana • Made for every little beginning</span><span>{t('app.educational')}</span></footer>
   </div>
   <nav className="mobile-tabs" aria-label="Quick navigation">{[{id:'home' as Tab,label:'Home',Icon:House},{id:'care' as Tab,label:'Today',Icon:Heart},{id:'planner' as Tab,label:'Planner',Icon:ListTodo},{id:'visits' as Tab,label:'Visits',Icon:CalendarDays},{id:'baby' as Tab,label:'Baby',Icon:Baby}].map(({id,label,Icon})=><button key={id} className={tab===id?'active':''} aria-current={tab===id?'page':undefined} onClick={()=>enterTab(id)}><Icon size={21} strokeWidth={1.85} aria-hidden="true"/><span>{label}</span></button>)}</nav>
   {warningOpen&&<div className="modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setWarningOpen(false);}}><div className="modal warning-modal" role="dialog" aria-modal="true" aria-labelledby="urgent-title"><button className="modal-close" aria-label="Close" onClick={()=>setWarningOpen(false)}><X size={20}/></button><div className="modal-mark danger"><ShieldAlert size={26}/></div><h2 id="urgent-title">When to seek urgent help</h2><p className="muted">If you or your baby has any of these concerns, seek immediate in-person medical assessment or contact local emergency services. Do not wait for an app response.</p><ul className="urgent-list">{URGENT.map(t=><li key={t}><span className="urgent-dot"/>{t}</li>)}</ul><p className="footnote">This is not an exhaustive list. If something feels seriously wrong, get checked promptly. For urgent warning signs, follow your local emergency care instructions.</p><Button onClick={()=>setWarningOpen(false)}>I understand</Button></div></div>}
