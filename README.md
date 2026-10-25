@@ -227,3 +227,9 @@ Design tokens:
 - Safe mobile navigation + container min-width rules, responsive grid breakpoints at 1200/1000/760/570/400 px, small viewport height adaptation, high-contrast and reduced-motion alternatives.
 
 **Verification boundary:** CI checks type safety, unit tests and production build. A successful build is not a guarantee of pixel-perfect rendering. Manually inspect 320, 360, 390, 430, 768, 1024, 1280, 1440 and 1920 px widths, with Safari/iOS, Chrome/Android and desktop browsers. Test longer translated/custom names, zoom to 200%, focus indicators, keyboard tab order, menu/scrolling, complex clinical/timeline tables, and font fallback. Run real-browser visual regression and accessibility audits before production release. All clinical/privacy approval gates remain mandatory and the production project is unchanged.
+
+### Automated UI/layout regression suite
+
+The repository includes real Chromium checks for the interactive demo in `e2e/responsive.spec.mjs`, run automatically from `.github/workflows/ui-responsive.yml` on pull requests. The suite exercises 320, 360, 390, 430, 570, 768, 1024, 1280, 1440 and 1920 px widths. It checks visible card bounds, horizontal document overflow, all main app sections at representative breakpoints, five-item mobile navigation, Escape-to-dismiss, and handwritten fallback typography.
+
+For local development: `npm install`, `npx playwright install chromium`, then `npm run test:ui`. The tests use in-memory demo content and do not create real healthcare records. Browser screenshot/trace artifacts are uploaded only on CI failures. The suite does **not** replace human visual review, zoom/assistive-technology testing, real Auth sessions or medical content/privacy approvals.

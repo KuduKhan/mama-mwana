@@ -18,8 +18,6 @@ jobs:
           node-version: '22'
       - name: Install application
         run: npm install --no-audit --no-fund
-      - name: Install pinned visual-test runner
-        run: npm install --no-save --no-audit --no-fund @playwright/test@1.55.0
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Exercise responsive demo without patient data
