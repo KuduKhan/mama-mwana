@@ -102,4 +102,9 @@ test('handwriting uses script accents without forcing clinical copy into cursive
  }));
  expect(fonts.accent.toLowerCase()).toContain('script');
  expect(fonts.body.toLowerCase()).not.toContain('segoe script');
+ const status=await page.evaluate(async()=>{
+  await document.fonts.load('500 36px "MamaMwana Script"');
+  return document.fonts.check('500 36px "MamaMwana Script"');
+ });
+ expect(status).toBe(true);
 });
