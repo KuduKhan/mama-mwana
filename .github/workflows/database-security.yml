@@ -52,4 +52,4 @@ jobs:
           MAMA_TEST_USER_B_EMAIL: ${{ secrets.MAMA_TEST_USER_B_EMAIL }}
           MAMA_TEST_USER_B_PASSWORD: ${{ secrets.MAMA_TEST_USER_B_PASSWORD }}
           MAMA_TEST_A_JOURNEY_ID: ${{ secrets.MAMA_TEST_A_JOURNEY_ID }}
-        run: npx vitest run tests/clinical.integration.test.ts tests/carePlanner.integration.test.ts
+        run: npx vitest run tests/clinical.integration.test.ts tests/carePlanner.integration.test.ts tests/family.integration.test.ts
