@@ -1,5 +1,5 @@
 import {useEffect,useMemo,useState} from 'react';
-import {Activity,Baby,CalendarDays,Check,ChevronDown,ClipboardCopy,HeartPulse,LockKeyhole,NotebookPen,ShieldCheck} from 'lucide-react';
+import {Activity,Baby,CalendarDays,ChevronDown,ClipboardCopy,HeartPulse,LockKeyhole,NotebookPen,ShieldCheck} from 'lucide-react';
 import type {Journey} from '../lib/domain';
 import {readable,todayISO} from '../lib/domain';
 import {buildCareEvents,buildVisitBrief} from '../lib/careJourney';
