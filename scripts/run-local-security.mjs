@@ -10,12 +10,12 @@ const npx=process.platform==='win32'?'npx.cmd':'npx';
 function localConfig(){
  let output;
  try {
-  output=execFileSync(npx,['supabase','status','-o','env'],{
+  output=execFileSync(npx,['supabase','--workdir','.mamamwana-local','status','-o','env'],{
    encoding:'utf8',shell:process.platform==='win32',
    stdio:['ignore','pipe','pipe'],timeout:30000
   });
  } catch{
-  throw new Error('Local Supabase unavailable. Run npx supabase init (first time) then npx supabase start.');
+  throw new Error('Local Supabase unavailable. Run npm run test:local:prepare; then initialize and start Supabase in the .mamamwana-local workdir.');
  }
  const variables=Object.fromEntries(output.split(/\r?\n/).map(line=>{
   const match=/^\s*([A-Z][A-Z0-9_]*)=(.*)\s*$/.exec(line);
