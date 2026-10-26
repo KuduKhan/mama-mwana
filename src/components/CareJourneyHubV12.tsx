@@ -29,7 +29,12 @@ export default function CareJourneyHubV12({journey,isDemo}:{journey:Journey;isDe
  const brief=useMemo(()=>buildVisitBrief(journey),[journey]);
  const showBrief=revealedFor===journey.id;
  const allowCopy=approvedFor===journey.id&&showBrief;
- useEffect(()=>{setFilter('all');setVisible(8);setFeedback('');},[journey.id]);
+ useEffect(()=>{
+  setFilter('all');setVisible(8);setFeedback('');
+  // A preview or consent approval belongs only to the actively selected journey.
+  // Never retain it when a family member switches journeys.
+  setRevealedFor(null);setApprovedFor(null);
+ },[journey.id]);
 
  async function copyBrief(){
   if(!allowCopy)return;
