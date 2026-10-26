@@ -64,3 +64,24 @@ test('newly entered clinic visit is reflected in the selected journey and can be
  await page.getByRole('button',{name:'All entries'}).click();
  await expect(page.locator('.m12-event')).toHaveCount(1);
 });
+
+test('small-screen care journal retains readable labels, accessible filter targets and private preview',async({page})=>{
+ await start(page,390);
+ await openHub(page,390);
+ const sizes=await page.evaluate(()=>{
+  const filter=document.querySelector('.m12-filters button');
+  const note=document.querySelector('.m12-intro p');
+  const sum=document.querySelector('.m12-summary span');
+  return {target:filter.getBoundingClientRect().height,note:parseFloat(getComputedStyle(note).fontSize),summary:parseFloat(getComputedStyle(sum).fontSize)};
+ });
+ expect(sizes.target).toBeGreaterThanOrEqual(44);
+ expect(sizes.note).toBeGreaterThanOrEqual(13);
+ expect(sizes.summary).toBeGreaterThanOrEqual(12);
+ await checkFit(page,390);
+ await page.getByRole('button',{name:'Review private notes'}).click();
+ await page.getByRole('checkbox',{name:/I understand this contains sensitive personal information/}).check();
+ await expect(page.getByRole('button',{name:'Copy notes'})).toBeEnabled();
+ await page.getByRole('button',{name:'Hide preview'}).click();
+ await expect(page.locator('.m12-brief-text')).toHaveCount(0);
+ await expect(page.getByRole('button',{name:'Copy notes'})).toHaveCount(0);
+});
