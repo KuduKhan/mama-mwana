@@ -138,7 +138,7 @@
  /* Visually balanced brand and trust, not another navigation menu. */
  .mm-renewed-footer.mm-app-footer{
   box-sizing:border-box;min-width:0;width:100%;
-  margin-top:17px;padding:14px clamp(12px,4vw,20px) 12px;
+  margin-top:15px;padding:11px clamp(12px,4vw,20px) 9px;
   background:linear-gradient(145deg,#f5faf3,#fffdfa 92%);
   border-top:1px solid #d6e5d8;border-radius:0;box-shadow:none
  }
@@ -167,7 +167,7 @@
  .mm-renewed-footer .mm-footer-links,
  .mm-renewed-footer .mm-footer-trust{display:none!important}
  .mm-renewed-footer .mm-footer-phone-trust{
-  display:block;width:100%;min-width:0;margin:11px 0 0
+  display:block;width:100%;min-width:0;margin:8px 0 0
  }
  .mm-renewed-footer .mm-footer-phone-trust summary{
   box-sizing:border-box;width:100%;min-height:44px;
@@ -192,7 +192,7 @@
  }
  .mm-renewed-footer .mm-footer-bottom{
   display:flex;justify-content:space-between;align-items:center;
-  margin:9px 0 0;padding:9px 0 0;
+  margin:6px 0 0;padding:7px 0 0;
   border-top:1px solid #dce8dc;color:#6a826d;
   font-size:10.5px;line-height:1.4
  }
