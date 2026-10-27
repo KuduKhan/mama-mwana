@@ -61,7 +61,6 @@ export function CaregiverOwnerPanel({child,userId,demo}:{child:FamilyChild|null;
   </form>
   {error&&<p role="alert" className="sharing10-error">{error}</p>}
   {message&&<p role="status">{message}</p>}
-  {invites.some(i=>i.status==='pending')&&<label className="mm14-consent"><input type="checkbox" checked={acceptedScope} onChange={e=>setAcceptedScope(e.target.checked)}/>{t('caregiver.acceptScope','I understand that this is read-only access to one child profile, not the full family health record.')}</label>}
   <div className="sharing10-list">{invites.map(i=><article key={i.id}><span><strong>{i.invited_email}</strong><small>{i.status} · {i.status==='accepted'?'Access ends '+(i.shared_until??''):'Invitation ends '+i.expires_at}</small></span>{i.status!=='revoked'&&<button type="button" disabled={busy} onClick={()=>{void revoke(i)}}>Revoke</button>}</article>)}</div>
   {demo&&<small>Demo preview: sharing is not active.</small>}
  </section>;
@@ -98,6 +97,7 @@ export function CaregiverInbox({userId,demo}:{userId:string|null;demo:boolean}){
   <p>Only a caregiver signed in with the invited, verified email can accept. You receive time-limited, read-only access; you cannot edit records or see the owner's private pregnancy notes.</p>
   {error&&<p role="alert" className="sharing10-error">{error}</p>}
   {message&&<p role="status">{message}</p>}
+  {invites.some(i=>i.status==='pending')&&<label className="mm14-consent"><input type="checkbox" checked={acceptedScope} onChange={e=>setAcceptedScope(e.target.checked)}/>{t('caregiver.acceptScope','I understand that this is read-only access to one child profile, not the full family health record.')}</label>}
   <div className="sharing10-list">{invites.map(i=><article key={i.id}><span><strong>Child profile shared privately</strong><small>{i.status==='accepted'?'Read-only access until '+(i.shared_until??''):'Invitation expires '+i.expires_at}</small></span><div className="sharing10-actions">
    {i.status==='pending'&&<button type="button" disabled={busy||!acceptedScope} onClick={()=>{void change(i,'accepted')}}>Accept</button>}
    {i.status==='accepted'&&<button type="button" disabled={busy} onClick={()=>{void read(i)}}>View child summary</button>}
