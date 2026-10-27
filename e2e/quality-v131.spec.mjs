@@ -61,7 +61,7 @@ test('keyboard focus and WCAG-level text contrast remain clear in core UI',async
  await action.focus();
  const info=await action.evaluate(element=>{
   const srgb=x=>{const c=x/255;return c<=.04045?c/12.92:Math.pow((c+.055)/1.055,2.4)};
-  const lum=color=>{const v=color.match(/[\\d.]+/g).map(Number);return .2126*srgb(v[0])+.7152*srgb(v[1])+.0722*srgb(v[2])};
+  const lum=color=>{const v=color.match(/[\d.]+/g).map(Number);return .2126*srgb(v[0])+.7152*srgb(v[1])+.0722*srgb(v[2])};
   const label=element.querySelector('.mm13-action-label');
   const title=element.querySelector('.mm13-action-copy strong');
   const background=getComputedStyle(element).backgroundColor;
@@ -99,5 +99,5 @@ test('version label and optional reduced motion remain consistent',async({page})
  await expect(page.locator('.sidebar-footer')).toContainText('v'+version);
  const state=await page.evaluate(()=>({media:matchMedia('(prefers-reduced-motion: reduce)').matches,transition:getComputedStyle(document.querySelector('.mm13-action-card')).transitionDuration}));
  expect(state.media).toBe(true);
- expect(state.transition).toBe('none');
+ expect(state.transition).toBe('0s');
 });
