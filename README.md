@@ -265,3 +265,8 @@ Family-specific journey selection and read-only summaries, editable local displa
 ## v1.4.0 — unified premium visual consistency (October 2026)
 
 The previously displayed v0.4/v0.5/v0.7 labels are now sourced from the current app version, alongside cohesive botanical icon headers, refreshed clinical timeline/rights/care-planner cards, mobile spacing and release-copy tests. Historical internal component and migration identifiers remain unchanged for compatibility. See [docs/V140_UNIFIED_PREMIUM.md](docs/V140_UNIFIED_PREMIUM.md).
+
+
+## Branding, mobile layout and safe Supabase preview (October 2026)
+
+The user-referenced MamaMwana emblem is standardized as a local vector asset across the navigation, authentication, onboarding, PWA and footers. Updated phone/tablet responsive header, premium cards and usable branded footers are regression tested. A separate account-only Supabase client permits authenticated preview setup while the sensitive health-record gate stays off until independent approval. See [docs/V140_BRAND_MOBILE_SUPABASE.md](docs/V140_BRAND_MOBILE_SUPABASE.md).

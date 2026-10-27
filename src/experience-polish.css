@@ -1,0 +1,102 @@
+/* MamaMwana v1.4 brand and responsive UI integration. Last-in-cascade fixes. */
+.brand-icon{width:48px;height:48px;flex:0 0 48px;display:grid;place-items:center;
+ border-radius:17px;background:transparent!important;box-shadow:0 7px 21px rgba(14,72,51,.16);transform:none!important;overflow:hidden}
+.brand-icon img{display:block;width:100%;height:100%;object-fit:contain;max-width:100%}
+.brand-inverse .brand-icon{background:transparent!important}
+.mm-mobile-brand{display:none;flex:0 0 34px;width:34px;height:34px;align-items:center;justify-content:center}
+.mm-mobile-brand img{display:block;width:100%;height:100%;border-radius:11px}
+.mm-sidebar-footer{display:grid;gap:11px;padding:15px 20px 19px}
+.mm-sidebar-signature{display:flex;align-items:center;gap:9px;padding:10px 12px;border:1px solid #deeadf;
+ border-radius:13px;background:#f5faf3;min-width:0}
+.mm-sidebar-signature>img{width:27px;height:27px;border-radius:9px;flex:0 0 27px}
+.mm-sidebar-signature>span{display:grid;gap:1px;min-width:0}
+.mm-sidebar-signature strong{font-size:12px;color:var(--mm-forest);line-height:1.3}
+.mm-sidebar-signature small{font-size:10.5px;color:#456851;line-height:1.3}
+.mm-app-footer{display:block!important;margin-top:auto;padding:clamp(20px,3vw,34px) clamp(18px,3vw,44px) 20px;
+ background:linear-gradient(120deg,#f8fbf5,#fffdf8);color:#355d45;
+ border-top:1px solid #dce8dc;box-shadow:0 -5px 20px rgba(25,75,47,.018)}
+.mm-footer-top{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(155px,.8fr) minmax(185px,1fr);gap:clamp(20px,3vw,38px);align-items:start}
+.mm-footer-identity,.mm-footer-links,.mm-footer-trust{min-width:0}
+.mm-footer-identity .brand{max-width:330px;width:auto}
+.mm-footer-identity .brand-icon{width:39px;height:39px;flex-basis:39px;border-radius:12px}
+.mm-footer-identity .brand-title{font-size:18px}
+.mm-footer-identity .brand-title small{letter-spacing:.6px;font-size:7px}
+.mm-footer-identity p,.mm-footer-trust p{font-size:12px;line-height:1.7;color:#486b54;max-width:43ch;margin:12px 0 0}
+.mm-footer-links{display:grid;gap:4px}
+.mm-footer-links>strong,.mm-footer-trust>strong{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mm-forest);margin:0 0 6px}
+.mm-footer-links button{display:flex;align-items:center;gap:8px;text-align:left;border:0;border-radius:9px;
+ background:transparent;color:#365f47;min-height:44px;padding:8px 9px;font-size:12px;font-weight:660}
+.mm-footer-links button:hover{background:#e9f3e7}
+.mm-footer-trust>span{display:inline-flex;align-items:center;gap:7px;border:1px solid #cfe4d1;background:#eaf6e9;
+ color:#2c654b;font-size:11px;font-weight:680;padding:9px 10px;border-radius:20px;margin-top:13px}
+.mm-footer-bottom{display:flex;justify-content:space-between;gap:9px 20px;flex-wrap:wrap;min-width:0;
+ border-top:1px solid #dbe7d9;margin-top:22px;padding-top:17px;color:#48654f;font-size:11px;line-height:1.5}
+.mm-footer-bottom>*{min-width:0;overflow-wrap:anywhere}
+.mm-app-footer .brand img{max-width:100%}
+:where(.mm-app-footer,.mm-sidebar-footer) button:focus-visible{outline:var(--mm-focus-ring);outline-offset:3px}
+/* Container safety: prevent layout min-content overflow without hiding labels. */
+:where(.app-shell,.app-main,.page-content,.panel,.hero-card,.metrics-grid,.dashboard-grid,.mm13-action-grid,.family09,.v4-page,.care07,.mm14-family-summary,.mm-current-feature){min-width:0;max-width:100%}
+:where(.page-content,.panel,.mm13-action-card,.metric-card,.mm14-family-card,.v4-record-row,.family09-profiles button) :is(h2,h3,h4,p,strong,small,span){overflow-wrap:anywhere}
+:where(.mm13-action-grid,.metrics-grid,.dashboard-grid,.mm14-family-grid,.v4-article-grid,.v5-rights-options,.care07-metrics,.v4-record-stats)>*{min-width:0;max-width:100%}
+:where(.page-content,.panel,.mm-app-footer) img{max-width:100%}
+:where(.metric-card,.mm13-action-card,.care07-metrics>div,.v4-record-stats>div,.v5-rights-options button,.library-card){
+ border-color:#dfe9de;border-radius:var(--mm-radius-md);box-shadow:var(--mm-card-glow)}
+:where(.mm13-action-card,.metric-card,.library-card,.v5-rights-options button) svg{flex-shrink:0}
+:where(.v5-rights-options button,.family09-profiles button,.mm13-action-card,.mm-footer-links button):focus-visible{outline:var(--mm-focus-ring);outline-offset:3px}
+.topbar{gap:10px;max-width:100%;min-width:0}
+.topbar-left{min-width:0;flex:1 1 auto;gap:10px}
+.topbar-context{min-width:0;flex:1 1 auto;overflow:hidden}
+.topbar-hello,.topbar-current-page{overflow:hidden;text-overflow:ellipsis;min-width:0;white-space:nowrap}
+.topbar-actions{flex:0 0 auto;min-width:0;gap:clamp(5px,.7vw,12px)}
+.topbar-actions :is(button,select){flex-shrink:0}
+@media(max-width:1024px){
+ .topbar{padding-inline:clamp(12px,2vw,24px)}
+ .topbar-actions{gap:6px}
+ .topbar-family{font-size:0;gap:0;padding:9px}
+ .topbar-family svg{width:19px;height:19px}
+}
+@media(max-width:760px){
+ .mm-mobile-brand{display:flex}
+ .topbar{padding-inline:clamp(9px,2.3vw,16px);gap:8px}
+ .topbar-left{flex:1 1 auto}
+ .topbar-context{flex:1 1 auto}
+ .topbar-actions{gap:5px}
+ .hamburger,.topbar-icon,.topbar-family,.mm14-topbar{width:44px;min-width:44px;height:44px;min-height:44px}
+ .mm-app-footer{padding:23px 16px calc(105px + env(safe-area-inset-bottom,0px))}
+ .mm-footer-top{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+ .mm-footer-identity{grid-column:1/-1}
+ .mm-footer-identity p{max-width:60ch}
+ .page-content{max-width:100%;overflow-wrap:anywhere}
+}
+@media(max-width:540px){
+ .topbar-context,.topbar-hello,.topbar-subtitle{display:none}
+ .topbar-left{flex:1 1 auto;min-width:82px;gap:7px}
+ .topbar-actions{flex:0 0 auto;gap:4px}
+ .topbar .env-label{font-size:0;width:34px;min-width:34px;min-height:36px;padding:5px;display:grid;place-items:center}
+ .topbar .env-label svg{height:17px;width:17px}
+ .topbar .avatar{display:none}
+ .mm-footer-top{grid-template-columns:minmax(0,1fr)}
+ .mm-footer-identity{grid-column:auto}
+ .mm-footer-bottom{font-size:11px}
+}
+@media(max-width:400px){
+ .topbar{padding-inline:8px;gap:4px;justify-content:space-between}
+ .topbar-left{flex:1 1 auto;min-width:78px;width:auto;gap:5px;z-index:1}
+ .topbar .hamburger{flex:0 0 44px;width:44px;min-width:44px;height:44px;min-height:44px;padding:8px}
+ .mm-mobile-brand{flex:0 0 30px;width:30px;height:30px}
+ .topbar-actions{flex:0 0 auto;min-width:0;gap:3px;justify-content:flex-end}
+ .topbar .env-label{display:none}
+ .topbar .topbar-family,.topbar .mm14-topbar,.topbar .topbar-icon{width:44px;min-width:44px;height:44px;min-height:44px;display:grid;place-items:center;padding:8px}
+ .topbar .topbar-family{font-size:0}
+ .topbar .topbar-family svg{width:19px;height:19px}
+ .topbar .locale-switch{min-width:44px;max-width:49px;flex:0 0 44px}
+ .topbar .locale-switch select{min-width:44px;width:44px;max-width:44px;padding-inline:4px}
+ .topbar .avatar{display:none}
+ .mm-footer-identity .brand-title small{white-space:normal}
+ .mm-app-footer{padding-inline:13px}
+}
+@media(max-width:340px){
+ .topbar .topbar-icon{display:none}
+ .topbar-actions{gap:2px}
+}
+@media(prefers-reduced-motion:reduce){.mm13-action-card,.mm-footer-links button{transition:none!important;transform:none!important}}
