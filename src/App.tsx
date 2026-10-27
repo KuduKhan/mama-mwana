@@ -226,7 +226,46 @@ export default function App(){
   return()=>window.removeEventListener('popstate',onPop);
  },[]);
  const [menuOpen,setMenuOpen]=useState(false);
- useEffect(()=>{if(!menuOpen)return;const dismiss=(e:KeyboardEvent)=>{if(e.key==='Escape')setMenuOpen(false);};window.addEventListener('keydown',dismiss);return()=>window.removeEventListener('keydown',dismiss);},[menuOpen]);
+ const [isNarrow,setIsNarrow]=useState(()=>window.matchMedia('(max-width:760px)').matches);
+ const sidebarRef=useRef<HTMLElement|null>(null);
+ const hamburgerRef=useRef<HTMLButtonElement|null>(null);
+ const closeDrawerRef=useRef<HTMLButtonElement|null>(null);
+ useEffect(()=>{
+  const media=window.matchMedia('(max-width:760px)');
+  const onResize=()=>{setIsNarrow(media.matches);if(!media.matches)setMenuOpen(false);};
+  onResize();media.addEventListener('change',onResize);
+  return()=>media.removeEventListener('change',onResize);
+ },[]);
+ // Treat the mobile drawer as a temporary focus-contained surface; off-screen links
+ // are inert while closed, and keyboard focus returns to the invoking control.
+ useEffect(()=>{
+  if(!menuOpen||!isNarrow)return;
+  const previous=document.activeElement instanceof HTMLElement?document.activeElement:null;
+  closeDrawerRef.current?.focus();
+  const onDrawerKey=(event:KeyboardEvent)=>{
+   if(event.key==='Escape'){
+    event.preventDefault();event.stopPropagation();setMenuOpen(false);return;
+   }
+   if(event.key!=='Tab')return;
+   const root=sidebarRef.current;
+   if(!root)return;
+   const focusable=Array.from(root.querySelectorAll<HTMLElement>(
+    'button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),[tabindex]:not([tabindex="-1"])'
+   )).filter(el=>el.getClientRects().length>0);
+   if(!focusable.length){event.preventDefault();closeDrawerRef.current?.focus();return;}
+   const first=focusable[0],last=focusable[focusable.length-1];
+   if(event.shiftKey&&(document.activeElement===first||!root.contains(document.activeElement))){
+    event.preventDefault();last.focus();
+   }else if(!event.shiftKey&&(document.activeElement===last||!root.contains(document.activeElement))){
+    event.preventDefault();first.focus();
+   }
+  };
+  document.addEventListener('keydown',onDrawerKey,true);
+  return()=>{
+   document.removeEventListener('keydown',onDrawerKey,true);
+   if(previous?.isConnected)previous.focus();else hamburgerRef.current?.focus();
+  };
+ },[menuOpen,isNarrow]);
  const [toast,setToast]=useState('');
  const [warningOpen,setWarningOpen]=useState(false);
  const warningDialogRef=useModalFocus(warningOpen,()=>setWarningOpen(false));
@@ -553,18 +592,18 @@ export default function App(){
  </div>;
  }
  return <div className="app-shell"><a className="ui-skip-link" href="#mamamwana-main">Skip to main content</a>
-  <aside id="mamamwana-primary-navigation" className={'sidebar '+(menuOpen?'sidebar-open':'')}>
-   <div className="sidebar-header"><Brand/><button className="mobile-close" aria-label="Close navigation" onClick={()=>setMenuOpen(false)}><X size={20}/></button></div>
+  <aside ref={sidebarRef} id="mamamwana-primary-navigation" className={'sidebar '+(menuOpen?'sidebar-open':'')} inert={isNarrow&&!menuOpen} aria-label="Primary navigation panel">
+   <div className="sidebar-header"><Brand/><button ref={closeDrawerRef} className="mobile-close" aria-label="Close navigation" onClick={()=>setMenuOpen(false)}><X size={20}/></button></div>
    <div className="sidebar-intro"><span className="eyebrow">{t('app.space')}</span><div className="sidebar-greeting">{t('app.growing')} <Heart size={17} strokeWidth={1.8} aria-hidden="true"/></div></div>
    <div className="nav-heading">{t('app.journey')}</div>
    <nav className="sidebar-nav" aria-label="Primary navigation">{NAV_GROUPS.map(group=><div key={group.key} className="mm13-nav-group" role="group" aria-labelledby={'mm13-group-'+group.key}><div id={'mm13-group-'+group.key} className="mm13-nav-group-label">{t(group.labelKey,group.label)}</div>{NAV.filter(item=>group.ids.includes(item.id)).map(({id,label,Icon})=><button key={id} onClick={()=>enterTab(id)} className={'nav-item '+(tab===id?'selected':'')} aria-current={tab===id?'page':undefined}><Icon size={19} strokeWidth={1.9} aria-hidden="true"/>{t('nav.'+id,label)}{tab===id&&<span className="nav-active-dot"/>}</button>)}</div>)}</nav>
    <div className="sidebar-spacer"/>
-   <div className="sidebar-support"><span className="sidebar-support-icon"><ShieldCheck size={21}/></span><strong>Your health matters</strong><p>Medical concerns always deserve a real healthcare professional.</p><button onClick={()=>setWarningOpen(true)}>When to seek help <ArrowRight size={14}/></button></div>
+   <div className="sidebar-support"><span className="sidebar-support-icon"><ShieldCheck size={21}/></span><strong>Your health matters</strong><p>Medical concerns always deserve a real healthcare professional.</p><button onClick={()=>{setMenuOpen(false);setWarningOpen(true);}}>When to seek help <ArrowRight size={14}/></button></div>
    <div className="sidebar-footer"><button onClick={signOut}><LogOut size={17}/>{demo?t('app.demoExit'):t('app.logout')}</button><span>© 2026 MamaMwana • v{APP_VERSION}</span></div>
   </aside>
   {menuOpen&&<button className="drawer-backdrop" aria-label="Close menu" onClick={()=>setMenuOpen(false)}/>}
   <div className="app-main">
-   <header className="topbar"><div className="topbar-left"><button className="hamburger" aria-label="Open navigation" aria-expanded={menuOpen} aria-controls="mamamwana-primary-navigation" onClick={()=>setMenuOpen(true)}><Menu size={22}/></button><div className="topbar-context"><div className="topbar-hello">{t('app.hello')}, {displayName} <Sparkles className="topbar-spark" size={18} strokeWidth={1.8} aria-hidden="true"/></div><div className="topbar-subtitle"><span className="topbar-current-page">{t('nav.'+tab,NAV.find(item=>item.id===tab)?.label??'Your journey')}</span><span className="topbar-subtitle-divider" aria-hidden="true">•</span> Growing with care</div></div></div><div className="topbar-actions">
+   <header className="topbar"><div className="topbar-left"><button ref={hamburgerRef} className="hamburger" aria-label="Open navigation" aria-expanded={menuOpen} aria-controls="mamamwana-primary-navigation" onClick={()=>setMenuOpen(true)}><Menu size={22}/></button><div className="topbar-context"><div className="topbar-hello">{t('app.hello')}, {displayName} <Sparkles className="topbar-spark" size={18} strokeWidth={1.8} aria-hidden="true"/></div><div className="topbar-subtitle"><span className="topbar-current-page">{t('nav.'+tab,NAV.find(item=>item.id===tab)?.label??'Your journey')}</span><span className="topbar-subtitle-divider" aria-hidden="true">•</span> Growing with care</div></div></div><div className="topbar-actions">
      {demo?<span className="env-label"><Cloud size={15}/> {t('app.demo')}</span>:<span className={'env-label '+(saveStatus==='error'?'env-error':'')}><CheckCircle2 size={15}/>{saveStatus==='saving'?t('app.saving'):saveStatus==='error'?t('app.saved'):t('app.private')}</span>}
      <label className="locale-switch"><span className="sr-only">{t('app.language')}</span><select aria-label="Language / Lugha" value={locale} onChange={e=>setLocale(e.target.value==='sw'?'sw':'en')}><option value="en">EN</option><option value="sw">SW</option></select></label><button className="topbar-family" aria-label="Family journeys" onClick={()=>enterTab('family')}><Users size={16}/> {t('app.family')} ({journeys.length})</button><button aria-label="Health warning signs" className="topbar-icon" onClick={()=>setWarningOpen(true)}><ShieldAlert size={19}/></button><span className="avatar">{displayName.slice(0,1).toUpperCase()}</span>
    </div></header>
