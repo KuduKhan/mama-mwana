@@ -32,7 +32,8 @@ for(const width of [320,360,375,390,430,540,760]){
    expect(c.left).toBeGreaterThanOrEqual(-2);
    expect(c.right).toBeLessThanOrEqual(a.viewport+2);
   }
-  for(let i=1;i<a.controls.length;i++)expect(a.controls[i].left).toBeGreaterThanOrEqual(a.controls[i-1].right-1);
+  for(let i=1;i<3;i++)expect(a.controls[i].left).toBeGreaterThanOrEqual(a.controls[i-1].right-1);
+  expect(a.controls[3].top).toBeGreaterThanOrEqual(a.controls[0].bottom-1);
   expect(a.pbar.left).toBeGreaterThanOrEqual(-1);
   expect(a.pbar.right).toBeLessThanOrEqual(a.viewport+1);
   expect(a.dock.left).toBeGreaterThanOrEqual(0);

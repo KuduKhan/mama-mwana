@@ -1,6 +1,6 @@
-/* MamaMwana Mobile Studio, October 2026
-   A single phone-only layout contract. Desktop rules intentionally unchanged.
-   The only rules below this line target viewports <=760px. */
+/* MamaMwana Mobile Studio, October 2026.
+   New mobile-only elements remain hidden on desktop; original desktop styles are untouched. */
+.mm-phone-pagebar,.mm-mobile-wordmark{display:none}
 @media (max-width:760px){
  :root{--mm-phone-gutter:clamp(12px,4vw,20px);--mm-phone-card-radius:20px}
  html{scroll-padding-top:116px}
