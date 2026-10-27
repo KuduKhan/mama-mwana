@@ -68,18 +68,18 @@ export function CaregiverOwnerPanel({child,userId,demo}:{child:FamilyChild|null;
 export function CaregiverInbox({userId,demo}:{userId:string|null;demo:boolean}){
  const {t}=useMamaLocale();
  const [invites,setInvites]=useState<Invite[]>([]),[view,setView]=useState<Shared|null>(null),[busy,setBusy]=useState(false);
- const [acceptedScope,setAcceptedScope]=useState(false);
+ const [acceptedFor,setAcceptedFor]=useState<string|null>(null);
  const [error,setError]=useState(''),[message,setMessage]=useState(''),[reload,setReload]=useState(0);
  useEffect(()=>{
-  let active=true;setInvites([]);setView(null);setError('');setAcceptedScope(false);if(!userId||demo||!supabase)return;
+  let active=true;setInvites([]);setView(null);setError('');setAcceptedFor(null);if(!userId||demo||!supabase)return;
   void supabase.from('caregiver_invitations').select(select).neq('owner_id',userId)
    .in('status',['pending','accepted']).order('expires_at',{ascending:false}).limit(100)
    .then(({data,error})=>{if(!active)return;if(error)setError('Shared invitations unavailable; sign in with a verified email.');else setInvites((data??[]) as Invite[]);});
   return()=>{active=false};
  },[userId,demo,reload]);
  async function change(i:Invite,next:'accepted'|'revoked'){
-  if(!supabase||busy||next==='accepted'&&!acceptedScope)return;
-  setView(null);setAcceptedScope(false);setBusy(true);setError('');setMessage('');
+  if(!supabase||busy||next==='accepted'&&acceptedFor!==i.id)return;
+  setView(null);setAcceptedFor(null);setBusy(true);setError('');setMessage('');
   const {data,error}=await supabase.from('caregiver_invitations').update({status:next,version:i.version+1})
    .eq('id',i.id).eq('version',i.version).select(select).maybeSingle();
   setBusy(false);
@@ -97,9 +97,9 @@ export function CaregiverInbox({userId,demo}:{userId:string|null;demo:boolean}){
   <p>Only a caregiver signed in with the invited, verified email can accept. You receive time-limited, read-only access; you cannot edit records or see the owner's private pregnancy notes.</p>
   {error&&<p role="alert" className="sharing10-error">{error}</p>}
   {message&&<p role="status">{message}</p>}
-  {invites.some(i=>i.status==='pending')&&<label className="mm14-consent"><input type="checkbox" checked={acceptedScope} onChange={e=>setAcceptedScope(e.target.checked)}/>{t('caregiver.acceptScope','I understand that this is read-only access to one child profile, not the full family health record.')}</label>}
   <div className="sharing10-list">{invites.map(i=><article key={i.id}><span><strong>Child profile shared privately</strong><small>{i.status==='accepted'?'Read-only access until '+(i.shared_until??''):'Invitation expires '+i.expires_at}</small></span><div className="sharing10-actions">
-   {i.status==='pending'&&<button type="button" disabled={busy||!acceptedScope} onClick={()=>{void change(i,'accepted')}}>Accept</button>}
+   {i.status==='pending'&&<label className="mm14-consent"><input type="checkbox" checked={acceptedFor===i.id} onChange={e=>setAcceptedFor(e.target.checked?i.id:null)}/>{t('caregiver.acceptScope','I understand that this is read-only access to one child profile, not the full family health record.')}</label>}
+   {i.status==='pending'&&<button type="button" disabled={busy||acceptedFor!==i.id} onClick={()=>{void change(i,'accepted')}}>Accept</button>}
    {i.status==='accepted'&&<button type="button" disabled={busy} onClick={()=>{void read(i)}}>View child summary</button>}
    <button type="button" disabled={busy} onClick={()=>{void change(i,'revoked')}}>{i.status==='pending'?'Decline':'Leave'}</button>
   </div></article>)}</div>
