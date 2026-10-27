@@ -357,6 +357,9 @@
  .mm13-home .metrics-grid>.metric-card:first-child>strong{font-size:16px;line-height:1.4}
  .mm13-home .metrics-grid>.metric-card:first-child .metric-foot{font-size:11px}
  .mm13-home .m12-dashboard-link{display:none}
+ /* Today's date is visible in the focus card already; don't print it again in
+    the interactive daily-task card below. */
+ .mm13-home .today-panel .date-tag{display:none}
  /* Hero remains an introduction, not a second oversized dashboard. */
  .mm13-home .hero-card,.hero-card{min-height:0;padding:22px 17px 75px;border-radius:19px}
  .hero-copy h2{font-size:clamp(28px,7.7vw,36px);line-height:1.14}
