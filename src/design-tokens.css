@@ -1,0 +1,41 @@
+/* MamaMwana shared design contract — v1.2.2.
+   Values retain the existing botanical identity; page styles consume these tokens.
+   Keep medical meaning in text rather than color alone. */
+:root {
+  --mm-forest:#153f36;
+  --mm-deep:#123a33;
+  --mm-botanical:#277b5e;
+  --mm-sage:#d9ead9;
+  --mm-sage-pale:#f1f7f0;
+  --mm-coral:#c07567;
+  --mm-coral-pale:#fff0e9;
+  --mm-lilac:#76678e;
+  --mm-lilac-pale:#f0ebf6;
+  --mm-gold:#a67a46;
+  --mm-cream:#faf9f4;
+  --mm-border:#e1e9df;
+  --mm-radius:22px;
+  --mm-serif: "Iowan Old Style","Baskerville","Palatino Linotype",Georgia,serif;
+  --mm-sans:"Avenir Next","Segoe UI",Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,sans-serif;
+  --mm-hand:"Segoe Print","Bradley Hand","Apple Chancery","URW Chancery L",cursive;
+  --mm-shadow:0 18px 54px rgba(22,68,51,.07),0 3px 10px rgba(22,68,51,.025);
+  --mm-surface-warm:#fffefb;
+  --mm-focus:#267e59;
+  --mm-focus-ring:3px solid var(--mm-focus);
+  --mm-touch-min:44px;
+  --mm-space-1:4px;
+  --mm-space-2:8px;
+  --mm-space-3:12px;
+  --mm-space-4:16px;
+  --mm-space-6:24px;
+  --mm-radius-sm:12px;
+  --mm-radius-md:16px;
+}
+/* Only loading placeholders use these utilities, not sensitive health details. */
+.mm-section-loading {
+  display:flex;align-items:center;justify-content:center;
+  min-height:200px;margin:16px;padding:24px;
+  border:1px solid var(--mm-border);border-radius:var(--mm-radius);
+  background:var(--mm-sage-pale);color:var(--mm-forest);
+  font-family:var(--mm-sans);font-size:14px;font-weight:650;text-align:center;
+}

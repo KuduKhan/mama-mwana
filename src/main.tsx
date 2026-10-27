@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import {LocaleProvider} from './lib/locale';
 import FailureBoundary from './components/FailureBoundary';
+import './design-tokens.css';
 import './styles.css';
 import './v03.css';
 import './v04.css';

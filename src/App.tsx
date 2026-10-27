@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import type { FormEvent, ReactNode } from 'react';
 import type { User } from '@supabase/supabase-js';
 import {
@@ -10,21 +10,22 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { configured, supabase } from './lib/supabase';
+import { APP_VERSION } from './lib/release';
 import {useMamaLocale} from './lib/locale';
 import {applyClinicalMutation,editJourneyClinical,isClinicalConflict,loadCanonicalJourneys,nonClinicalJourneyPayload} from './lib/clinical';
 import type {ClinicalKind,ClinicalVersioned} from './lib/clinical';
-import GuidanceV04 from './components/GuidanceV04';
-import PrivacyV04 from './components/PrivacyV04';
-import ClinicalRecordsV04 from './components/ClinicalRecordsV04';
-import CarePlannerV07 from './components/CarePlannerV07';
-import CareJourneyHubV12 from './components/CareJourneyHubV12';
-import FamilyChildrenV09 from './components/FamilyChildrenV09';
+const GuidanceV04 = lazy(() => import('./components/GuidanceV04'));
+const PrivacyV04 = lazy(() => import('./components/PrivacyV04'));
+const ClinicalRecordsV04 = lazy(() => import('./components/ClinicalRecordsV04'));
+const CarePlannerV07 = lazy(() => import('./components/CarePlannerV07'));
+const CareJourneyHubV12 = lazy(() => import('./components/CareJourneyHubV12'));
+const FamilyChildrenV09 = lazy(() => import('./components/FamilyChildrenV09'));
 import {CaregiverInbox} from './components/CaregiverAccessV10';
 import {DEFAULT_PRIVACY,exportFilename} from './lib/privacy';
 import {buildCompleteExport,emptyPrivateExportRows,fetchPrivateExportRows} from './lib/privateExport';
 import BetaNoticeV10 from './components/BetaNoticeV10';
 import type {PrivacyChoices} from './lib/privacy';
-import ChildHealthV03 from './components/ChildHealthV03';
+const ChildHealthV03 = lazy(() => import('./components/ChildHealthV03'));
 import {
   BIRTH_CHECKLIST, addDays, ageInMonths, daysBetween, getPhase, isDate,
   isValidBirthDate, makeJourney, postpartumDay, pregnancyStage, readable, todayISO,
@@ -546,7 +547,7 @@ export default function App(){
    <nav className="sidebar-nav" aria-label="Primary navigation">{NAV.map(({id,label,Icon})=><button key={id} onClick={()=>enterTab(id)} className={'nav-item '+(tab===id?'selected':'')} aria-current={tab===id?'page':undefined}><Icon size={19} strokeWidth={1.9} aria-hidden="true"/>{t('nav.'+id,label)}{tab===id&&<span className="nav-active-dot"/>}</button>)}</nav>
    <div className="sidebar-spacer"/>
    <div className="sidebar-support"><span className="sidebar-support-icon"><ShieldCheck size={21}/></span><strong>Your health matters</strong><p>Medical concerns always deserve a real healthcare professional.</p><button onClick={()=>setWarningOpen(true)}>When to seek help <ArrowRight size={14}/></button></div>
-   <div className="sidebar-footer"><button onClick={signOut}><LogOut size={17}/>{demo?t('app.demoExit'):t('app.logout')}</button><span>© 2026 MamaMwana • v1.2</span></div>
+   <div className="sidebar-footer"><button onClick={signOut}><LogOut size={17}/>{demo?t('app.demoExit'):t('app.logout')}</button><span>© 2026 MamaMwana • v{APP_VERSION}</span></div>
   </aside>
   {menuOpen&&<button className="drawer-backdrop" aria-label="Close menu" onClick={()=>setMenuOpen(false)}/>}
   <div className="app-main">
@@ -557,7 +558,7 @@ export default function App(){
    {!demo&&<BetaNoticeV10/>}
     {demo&&<div className="demo-banner"><Sparkles size={16}/><span><strong>Interactive preview:</strong> use sample details only. Changes disappear when you leave this page.</span><button onClick={signOut}>Exit <ArrowRight size={14}/></button></div>}
    {locale==='sw'&&<p className="locale-clinical-review" role="status">{t('app.review')}</p>}
-    <main id="mamamwana-main" tabIndex={-1}>{tab==='home'?<Home/>:tab==='family'?<Family/>:tab==='pregnancy'?<Pregnancy/>:tab==='care'?<Care/>:tab==='visits'?<Visits/>:tab==='birth'?<Birth/>:tab==='baby'?<BabyPage/>:tab==='planner'?<CarePlannerV07 journey={activeJourney} isDemo={demo} userId={user?.id??null}/>:tab==='hub'?<CareJourneyHubV12 journey={activeJourney} isDemo={demo}/>:tab==='records'?<ClinicalRecordsV04 journey={activeJourney} isDemo={demo}/>:tab==='guidance'?<GuidanceV04 stage={phase} allowStageContext={privacy.guidance_context} userId={user?.id??null} isDemo={demo}/>:tab==='privacy'?<PrivacyV04 journeys={journeys} selectedId={activeJourney.id} choices={privacy} isDemo={demo} userId={user?.id??null} onChange={savePrivacy} onExport={exportAllData} onDelete={deleteJourney}/>:<Library/>}</main>
+    <main id="mamamwana-main" tabIndex={-1}><Suspense fallback={<div className="mm-section-loading" role="status" aria-live="polite">Loading this section…</div>}>{tab==='home'?<Home/>:tab==='family'?<Family/>:tab==='pregnancy'?<Pregnancy/>:tab==='care'?<Care/>:tab==='visits'?<Visits/>:tab==='birth'?<Birth/>:tab==='baby'?<BabyPage/>:tab==='planner'?<CarePlannerV07 journey={activeJourney} isDemo={demo} userId={user?.id??null}/>:tab==='hub'?<CareJourneyHubV12 journey={activeJourney} isDemo={demo}/>:tab==='records'?<ClinicalRecordsV04 journey={activeJourney} isDemo={demo}/>:tab==='guidance'?<GuidanceV04 stage={phase} allowStageContext={privacy.guidance_context} userId={user?.id??null} isDemo={demo}/>:tab==='privacy'?<PrivacyV04 journeys={journeys} selectedId={activeJourney.id} choices={privacy} isDemo={demo} userId={user?.id??null} onChange={savePrivacy} onExport={exportAllData} onDelete={deleteJourney}/>:<Library/>}</Suspense></main>
    <footer className="app-footer"><span>MamaMwana • Made for every little beginning</span><span>{t('app.educational')}</span></footer>
   </div>
   <nav className="mobile-tabs" aria-label="Quick navigation">{[{id:'home' as Tab,label:'Home',Icon:House},{id:'care' as Tab,label:'Today',Icon:Heart},{id:'planner' as Tab,label:'Planner',Icon:ListTodo},{id:'visits' as Tab,label:'Visits',Icon:CalendarDays},{id:'baby' as Tab,label:'Baby',Icon:Baby}].map(({id,label,Icon})=><button key={id} className={tab===id?'active':''} aria-current={tab===id?'page':undefined} onClick={()=>enterTab(id)}><Icon size={21} strokeWidth={1.85} aria-hidden="true"/><span>{label}</span></button>)}</nav>
