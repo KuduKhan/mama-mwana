@@ -56,7 +56,7 @@ export default function FamilyChildrenV09({journey,isDemo,userId}:Props){
     ]):[{data:[],error:null},{data:[],error:null}];
     if(g.error||v.error)throw g.error??v.error;
     if(alive){setChildren(rows);setGrowth((g.data??[]) as FamilyGrowth[]);setVaccines((v.data??[]) as FamilyVaccine[]);setSelected(rows[0]?.id??'');setLoading(false);}
-   }catch{if(alive){setError('Family records are unavailable. Verify the v0.9 migration and your account permissions.');setLoadFailed(true);setLoading(false);}}
+   }catch{if(alive){setError('Family records are unavailable. Verify the current child-profile database setup and your account permissions.');setLoadFailed(true);setLoading(false);}}
   })();
   return ()=>{alive=false;};
  },[demo,journey.id,userId,reload]);

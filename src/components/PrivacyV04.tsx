@@ -5,6 +5,7 @@ import type { Journey } from '../lib/domain';
 import { readable } from '../lib/domain';
 import type { PrivacyChoices } from '../lib/privacy';
 import DataRightsV05 from './DataRightsV05';
+import CurrentFeatureHeading from './CurrentFeatureHeading';
 
 interface Props {
  journeys:Journey[];
@@ -45,7 +46,7 @@ export default function PrivacyV04({journeys,selectedId,choices,isDemo,userId,on
   finally{setWorking(false);}
  }
  return <div className="page-content v4-page">
-  <div className="section-heading"><div><div className="eyebrow">YOUR DATA • YOUR CHOICES</div><h2>Privacy & records</h2><p>Understand what MamaMwana stores, choose optional features and manage your information.</p></div></div>
+  <CurrentFeatureHeading eyebrow="YOUR DATA • YOUR CHOICES" title="Privacy & records" description="Understand your information, manage optional settings, and review private account controls." Icon={ShieldCheck} tone="sage"/>
   <div className="v4-privacy-hero"><span><ShieldCheck size={30}/></span><div><h3>Health data deserves extra care</h3><p>Pregnancy and child health entries can be sensitive personal information. Signed-in records are associated with your authenticated account and protected with database row-level access policies. Review the app’s privacy notices before entering real records.</p></div></div>
   <section className="panel v4-privacy-section"><div className="panel-heading"><div><div className="eyebrow">OPTIONAL EXPERIENCE SETTINGS</div><h3>Feature preferences</h3></div><LockKeyhole size={20}/></div>
    <p className="muted">Essential account storage is required for signed-in journeys. These controls affect only the specified optional features, not medical records, research consent or any third-party data sharing.</p>

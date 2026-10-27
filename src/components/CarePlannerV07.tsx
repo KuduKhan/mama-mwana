@@ -2,6 +2,7 @@ import {useEffect,useMemo,useState} from 'react';
 import type {FormEvent} from 'react';
 import {CalendarCheck,CheckCircle2,ClipboardCopy,ClipboardList,FileCheck2,HelpCircle,Link2,NotebookPen,Plus,RefreshCw,ShieldCheck,Trash2} from 'lucide-react';
 import type {Journey} from '../lib/domain';
+import CurrentFeatureHeading from './CurrentFeatureHeading';
 import {supabase} from '../lib/supabase';
 import {buildPrivateVisitBrief,CARE_KINDS,CARE_SUGGESTIONS,orderCareItems,validateCareDraft} from '../lib/carePlanner';
 import type {CareDraft,CareItem,CareItemKind,CareItemState} from '../lib/carePlanner';
@@ -33,7 +34,7 @@ export default function CarePlannerV07({journey,isDemo,userId}:Props){
    .eq('journey_id',journey.id).order('created_at',{ascending:false}).limit(250))
    .then(({data,error:queryError})=>{
     if(!alive)return;
-    if(queryError){setLoadFailed(true);setError('Care Planner cannot load. Apply and verify the v0.7 database migration.');}
+    if(queryError){setLoadFailed(true);setError('Care Planner cannot load. Confirm the current care-planning database setup and account permissions.');}
     else setItems((data??[]) as CareItem[]);
     setLoading(false);
    }).catch(()=>{if(alive){setLoadFailed(true);setError('Unable to load your care plan. Check your connection.');setLoading(false);}});
@@ -122,7 +123,7 @@ export default function CarePlannerV07({journey,isDemo,userId}:Props){
   }catch{setError('Clipboard access unavailable or blocked. Your notes have not been shared.');}
  }
  return <div className="page-content care07">
-  <div className="section-heading"><div><div className="eyebrow">MAMAMWANA CARE CONTINUITY • V0.7</div><h2>My care planner</h2><p>Prepare for clinic conversations, organize personal questions and follow up on your own decisions.</p></div></div>
+  <CurrentFeatureHeading eyebrow="YOUR CARE • ORGANIZED" title="My care planner" description="Prepare for clinic conversations, organize personal questions and follow up on your own decisions." Icon={ClipboardList} tone="sage"/>
   <div className="care07-intro"><span><ShieldCheck size={25}/></span><div><strong>Your notes. Your choices.</strong><p>This is a caregiver-managed planner, not a clinician's prescription, appointment booking system, or emergency service. Always follow your care team's instructions.</p></div></div>
   <div className="care07-metrics"><div><NotebookPen size={20}/><small>Open care items</small><strong>{open}</strong></div><div><CheckCircle2 size={20}/><small>Completed notes</small><strong>{done}</strong></div><div><CalendarCheck size={20}/><small>Recorded visits</small><strong>{journey.visits.length}</strong></div></div>
   <section className="panel care07-form"><div className="panel-heading"><div><div className="eyebrow">WRITE IT DOWN</div><h3>{editing?'Edit your care item':'Add something to remember'}</h3></div><Plus size={21}/></div>
