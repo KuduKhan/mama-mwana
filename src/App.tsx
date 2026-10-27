@@ -54,6 +54,11 @@ const NAV:NavItem[]=[
  {id:'privacy',label:'Privacy & records',Icon:LockKeyhole},
  {id:'library',label:'Health library',Icon:BookHeart}
 ];
+const NAV_GROUPS:readonly {key:string;labelKey:string;label:string;ids:readonly Tab[]}[]=[
+ {key:'daily',labelKey:'navGroup.daily',label:'Daily essentials',ids:['home','care','planner','visits']},
+ {key:'family',labelKey:'navGroup.family',label:'Family & milestones',ids:['family','pregnancy','hub','birth','baby']},
+ {key:'support',labelKey:'navGroup.support',label:'Records & support',ids:['records','guidance','privacy','library']}
+];
 const TASK_ICONS:Record<string,LucideIcon>={
  droplets:Droplets,utensils:Utensils,footprints:Footprints,moon:Moon,heart:Heart,
  'heart-pulse':HeartPulse,baby:Baby,'hand-heart':HeartHandshake
@@ -416,7 +421,15 @@ export default function App(){
  const topLabel=phase==='pregnancy'?'YOUR PREGNANCY JOURNEY':phase==='postpartum'?'THE FOURTH TRIMESTER':'GROWING TOGETHER';
 
  function Home(){
- return <div className="page-content">
+ return <div className="page-content mm13-home">
+  <section className="mm13-today" aria-labelledby="mm13-today-heading">
+   <div className="mm13-today-head"><div><span className="eyebrow">{t('home.todayEyebrow','YOUR DAILY FOCUS')}</span><h2 id="mm13-today-heading">{t('home.todayTitle','Your day at a glance')}</h2><p>{t('home.todaySubtitle','Pick up where you left off. Personal reminders, not medical advice.')}</p></div><span className="mm13-today-date"><Sun size={16} aria-hidden="true"/>{readable(todayISO())}</span></div>
+   <div className="mm13-action-grid" aria-label="Suggested next steps">
+    <button type="button" className="mm13-action-card" onClick={()=>enterTab('care')} aria-label="Continue daily care"><span className="mm13-action-icon sage"><Heart size={19} aria-hidden="true"/></span><span className="mm13-action-copy"><span className="mm13-action-label">{t('home.careAction','Continue daily care')}</span><strong>{completedToday} / {tasks.length} {t('home.checked','checked')}</strong><small>{t('home.careDetail','Your personal daily checklist')}</small></span><ArrowRight size={18} aria-hidden="true"/></button>
+    <button type="button" className="mm13-action-card" onClick={()=>enterTab('visits')} aria-label="Review planned visits"><span className="mm13-action-icon coral"><CalendarDays size={19} aria-hidden="true"/></span><span className="mm13-action-copy"><span className="mm13-action-label">{t('home.visitsAction','Review planned visits')}</span><strong>{nextVisit?readable(nextVisit.scheduled_on):t('home.nonePlanned','No visit entered')}</strong><small>{nextVisit?t('home.confirmVisit','Planned in your journal · confirm with clinic'):t('home.addVisit','Add a visit to your personal journal')}</small></span><ArrowRight size={18} aria-hidden="true"/></button>
+    <button type="button" className="mm13-action-card" onClick={()=>enterTab('hub')} aria-label="Open care journey"><span className="mm13-action-icon lilac"><NotebookPen size={19} aria-hidden="true"/></span><span className="mm13-action-copy"><span className="mm13-action-label">{t('home.journeyAction','Explore care journey')}</span><strong>{activeJourney.visits.length} {t('home.visitsRecorded','visit entries')}</strong><small>{t('home.journeyDetail','Your recorded moments, in one place')}</small></span><ArrowRight size={18} aria-hidden="true"/></button>
+   </div>
+  </section>
    <div className="hero-card">
     <div className="hero-warmth" aria-hidden="true"/>
     <div className="hero-copy"><span className="hero-eyebrow"><Sparkles size={14}/> {topLabel}</span>
@@ -544,7 +557,7 @@ export default function App(){
    <div className="sidebar-header"><Brand/><button className="mobile-close" aria-label="Close navigation" onClick={()=>setMenuOpen(false)}><X size={20}/></button></div>
    <div className="sidebar-intro"><span className="eyebrow">{t('app.space')}</span><div className="sidebar-greeting">{t('app.growing')} <Heart size={17} strokeWidth={1.8} aria-hidden="true"/></div></div>
    <div className="nav-heading">{t('app.journey')}</div>
-   <nav className="sidebar-nav" aria-label="Primary navigation">{NAV.map(({id,label,Icon})=><button key={id} onClick={()=>enterTab(id)} className={'nav-item '+(tab===id?'selected':'')} aria-current={tab===id?'page':undefined}><Icon size={19} strokeWidth={1.9} aria-hidden="true"/>{t('nav.'+id,label)}{tab===id&&<span className="nav-active-dot"/>}</button>)}</nav>
+   <nav className="sidebar-nav" aria-label="Primary navigation">{NAV_GROUPS.map(group=><div key={group.key} className="mm13-nav-group" role="group" aria-labelledby={'mm13-group-'+group.key}><div id={'mm13-group-'+group.key} className="mm13-nav-group-label">{t(group.labelKey,group.label)}</div>{NAV.filter(item=>group.ids.includes(item.id)).map(({id,label,Icon})=><button key={id} onClick={()=>enterTab(id)} className={'nav-item '+(tab===id?'selected':'')} aria-current={tab===id?'page':undefined}><Icon size={19} strokeWidth={1.9} aria-hidden="true"/>{t('nav.'+id,label)}{tab===id&&<span className="nav-active-dot"/>}</button>)}</div>)}</nav>
    <div className="sidebar-spacer"/>
    <div className="sidebar-support"><span className="sidebar-support-icon"><ShieldCheck size={21}/></span><strong>Your health matters</strong><p>Medical concerns always deserve a real healthcare professional.</p><button onClick={()=>setWarningOpen(true)}>When to seek help <ArrowRight size={14}/></button></div>
    <div className="sidebar-footer"><button onClick={signOut}><LogOut size={17}/>{demo?t('app.demoExit'):t('app.logout')}</button><span>© 2026 MamaMwana • v{APP_VERSION}</span></div>
