@@ -21,7 +21,6 @@ import './quality-v131.css';
 import './premium-v14.css';
 import './premium-current.css';
 import './experience-polish.css';
-import './mobile-studio.css';
 import './component-fit.css';
-import './phone-chrome.css';
+import './mobile-experience.css';
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><FailureBoundary><LocaleProvider><AccessibilityProvider><App /></AccessibilityProvider></LocaleProvider></FailureBoundary></React.StrictMode>);
