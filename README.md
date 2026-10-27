@@ -270,3 +270,8 @@ The previously displayed v0.4/v0.5/v0.7 labels are now sourced from the current 
 ## Branding, mobile layout and safe Supabase preview (October 2026)
 
 The user-referenced MamaMwana emblem is standardized as a local vector asset across the navigation, authentication, onboarding, PWA and footers. Updated phone/tablet responsive header, premium cards and usable branded footers are regression tested. A separate account-only Supabase client permits authenticated preview setup while the sensitive health-record gate stays off until independent approval. See [docs/V140_BRAND_MOBILE_SUPABASE.md](docs/V140_BRAND_MOBILE_SUPABASE.md).
+
+
+## Mobile Studio — desktop-preserving phone redesign (October 2026)
+
+The phone UI now has a separate two-row branded masthead, active page/safety row, floating safe-area navigation, deliberate mobile card grids, and a more legible sidebar and footer. The desktop design is intentionally unchanged. See [docs/MOBILE_STUDIO_V140.md](docs/MOBILE_STUDIO_V140.md).
