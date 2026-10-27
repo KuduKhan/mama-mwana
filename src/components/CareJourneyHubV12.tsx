@@ -3,9 +3,11 @@ import {Activity,Baby,CalendarDays,ChevronDown,ClipboardCopy,HeartPulse,LockKeyh
 import type {Journey} from '../lib/domain';
 import {readable,todayISO} from '../lib/domain';
 import {buildCareEvents,buildVisitBrief} from '../lib/careJourney';
-import type {CareEventKind} from '../lib/careJourney';
+import type {CareEvent,CareEventKind} from '../lib/careJourney';
 
 type Filter='all'|CareEventKind;
+type Status='all'|CareEvent['status'];
+type SortOrder='newest'|'oldest';
 const FILTERS:readonly {id:Filter;label:string}[]=[
  {id:'all',label:'All entries'},
  {id:'visit',label:'Care visits'},
@@ -18,19 +20,29 @@ const styles={visit:CalendarDays,baby:Baby,wellbeing:HeartPulse};
 export default function CareJourneyHubV12({journey,isDemo}:{journey:Journey;isDemo:boolean}){
  const [filter,setFilter]=useState<Filter>('all');
  const [visible,setVisible]=useState(8);
+ const [query,setQuery]=useState('');
+ const [status,setStatus]=useState<Status>('all');
+ const [sortOrder,setSortOrder]=useState<SortOrder>('newest');
  const [revealedFor,setRevealedFor]=useState<string|null>(null);
  const [approvedFor,setApprovedFor]=useState<string|null>(null);
  const [feedback,setFeedback]=useState('');
  const events=useMemo(()=>buildCareEvents(journey),[journey]);
  const today=todayISO();
- const selected=useMemo(()=>events.filter(e=>filter==='all'||e.kind===filter),[events,filter]);
+ const selected=useMemo(()=>{
+  const normalized=query.trim().toLocaleLowerCase();
+  return events.filter(e=>
+    (filter==='all'||e.kind===filter)&&
+    (status==='all'||e.status===status)&&
+    (!normalized||[e.title,e.detail,e.source,e.day].some(value=>value.toLocaleLowerCase().includes(normalized)))
+  ).sort((a,b)=>sortOrder==='oldest'?a.day.localeCompare(b.day)||a.id.localeCompare(b.id):b.day.localeCompare(a.day)||a.id.localeCompare(b.id));
+ },[events,filter,query,status,sortOrder]);
  const upcoming=useMemo(()=>events.filter(e=>e.kind==='visit'&&e.status==='planned'&&e.day>=today).sort((a,b)=>a.day.localeCompare(b.day)).slice(0,3),[events,today]);
  const recent=selected.slice(0,visible);
  const brief=useMemo(()=>buildVisitBrief(journey),[journey]);
  const showBrief=revealedFor===journey.id;
  const allowCopy=approvedFor===journey.id&&showBrief;
  useEffect(()=>{
-  setFilter('all');setVisible(8);setFeedback('');
+  setFilter('all');setStatus('all');setSortOrder('newest');setQuery('');setVisible(8);setFeedback('');
   // A preview or consent approval belongs only to the actively selected journey.
   // Never retain it when a family member switches journeys.
   setRevealedFor(null);setApprovedFor(null);
@@ -79,9 +91,15 @@ export default function CareJourneyHubV12({journey,isDemo}:{journey:Journey;isDe
      {FILTERS.map(option=><button type="button" key={option.id} aria-pressed={filter===option.id} className={filter===option.id?'active':''}
        onClick={()=>{setFilter(option.id);setVisible(8);}}>{option.label}</button>)}
     </div>
+    <div className="mm13-timeline-tools" aria-label="Refine your journal view">
+     <label className="mm13-search-control"><span>Search this journey</span><input type="search" autoComplete="off" spellCheck={false} value={query} onChange={e=>{setQuery(e.target.value);setVisible(8);}} placeholder="Search your entries" aria-label="Search journal entries"/></label>
+     <label className="mm13-select-control"><span>Entry status</span><select aria-label="Filter journal status" value={status} onChange={e=>{setStatus(e.target.value as Status);setVisible(8);}}><option value="all">All statuses</option><option value="recorded">Recorded</option><option value="planned">Planned</option><option value="confirm">Confirm status</option></select></label>
+     <label className="mm13-select-control"><span>Order</span><select aria-label="Sort journal entries" value={sortOrder} onChange={e=>{setSortOrder(e.target.value as SortOrder);setVisible(8);}}><option value="newest">Newest first</option><option value="oldest">Oldest first</option></select></label>
+    </div>
+    <div className="mm13-results-row"><p role="status" aria-live="polite">{selected.length} {selected.length===1?'entry':'entries'} in this view</p>{(query||status!=='all')&&<button type="button" className="mm13-clear" onClick={()=>{setQuery('');setStatus('all');setVisible(8);}}>Clear search and status</button>}</div>
     {recent.length===0?<div className="empty-state compact m12-empty">
-      <NotebookPen size={30} aria-hidden="true"/><h4>No entries in this category yet</h4>
-      <p>Record a care visit, growth measurement or wellbeing check-in in its existing section to see it here.</p>
+      <NotebookPen size={30} aria-hidden="true"/><h4>{query||status!=='all'?'No entries match this view':'No entries in this category yet'}</h4>
+      <p>{query||status!=='all'?'Try another search or status; nothing has been changed in your journal.':'Record a care visit, growth measurement or wellbeing check-in in its existing section to see it here.'}</p>
      </div>:
      <ol className="m12-timeline">
       {recent.map(event=>{
@@ -90,7 +108,7 @@ export default function CareJourneyHubV12({journey,isDemo}:{journey:Journey;isDe
         <span className={'m12-event-icon m12-'+event.kind}><Icon size={19} aria-hidden="true"/></span>
         <div className="m12-event-info">
          <div className="m12-event-date">{readable(event.day)}<span className={'m12-status '+event.status}>{labels[event.status]}</span></div>
-         <strong>{event.title}</strong><p>{event.detail}</p><small>{event.source}</small>
+         <strong>{event.title}</strong><details className="mm13-event-details"><summary>View entry details</summary><p>{event.detail}</p><small>{event.source}</small></details>
         </div>
        </li>;
       })}

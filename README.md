@@ -245,3 +245,8 @@ This refinement preserves the original botanical visual system and all existing 
 ## v1.2.2 — Stability and UI Quality (October 2026)
 
 See [docs/V122_STABILITY_UI.md](docs/V122_STABILITY_UI.md) for browser CI recovery, route-level lazy loading, startup entry budget, shared design tokens, release-version consistency, accessibility testing, and retained clinical safety restrictions.
+
+
+## v1.3.0 — Premium Experience (October 2026)
+
+Improves the Today dashboard hierarchy, groups 13 destinations into three scannable navigation sections, adds local-only care-timeline search/status/sort/detail controls, and extends 320px–desktop responsiveness without altering clinical safety or private-note consent. See [docs/V130_PREMIUM_EXPERIENCE.md](docs/V130_PREMIUM_EXPERIENCE.md).
