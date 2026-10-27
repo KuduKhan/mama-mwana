@@ -21,7 +21,7 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Exercise responsive demo without patient data
-        run: npx playwright test -c playwright.config.mjs
+        run: npx playwright test -c playwright.config.mjs --max-failures=1
         env:
           CI: true
       - name: Preserve original-style demo screenshots for visual review
