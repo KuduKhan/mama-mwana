@@ -29,7 +29,23 @@ const strings:Record<string,readonly [string,string]>={
  'app.warn':['Health warning signs','Dalili za hatari kiafya'],
  'app.educational':['Educational support, never a substitute for professional healthcare','Msaada wa elimu, si mbadala wa huduma ya kitaalamu ya afya'],
  'app.review':['Medical content in English is awaiting independent Kiswahili clinical review. Seek urgent care directly for danger signs.','Maudhui ya afya ya Kiingereza yanasubiri mapitio ya kitaalamu ya Kiswahili. Kwa dalili za hatari, tafuta huduma ya dharura moja kwa moja.'],
- 'app.language':['Language','Lugha']
+ 'app.language':['Language','Lugha'],
+ 'navGroup.daily':['Daily essentials','Huduma za kila siku'],
+ 'navGroup.family':['Family & milestones','Familia na hatua za ukuaji'],
+ 'navGroup.support':['Records & support','Kumbukumbu na msaada'],
+ 'home.todayEyebrow':['YOUR DAILY FOCUS','LENGO LA LEO'],
+ 'home.todayTitle':['Your day at a glance','Muhtasari wa siku yako'],
+ 'home.todaySubtitle':['Pick up where you left off. Personal reminders, not medical advice.','Endelea ulipoishia. Vikumbusho binafsi, si ushauri wa kitabibu.'],
+ 'home.careAction':['Continue daily care','Endelea na huduma za kila siku'],
+ 'home.checked':['checked','zilizowekwa alama'],
+ 'home.careDetail':['Your personal daily checklist','Orodha yako ya shughuli za kila siku'],
+ 'home.visitsAction':['Review planned visits','Angalia ziara zilizopangwa'],
+ 'home.nonePlanned':['No visit entered','Hakuna ziara iliyoingizwa'],
+ 'home.confirmVisit':['Planned in your journal · confirm with clinic','Imepangwa kwenye daftari · thibitisha na kliniki'],
+ 'home.addVisit':['Add a visit to your personal journal','Ongeza ziara kwenye daftari lako'],
+ 'home.journeyAction':['Explore care journey','Angalia safari ya huduma'],
+ 'home.visitsRecorded':['visit entries','taarifa za ziara'],
+ 'home.journeyDetail':['Your recorded moments, in one place','Kumbukumbu zako katika sehemu moja']
 };
 export function textFor(locale:MamaLocale,key:string,fallback?:string){
  const v=strings[key];return v?(locale==='sw'?v[1]:v[0]):fallback??key;
