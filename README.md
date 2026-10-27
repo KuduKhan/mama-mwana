@@ -280,3 +280,8 @@ The phone UI now has a separate two-row branded masthead, active page/safety row
 ## All-section responsive fit quality gate (October 2026)
 
 Harmonizes child-health charts and immunization rows, care-planner forms, family records, privacy/governance actions and long source links across phones, tablets, laptops and desktops. Includes tests auditing all 13 sections and their nested controls at five breakpoints. See [docs/V140_COMPONENT_FIT_QA.md](docs/V140_COMPONENT_FIT_QA.md).
+
+
+## Compact phone header and footer (October 2026)
+
+A concise phone-only branded footer with three direct quick links and expandable privacy details; accessible 44px header controls fit from 320px upwards. Footer dock clearance is placed outside the footer so it is not unnecessarily tall. Desktop appearance remains intact. See [docs/PHONE_CHROME_V140.md](docs/PHONE_CHROME_V140.md).

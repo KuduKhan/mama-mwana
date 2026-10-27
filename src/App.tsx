@@ -5,7 +5,7 @@ import {
   Activity, ArrowLeft, ArrowRight, Baby, BookHeart, CalendarDays,
   Check, CheckCircle2, CircleHelp, ClipboardList,
   Cloud, Droplets, ExternalLink, Footprints, Heart, HeartHandshake, HeartPulse,
-  House, Leaf, LockKeyhole, LogOut, Menu, Moon, Plus, ShieldAlert, ShieldCheck, Users, Bell, Download, NotebookPen, ChevronRight,
+  House, Leaf, LockKeyhole, LogOut, Menu, Moon, Plus, ShieldAlert, ShieldCheck, Users, Bell, Download, NotebookPen, ChevronRight, ChevronDown,
   Sparkles, Stethoscope, Sun, TrendingUp, Utensils, X, ScrollText, Bot, ListTodo
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -639,6 +639,13 @@ export default function App(){
      </div>
      <div className="mm-footer-trust"><strong><LockKeyhole size={16} aria-hidden="true"/> Privacy & trust</strong><p>Preview features use sample data. Controlled account sign-in does not authorize clinical data collection or caregiver access.</p><span><ShieldCheck size={15} aria-hidden="true"/> Safety-first experience</span></div>
     </div>
+    <details className="mm-footer-phone-trust">
+     <summary><ShieldCheck size={16} aria-hidden="true"/><span>Educational preview · Privacy & safety</span><ChevronDown size={15} aria-hidden="true"/></summary>
+     <div className="mm-footer-phone-trust-content">
+      <p>For learning and personal notes only, not medical advice. Seek a qualified clinician for health concerns.</p>
+      <p>Preview features use sample data. Controlled sign-in does not authorize clinical data collection or caregiver access.</p>
+     </div>
+    </details>
     <div className="mm-footer-bottom"><span>© {new Date().getFullYear()} MamaMwana · v{APP_VERSION}</span><span>{t('app.educational')}</span></div>
    </footer>
   </div>
