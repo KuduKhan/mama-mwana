@@ -19,7 +19,7 @@ describe('auth-only preview and consent-based clinical release gate',()=>{
   const p=JSON.parse(readFileSync(join(process.cwd(),'public/manifest.webmanifest'),'utf8'));
   const m=readFileSync(join(process.cwd(),'public/icon.svg'),'utf8');
   expect(a.match(/src="\/icon.svg"/g)?.length).toBeGreaterThanOrEqual(3);
-  expect(p.icons.every(x=>x.src==='/icon.svg')).toBe(true);
+  expect(p.icons.every((x:{src:string})=>x.src==='/icon.svg')).toBe(true);
   expect(m).toContain('MamaMwana mother and child embrace');
  });
 });
