@@ -79,7 +79,7 @@ test('keyboard focus and WCAG-level text contrast remain clear in core UI',async
 for(const [name,device] of [['Android / Pixel 7',devices['Pixel 7']],['iPhone 13 viewport / Chromium',devices['iPhone 13']]]){
  test('device-emulated '+name+' preserves care journey and bottom navigation',async({browser},testInfo)=>{
   const {defaultBrowserType:_ignored,...settings}=device;
-  const ctx=await browser.newContext({...settings});
+  const ctx=await browser.newContext({...settings,baseURL:'http://127.0.0.1:4179'});
   try{
    const page=await ctx.newPage();
    await demo(page);
