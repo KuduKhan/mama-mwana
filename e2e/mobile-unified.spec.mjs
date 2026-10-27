@@ -55,7 +55,7 @@ test('mobile footer no longer repeats navigational destinations',async({page})=>
  await demo(page,390);
  const f=page.locator('.mm-app-footer');
  await expect(f.locator('.mm-footer-links')).toBeHidden();
- await expect(f.locator('.mm-footer-identity .brand')).toBeVisible();
+ await expect(f.locator('.mm-phone-footer-brand img')).toHaveAttribute('src','/icon.svg');
  await f.scrollIntoViewIfNeeded();
  const rect=await f.boundingBox();
  expect(rect.height).toBeLessThanOrEqual(165);

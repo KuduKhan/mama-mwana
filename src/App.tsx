@@ -613,15 +613,15 @@ export default function App(){
   </aside>
   {menuOpen&&<button className="drawer-backdrop" aria-label="Close menu" onClick={()=>setMenuOpen(false)}/>}
   <div className="app-main">
-   <header className="topbar"><div className="topbar-left"><button ref={hamburgerRef} className="hamburger" aria-label="Open navigation" aria-expanded={menuOpen} aria-controls="mamamwana-primary-navigation" onClick={()=>setMenuOpen(true)}><Menu size={22}/></button><span className="mm-mobile-brand" aria-label="MamaMwana"><img src="/icon.svg" alt="" width={34} height={34} aria-hidden="true"/></span><span className="mm-mobile-wordmark" aria-hidden="true">mama<strong>mwana</strong></span><div className="topbar-context"><div className="topbar-hello">{t('app.hello')}, {displayName} <Sparkles className="topbar-spark" size={18} strokeWidth={1.8} aria-hidden="true"/></div><div className="topbar-subtitle"><span className="topbar-current-page">{t('nav.'+tab,NAV.find(item=>item.id===tab)?.label??'Your journey')}</span><span className="topbar-subtitle-divider" aria-hidden="true">•</span> Growing with care</div></div></div><div className="topbar-actions">
+   <header className="topbar"><div className="topbar-left"><button ref={hamburgerRef} className="hamburger" aria-label="Open navigation" aria-expanded={menuOpen} aria-controls="mamamwana-primary-navigation" onClick={()=>setMenuOpen(true)}><Menu size={22}/></button><span className="mm-mobile-lockup" aria-label="MamaMwana"><span className="mm-mobile-brand"><img src="/icon.svg" alt="" width={34} height={34} aria-hidden="true"/></span><span className="mm-mobile-wordmark" aria-hidden="true">mama<strong>mwana</strong></span></span><div className="topbar-context"><div className="topbar-hello">{t('app.hello')}, {displayName} <Sparkles className="topbar-spark" size={18} strokeWidth={1.8} aria-hidden="true"/></div><div className="topbar-subtitle"><span className="topbar-current-page">{t('nav.'+tab,NAV.find(item=>item.id===tab)?.label??'Your journey')}</span><span className="topbar-subtitle-divider" aria-hidden="true">•</span> Growing with care</div></div></div><div className="topbar-actions">
      {demo?<span className="env-label"><Cloud size={15}/> {t('app.demo')}</span>:<span className={'env-label '+(saveStatus==='error'?'env-error':'')}><CheckCircle2 size={15}/>{saveStatus==='saving'?t('app.saving'):saveStatus==='error'?t('app.saved'):t('app.private')}</span>}
      <label className="locale-switch"><span className="sr-only">{t('app.language')}</span><select aria-label="Language / Lugha" value={locale} onChange={e=>setLocale(e.target.value==='sw'?'sw':'en')}><option value="en">EN</option><option value="sw">SW</option></select></label><button type="button" className="mm14-topbar" aria-label="Display preferences" aria-haspopup="dialog" onClick={()=>{setWarningOpen(false);setDisplayOpen(true);}} title={t('a11y.heading','Display and accessibility')}><Settings2 size={18} aria-hidden="true"/></button><button className="topbar-family" aria-label="Family journeys" onClick={()=>enterTab('family')}><Users size={16}/> {t('app.family')} ({journeys.length})</button><button aria-label="Health warning signs" className="topbar-icon" onClick={()=>setWarningOpen(true)}><ShieldAlert size={19}/></button><span className="avatar">{displayName.slice(0,1).toUpperCase()}</span>
    </div>
    <div className="mm-phone-pagebar">
-    <div className="mm-phone-page-label"><span>{t('app.journey','YOUR JOURNEY')}</span><strong>{t('nav.'+tab,NAV.find(item=>item.id===tab)?.label??'Your journey')}</strong></div>
+    <div className="mm-phone-page-label"><span>{t('app.journey','YOUR JOURNEY')}</span><strong title={t('nav.'+tab,NAV.find(item=>item.id===tab)?.label??'Your journey')}>{t('nav.'+tab,NAV.find(item=>item.id===tab)?.label??'Your journey')}</strong></div>
     <div className="mm-phone-page-tools">
-     <span className="mm-phone-mode"><span className="mm-phone-mode-dot" aria-hidden="true"/>{demo?(locale==='sw'?'Onyesho':'Preview'):saveStatus==='saving'?t('app.saving','Saving'):saveStatus==='error'?'Save issue':t('app.private','Private')}</span>
-     <button type="button" className="mm-phone-urgent" aria-label="Health warning signs" onClick={()=>setWarningOpen(true)}><ShieldAlert size={19} aria-hidden="true"/><span>Safety</span></button>
+     {!demo&&<span className={'mm-phone-mode '+(saveStatus==='error'?'mm-phone-mode-error':'')} role="status"><span className="mm-phone-mode-dot" aria-hidden="true"/>{saveStatus==='saving'?t('app.saving','Saving'):saveStatus==='error'?'Save issue':t('app.private','Private')}</span>}
+     <button type="button" className="mm-phone-urgent" aria-label="Health warning signs" onClick={()=>setWarningOpen(true)} title="Health warning signs"><ShieldAlert size={19} aria-hidden="true"/><span>Safety</span></button>
     </div>
    </div></header>
    {!demo&&<BetaNoticeV10/>}
@@ -639,8 +639,12 @@ export default function App(){
      </div>
      <div className="mm-footer-trust"><strong><LockKeyhole size={16} aria-hidden="true"/> Privacy & trust</strong><p>Preview features use sample data. Controlled account sign-in does not authorize clinical data collection or caregiver access.</p><span><ShieldCheck size={15} aria-hidden="true"/> Safety-first experience</span></div>
     </div>
+    <div className="mm-phone-footer-card">
+     <div className="mm-phone-footer-brand"><img src="/icon.svg" width={36} height={36} alt="" aria-hidden="true"/><span><strong>MamaMwana</strong><small>With care, through every beginning</small></span></div>
+     <span className="mm-phone-footer-version">v{APP_VERSION}</span>
+    </div>
     <details className="mm-footer-phone-trust">
-     <summary><ShieldCheck size={16} aria-hidden="true"/><span>Educational preview · Privacy & safety</span><ChevronDown size={15} aria-hidden="true"/></summary>
+     <summary><ShieldCheck size={16} aria-hidden="true"/><span>Safety & privacy information</span><ChevronDown size={15} aria-hidden="true"/></summary>
      <div className="mm-footer-phone-trust-content">
       <p>For learning and personal notes only, not medical advice. Seek a qualified clinician for health concerns.</p>
       <p>Preview features use sample data. Controlled sign-in does not authorize clinical data collection or caregiver access.</p>

@@ -25,7 +25,8 @@ for(const width of [320,360,390,430,768,1024,1440]){
    await expect(page.locator('.mm-mobile-brand img')).toHaveAttribute('src','/icon.svg');
   }
   await expect(page.locator('.mm-app-footer')).toBeVisible();
-  await expect(page.locator('.mm-app-footer .brand img')).toHaveAttribute('src','/icon.svg');
+  if(width<=760)await expect(page.locator('.mm-phone-footer-brand img')).toHaveAttribute('src','/icon.svg');
+  else await expect(page.locator('.mm-app-footer .brand img')).toHaveAttribute('src','/icon.svg');
   await expect(page.locator('.mm-footer-links button')).toHaveCount(3);
   const dims=await page.evaluate(()=>({doc:document.documentElement.scrollWidth,client:document.documentElement.clientWidth}));
   expect(dims.doc).toBeLessThanOrEqual(dims.client+2);

@@ -290,3 +290,8 @@ A concise phone-only branded footer with three direct quick links and expandable
 ## Unified phone experience (October 2026)
 
 Mobile Studio and phone chrome are consolidated into a single actively imported phone stylesheet. The phone home screen removes duplicate care/visit summaries and redundant journey entry links; navigation remains accessible through the five-tab dock and all-section drawer. The mobile footer retains branding and expandable safety details without duplicating the navigation menu. Desktop remains unchanged. See [docs/MOBILE_UNIFIED_V140.md](docs/MOBILE_UNIFIED_V140.md).
+
+
+## Header and footer visual remake (October 2026)
+
+The phone shell now presents the official MamaMwana icon and wordmark in one responsive lockup, consistent 44px language/preferences/menu targets, and a clean current-page/safety row. Redundant preview badges are omitted in demo mode because the sample-data notice already explains that state. The mobile footer has a dedicated compact brand/version card and accessible safety/privacy disclosure rather than desktop-style columns; desktop layout and live-data safeguards are unchanged. See [docs/PHONE_SHELL_REDESIGN_V140.md](docs/PHONE_SHELL_REDESIGN_V140.md).
