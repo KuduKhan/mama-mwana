@@ -28,7 +28,7 @@ for(const width of [320,360,390,430,540,760]){
    expect(m.firstRow[i].left).toBeGreaterThanOrEqual(m.firstRow[i-1].right-1);
    expect(m.firstRow[i].right).toBeLessThanOrEqual(m.vw+1);
   }
-  for(const h of m.links)expect(h).toBeGreaterThanOrEqual(44);
+  expect(m.links).toEqual([0,0,0]); // redundant mobile footer actions are intentionally hidden
   await footer.scrollIntoViewIfNeeded();
   const b=await footer.boundingBox();
   expect(b.height).toBeLessThanOrEqual(225);
