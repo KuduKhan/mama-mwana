@@ -72,7 +72,8 @@ const strings:Record<string,readonly [string,string]>={
  'a11y.note':['These display choices apply only to this browser. Your care records and caregiver permissions are unchanged.','Chaguo hizi zinatumika kwenye kivinjari hiki pekee. Kumbukumbu zako na ruhusa za mlezi hazijabadilika.'],
  'a11y.close':['Close display preferences','Funga mipangilio ya mwonekano'],
  'caregiver.scope':['Review exactly what is shared','Pitia taarifa zinazoshirikiwa'],
- 'caregiver.acceptScope':['I understand that this is read-only access to one child profile, not the full family health record.','Ninaelewa kuwa ninaweza kusoma taarifa za mtoto mmoja tu, si kumbukumbu zote za afya za familia.']
+ 'caregiver.acceptScope':['I understand that this is read-only access to one child profile, not the full family health record.','Ninaelewa kuwa ninaweza kusoma taarifa za mtoto mmoja tu, si kumbukumbu zote za afya za familia.'],
+ 'caregiver.ownerScope':['I reviewed the limited child data being shared and understand I can revoke access.','Nimepitia taarifa chache za mtoto zinazoshirikiwa na ninaelewa ninaweza kubatilisha ruhusa.']
 };
 export function textFor(locale:MamaLocale,key:string,fallback?:string){
  const v=strings[key];return v?(locale==='sw'?v[1]:v[0]):fallback??key;

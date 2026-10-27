@@ -110,7 +110,7 @@ export default function FamilyChildrenV09({journey,isDemo,userId}:Props){
  return <section className="family09 panel" aria-label="Separate child profiles">
   <div className="family09-header"><div><span className="eyebrow">MAMAMWANA • SEPARATE CHILD HEALTH JOURNALS</span><h3>Children in this pregnancy</h3><p>Distinct personal profiles for single births, twins and multiples.</p></div>
    <button type="button" onClick={()=>setReload(v=>v+1)} aria-label="Refresh children" disabled={!canSave}><RefreshCw size={19}/></button></div>
-  <p className="family09-private"><ShieldCheck size={18}/> Only the signed-in owner can see these entries. Sharing with other caregivers is not yet enabled. Original legacy child records remain with the first journey, not automatically reassigned.</p>
+  <p className="family09-private"><ShieldCheck size={18}/> These entries are private to their owner. A verified, time-limited, read-only caregiver invitation can be requested below for one selected child only. Original legacy records are not automatically reassigned.</p>
   {loading&&<p role="status">Loading child profiles securely…</p>}
   {error&&<p role="alert" className="family09-error">{error}</p>}
   {notice&&<p role="status" className="family09-ok">{notice}</p>}
