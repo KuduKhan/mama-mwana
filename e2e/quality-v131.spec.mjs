@@ -58,6 +58,8 @@ test('keyboard focus and WCAG-level text contrast remain clear in core UI',async
  await page.setViewportSize({width:1280,height:850});
  await demo(page);
  const action=page.getByRole('button',{name:'Continue daily care'});
+ // Initiate an actual keyboard modality before inspecting :focus-visible.
+ await page.keyboard.press('Tab');
  await action.focus();
  const info=await action.evaluate(element=>{
   const srgb=x=>{const c=x/255;return c<=.04045?c/12.92:Math.pow((c+.055)/1.055,2.4)};
