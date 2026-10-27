@@ -1,0 +1,146 @@
+/* MamaMwana — component-fit quality gate
+   Scoped to responsive containment and legibility. Preserve the established desktop
+   visual language; never hide controls to make an overflow assertion pass. */
+:where(.page-content,.panel,.ch-card,.care07,.family09,.v4-page,.m12-hub,.mm14-family-summary,.mm13-today,
+.mm-current-feature,.v4-article,.v4-record-row,.mm-app-footer,.mm14-dialog,.mm-footer-top,
+.privacy-section,.mm14-family-card,.m12-event,.m12-event-info,.care07-entry,.ch-dose,
+.family09-records,.family09-columns,.family09-grid,.v4-governance-grid,.v5-rights-row) {min-width:0;max-width:100%}
+:where(.page-content,.panel,.ch-card,.care07,.family09,.m12-hub,.v4-page,.mm14-family-summary,.mm-current-feature) :is(h2,h3,h4,h5,p,strong,small,label,summary){
+ overflow-wrap:anywhere;
+}
+:where(.page-content,.panel,.ch-card,.care07,.family09,.m12-hub,.v4-page,.mm14-dialog,.auth-form-side) :is(input,textarea,select){
+ box-sizing:border-box;max-width:100%;min-width:0;
+}
+:where(.page-content,.panel,.ch-card,.care07,.family09,.v4-page,.mm14-dialog) :is(img,svg){
+ max-width:100%;
+}
+/* Preserve charts' actual proportions; only their outer frame may shrink. */
+.ch-chart-wrap{width:100%;min-width:0;max-width:100%;overflow:clip}
+.ch-chart-wrap svg{width:100%;max-width:100%;height:auto;display:block}
+.ch-reference,.ch-reference>div,.ch-reference-links,.ch-vaccine-summary>div,.ch-dose-main>div:last-child,
+.ch-dose-right,.ch-dose-status,.care07-brief-controls label,.family09-header>div,
+.family09-form label,.v4-review-entry>div,.v4-delete-row>span,.v5-rights-meta,
+.v4-guidance-head>div,.v4-privacy-hero>div,.m12-appointments li,.mm13-timeline-tools>*{
+ min-width:0;max-width:100%;
+}
+.ch-reference>div:first-child{min-width:0;flex:1 1 220px}
+.ch-reference-links{flex:1 1 190px}
+.ch-reference-links>a{min-width:0;white-space:normal;overflow-wrap:anywhere}
+.ch-dose-main{min-width:0;flex:1 1 180px}
+.ch-dose-main strong,.ch-dose-main small,.ch-dose-status small{overflow-wrap:anywhere}
+.ch-dose-right{flex:0 1 auto;min-width:0;max-width:100%}
+.ch-dose-right button{white-space:normal;min-height:44px;justify-content:center}
+.ch-toggle{flex-wrap:wrap}
+.ch-toggle button{min-height:44px}
+.ch-modal,.v4-delete-modal,.mm14-dialog{box-sizing:border-box;max-width:calc(100vw - 24px)}
+.ch-modal-actions,.v4-delete-actions,.care07-submit-actions,.mm13-results-row{min-width:0;max-width:100%;flex-wrap:wrap}
+.ch-modal-actions button,.v4-delete-actions button,.care07-submit-actions button{min-height:44px}
+.family09-grid>*,.family09-columns>*,.care07-form-grid>*,.mm14-preferences-grid>*,
+.v4-review-form>*,.v4-article-grid>*,.v4-governance-grid>*,.v5-rights-options>*{
+ min-width:0;max-width:100%;
+}
+.family09-history,.v4-article-body,.m12-brief-text,.v4-review-entry p{overflow-wrap:anywhere;word-break:normal}
+.v4-delete-row,.v4-review-entry,.v5-rights-row,.resource-links a,.feed-list>div{min-width:0}
+.v4-delete-row button,.v4-review-entry button{min-height:44px;white-space:normal;flex:0 0 auto}
+.v4-switch-line>span,.v5-rights-row>span:first-child,.resource-links a span,.feeding-entry label{min-width:0}
+.resource-links a{overflow-wrap:anywhere}
+.resource-links a span{overflow-wrap:anywhere;flex:1}
+.resource-links a>svg{flex-shrink:0}
+.m12-event-info,.m12-brief-actions,.m12-safety,.mm13-results-row{min-width:0}
+.m12-event-info p,.m12-event-info strong,.m12-brief-text{overflow-wrap:anywhere}
+.care07-brief-controls label{flex:1 1 210px}
+.care07-form-bottom label{min-width:0;max-width:100%;flex:1 1 190px}
+.care07-entry-actions{flex-wrap:wrap;min-width:0}
+.care07-entry-meta span{max-width:100%;overflow-wrap:anywhere}
+.family09-header{min-width:0}
+.family09-profiles button span,.family09-profiles button strong{min-width:0;overflow-wrap:anywhere}
+.mm-footer-top>*,.mm-footer-bottom>*{min-width:0;max-width:100%;overflow-wrap:anywhere}
+.auth-story,.auth-form-side,.onboarding-grid,.onboarding-intro,.onboard-form{min-width:0}
+.auth-form-side input,.onboard-form input,.onboard-form select{max-width:100%;box-sizing:border-box}
+@media(min-width:761px) and (max-width:1100px){
+ /* Tablet/small-laptop transition: never force three wide metrics into short columns. */
+ .v4-governance-grid,.v5-rights-options{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .family09-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .v4-review-form{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .page-content{min-width:0}
+ .ch-reference{gap:15px}
+}
+@media(max-width:760px){
+ .v4-article-grid,.v4-governance-grid,.family09-grid,.family09-columns,
+ .v4-review-form,.ch-guide-grid,.ch-vaccine-summary,.m12-layout{
+  grid-template-columns:minmax(0,1fr);gap:13px;
+ }
+ .v4-review-form{display:grid}
+ .v4-review-form label:has(textarea),.v4-review-form button{grid-column:auto}
+ .v4-review-entry{flex-wrap:wrap;gap:9px}
+ .v4-review-entry>div{flex:1 1 100%}
+ .v4-review-entry button{min-height:44px;flex:1 1 120px}
+ .v4-delete-row{flex-wrap:wrap;align-items:flex-start;gap:12px}
+ .v4-delete-row>span{flex:1 1 180px}
+ .v4-delete-row button{max-width:100%}
+ .v4-switch-line{gap:12px}
+ .v4-switch-line>span{flex:1 1 200px}
+ .ch-vaccine-summary{display:flex;flex-wrap:wrap;gap:12px;padding:15px}
+ .ch-vaccine-summary>div{flex:1 1 180px}
+ .ch-dose{flex-wrap:wrap;align-items:flex-start;gap:11px}
+ .ch-dose-main{flex:1 1 100%}
+ .ch-dose-right{flex:1 1 100%;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-left:51px}
+ .ch-dose-status{min-width:0;flex:1 1 90px;align-items:flex-start}
+ .ch-dose-status small{text-align:left}
+ .ch-dose-right button{flex:0 1 auto;min-width:84px;min-height:44px}
+ .ch-reference{padding:16px;gap:14px}
+ .ch-reference-links{flex:1 1 100%;width:100%}
+ .ch-reference-links>a{min-height:44px}
+ .ch-guide-grid{gap:11px}
+ .ch-guide-grid .ch-tip{padding:15px}
+ .v5-rights-row{flex-wrap:wrap;align-items:flex-start;gap:7px}
+ .v5-rights-meta{min-width:0;flex:1 1 100%;text-align:left;align-items:flex-start}
+ .v5-rights-options{grid-template-columns:minmax(0,1fr)}
+ .v5-rights-options button{min-height:88px}
+ .family09-header{flex-wrap:wrap}
+ .family09-grid{gap:10px}
+ .family09-form button{min-height:44px;max-width:100%}
+ .family09-columns>div{min-width:0;max-width:100%}
+ .care07-form-grid{grid-template-columns:minmax(0,1fr)}
+ .care07-form-bottom{align-items:stretch}
+ .care07-form-bottom label,.care07-form-bottom>div{flex:1 1 100%;max-width:100%}
+ .care07-submit-actions{width:100%;justify-content:stretch}
+ .care07-submit-actions button{flex:1 1 145px}
+ .care07-entry-actions{padding-left:0;margin-left:0;gap:8px}
+ .care07-entry-actions button{flex:1 1 74px}
+ .care07-brief-controls label{min-width:0;width:100%;flex-basis:100%}
+ .care07-brief-controls>button{width:100%}
+ .m12-layout,.m12-intro{grid-template-columns:minmax(0,1fr)}
+ .m12-brief-actions .btn{flex:1 1 100%}
+ .resource-links a{align-items:flex-start;padding:14px 0}
+ .feeding-entry{align-items:stretch}
+ .feeding-entry label{min-width:0;flex:1 1 100%}
+ .feeding-entry :is(select,button){min-width:0;max-width:100%}
+ .milestone-tabs{max-width:100%;overscroll-behavior-x:contain;scroll-padding-inline:8px}
+ .milestone-tabs button{min-height:44px;flex-shrink:0}
+ .week-selector button{min-width:44px;width:44px;height:44px}
+ .week-selector input{width:100%;min-width:0}
+ .birth-hero,.baby-hero{gap:13px;min-width:0;overflow-wrap:anywhere}
+ .appointment-actions button,.ch-dose-right button,.v4-sample-chips button{min-height:44px}
+}
+@media(max-width:420px){
+ .ch-dose-right{padding-left:0}
+ .v4-guidance-head,.v4-privacy-hero{flex-wrap:wrap;gap:11px}
+ .v4-guidance-head>span,.v4-privacy-hero>span{width:43px;height:43px;min-width:43px}
+ .v4-form-bottom button,.ch-profile-form button{min-height:44px;max-width:100%}
+ .v4-delete-row button{width:100%;justify-content:center}
+ .v4-answer{flex-wrap:wrap}
+ .v4-answer-icon{width:43px;height:43px;min-width:43px}
+ .ch-reference,.ch-modal{padding:15px}
+ .ch-modal-actions{gap:9px}
+ .ch-modal-actions button{flex:1 1 100%}
+ .care07-entry-icon{min-width:37px;flex-shrink:0}
+ .care07-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+ .care07-tabs button{padding:10px 6px;min-height:44px}
+ .v4-delete-modal{padding:18px}
+ .mm13-action-card .mm13-action-copy{min-width:0}
+ .resource-links a span{overflow-wrap:anywhere}
+}
+@media(prefers-reduced-motion:reduce){
+ .ch-toggle button,.v4-delete-row button{transition:none}
+}

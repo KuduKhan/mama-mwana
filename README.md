@@ -275,3 +275,8 @@ The user-referenced MamaMwana emblem is standardized as a local vector asset acr
 ## Mobile Studio — desktop-preserving phone redesign (October 2026)
 
 The phone UI now has a separate two-row branded masthead, active page/safety row, floating safe-area navigation, deliberate mobile card grids, and a more legible sidebar and footer. The desktop design is intentionally unchanged. See [docs/MOBILE_STUDIO_V140.md](docs/MOBILE_STUDIO_V140.md).
+
+
+## All-section responsive fit quality gate (October 2026)
+
+Harmonizes child-health charts and immunization rows, care-planner forms, family records, privacy/governance actions and long source links across phones, tablets, laptops and desktops. Includes tests auditing all 13 sections and their nested controls at five breakpoints. See [docs/V140_COMPONENT_FIT_QA.md](docs/V140_COMPONENT_FIT_QA.md).
