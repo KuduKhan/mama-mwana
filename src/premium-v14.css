@@ -51,3 +51,15 @@
 .mm14-dialog{width:min(620px,calc(100vw - 24px));max-height:90dvh;overflow-y:auto}
 .mm14-topbar:focus-visible,.mm14-home-family button:focus-visible,.mm14-family-card:focus-visible,.mm14-preferences :is(button,select):focus-visible,.mm14-consent input:focus-visible{outline:var(--mm-focus-ring);outline-offset:3px}
 @media(max-width:480px){.mm14-home-family{padding:10px;gap:7px}.mm14-home-family>span{flex-basis:100%;padding-top:0}.mm14-dialog{padding:20px 12px}}
+
+/* At 320–400px preserve a dedicated, unobstructed menu hit area.
+   Demo/save status remains accessible as text to assistive technology and visually an icon. */
+@media(max-width:400px){
+ .topbar{justify-content:space-between;gap:5px}
+ .topbar-left{flex:0 0 44px;min-width:44px;width:44px;gap:0;position:relative;z-index:1}
+ .topbar-context{display:none}
+ .topbar-actions{flex:1 1 auto;min-width:0;justify-content:flex-end;gap:5px;position:relative}
+ .topbar .env-label{font-size:0;line-height:0;width:36px;min-width:36px;min-height:36px;display:grid;place-items:center;padding:6px}
+ .topbar .env-label svg{width:17px;height:17px}
+ .topbar .hamburger{flex:0 0 44px;width:44px;min-width:44px;min-height:44px;position:relative}
+}
