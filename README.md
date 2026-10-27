@@ -290,3 +290,8 @@ A concise phone-only branded footer with three direct quick links and expandable
 ## Unified phone experience (October 2026)
 
 Mobile Studio and phone chrome are consolidated into a single actively imported phone stylesheet. The phone home screen removes duplicate care/visit summaries and redundant journey entry links; navigation remains accessible through the five-tab dock and all-section drawer. The mobile footer retains branding and expandable safety details without duplicating the navigation menu. Desktop remains unchanged. See [docs/MOBILE_UNIFIED_V140.md](docs/MOBILE_UNIFIED_V140.md).
+
+
+## Premium app chrome — header and footer rebuild (October 2026)
+
+The MamaMwana header and footer are redesigned with balanced phone controls, a quieter page/status strip, crisp botanical branding, a compact expandable safety/legal footer and accessible desktop footer links. The responsive QA gate includes all major widths and landscape. See [docs/V140_CHROME_RENEWAL.md](docs/V140_CHROME_RENEWAL.md).
