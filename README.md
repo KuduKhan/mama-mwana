@@ -260,3 +260,8 @@ Improves focus-safe mobile navigation, 44px mobile actions, harmonized botanical
 ## v1.4.0 — Personalized Family Experience (October 2026)
 
 Family-specific journey selection and read-only summaries, editable local display preferences, nonclinical English/Kiswahili interface strings, and clearer two-sided caregiver consent acknowledgements. Clinical Kiswahili content is **not** externally reviewed and remains in English pending authorized independent clinical/linguistic signoff; public deployment remains demo-only. See [docs/V140_FAMILY_CONSENT_A11Y.md](docs/V140_FAMILY_CONSENT_A11Y.md).
+
+
+## v1.4.0 — unified premium visual consistency (October 2026)
+
+The previously displayed v0.4/v0.5/v0.7 labels are now sourced from the current app version, alongside cohesive botanical icon headers, refreshed clinical timeline/rights/care-planner cards, mobile spacing and release-copy tests. Historical internal component and migration identifiers remain unchanged for compatibility. See [docs/V140_UNIFIED_PREMIUM.md](docs/V140_UNIFIED_PREMIUM.md).

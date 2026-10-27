@@ -1,0 +1,109 @@
+/* MamaMwana current design layer (v1.4.0).
+   Older class names remain as compatibility hooks; they are not UI release numbers. */
+:root{
+ --mm-card-surface:#fffefb;
+ --mm-card-stroke:var(--mm-border);
+ --mm-card-glow:0 10px 30px rgba(26,75,53,.045),0 2px 6px rgba(26,75,53,.02);
+ --mm-card-hover:0 18px 36px rgba(26,75,53,.085),0 4px 10px rgba(26,75,53,.025);
+}
+.mm-current-feature{
+ display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;
+ margin:0 0 22px!important;padding:clamp(18px,2.3vw,27px)!important;min-width:0;
+ border:1px solid #dfe9df;border-radius:22px;
+ background:radial-gradient(circle at 96% 14%,rgba(217,234,217,.9),transparent 41%),linear-gradient(115deg,#fffefb,#f5faf4);
+ box-shadow:var(--mm-card-glow);overflow:hidden;
+}
+.mm-current-feature-heading{display:flex;align-items:flex-start;gap:16px;min-width:0;flex:1 1 370px}
+.mm-current-feature-icon{display:grid;place-items:center;flex:0 0 56px;width:56px;height:56px;
+ border:1px solid #d0e3d2;border-radius:17px;background:linear-gradient(145deg,#ecf6e8,#d9eada);color:var(--mm-forest);
+ box-shadow:inset 0 1px #fff}
+.mm-tone-peach .mm-current-feature-icon{background:linear-gradient(145deg,#fff2e9,#f5dfd1);color:#81534c;border-color:#efddd0}
+.mm-tone-lilac .mm-current-feature-icon{background:linear-gradient(145deg,#f3edf8,#e4dbec);color:#614c78;border-color:#e5d7ef}
+.mm-current-feature-copy{min-width:0;flex:1}
+.mm-current-feature .eyebrow{color:#346e52;font-size:10px;font-weight:850;letter-spacing:.13em}
+.mm-current-feature h2{font:500 clamp(27px,3vw,36px)/1.18 var(--mm-serif);letter-spacing:-.02em;color:var(--mm-forest);margin:7px 0 8px}
+.mm-current-feature p{font-size:13px;line-height:1.7;max-width:65ch;color:#446550;margin:0}
+.mm-current-release{display:inline-flex;align-items:center;gap:7px;flex:0 0 auto;align-self:flex-start;
+ padding:9px 13px;border:1px solid #d2e3d3;border-radius:99px;background:#fffefb;color:#336d51;
+ font-weight:750;font-size:11px;line-height:1.4;white-space:nowrap}
+.mm-current-release svg{color:#b4814d}
+:where(.care07,.v4-page,.family09,.m12-hub) :is(.panel,.care07-metrics>div,.v4-record-stats>div,.v5-rights-options button,.family09-profiles button,.v4-article,.v4-governance-grid>div,.v4-record-row,.care07-entry){
+ border-color:var(--mm-card-stroke);border-radius:var(--mm-radius-md);
+ box-shadow:var(--mm-card-glow);background-color:var(--mm-card-surface)
+}
+:where(.care07,.v4-page,.family09,.m12-hub) :is(.panel,.care07-entry,.v4-article,.v4-record-row){min-width:0;overflow-wrap:anywhere}
+:where(.care07,.v4-page,.family09,.m12-hub) .panel-heading svg{color:var(--mm-botanical)}
+:where(.care07,.v4-page,.family09,.m12-hub) :is(.v4-guidance-head,.v4-privacy-hero,.care07-intro){
+ background:linear-gradient(120deg,#edf7ed 0%,#fffdf8 100%);border:1px solid #dce9dc;
+ border-radius:18px;box-shadow:var(--mm-card-glow);padding:clamp(16px,2vw,24px)
+}
+:where(.care07,.v4-page,.family09,.m12-hub) :is(.v4-guidance-head,.v4-privacy-hero,.care07-intro) p{
+ color:#3b604a;font-size:13px;line-height:1.7
+}
+:where(.care07,.v4-page) :is(.care07-metrics,.v4-record-stats){gap:12px}
+:where(.care07,.v4-page) :is(.care07-metrics>div,.v4-record-stats>div){
+ position:relative;isolation:isolate;padding:20px;overflow:hidden;
+ background:linear-gradient(145deg,#fff,#f8fbf7);border:1px solid #dfeadf;transition:box-shadow .17s ease
+}
+:where(.care07,.v4-page) :is(.care07-metrics>div,.v4-record-stats>div)::after{
+ content:"";position:absolute;right:-29px;top:-30px;width:85px;height:85px;
+ border-radius:50%;background:#e4f2e5;opacity:.6;z-index:-1
+}
+:where(.care07,.v4-page) :is(.care07-metrics>div,.v4-record-stats>div) svg{color:#328065}
+:where(.care07,.v4-page) :is(.care07-metrics>div,.v4-record-stats>div) strong{color:var(--mm-forest);font-variant-numeric:tabular-nums}
+:where(.care07,.v4-page) :is(.care07-metrics>div,.v4-record-stats>div) small{color:#426c53;font-size:12px}
+.v4-record-row{border:1px solid #e2ece1;padding:15px!important;margin-bottom:9px;align-items:center}
+.v4-record-icon,.v4-article .v4-approved,.family09-profiles button svg{color:#296f54}
+.v4-article{padding:clamp(16px,2vw,22px)!important}
+.v4-article h4{color:#184b38;font-size:16px;line-height:1.4;overflow-wrap:anywhere}
+.v4-article details summary{cursor:pointer;font-weight:740;min-height:44px;display:flex;align-items:center;color:#2f7655}
+.v4-record-disclaimer,.v4-hint,.care07-disclaimer{line-height:1.7}
+.v5-rights-options button{min-height:130px;align-items:flex-start;justify-content:flex-start;
+ background:linear-gradient(140deg,#fffefb,#f3faf2)!important;padding:18px!important;
+ transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
+.v5-rights-options button:not(:disabled):hover{transform:translateY(-2px);border-color:#98bea0;box-shadow:var(--mm-card-hover)}
+.v5-rights-options button svg{width:22px;height:22px;color:#2e7656}
+.v5-rights-options button span{font-size:13px;color:var(--mm-forest)}
+.v5-rights-options button small{font-size:11px;color:#42664e}
+.family09 .family09-profiles button{min-height:82px;gap:12px;padding:14px;transition:border-color .17s ease,box-shadow .17s ease}
+.family09 .family09-profiles button:hover{border-color:#8ab698;box-shadow:var(--mm-card-hover)}
+.family09 .family09-profiles button.chosen{border-color:#328065;box-shadow:inset 0 0 0 1px #328065,var(--mm-card-glow)}
+.family09-header>div{min-width:0}
+.family09-header h3{font:500 clamp(23px,2vw,27px)/1.2 var(--mm-serif);color:var(--mm-forest)}
+.family09-header button{width:44px;min-width:44px;height:44px}
+.sharing10 .sharing10-list article{background:var(--mm-card-surface);border-radius:var(--mm-radius-md);border-color:var(--mm-border)}
+.sharing10 .sharing10-list button{min-height:44px}
+.v4-privacy-section .panel-heading{align-items:center}
+.v4-privacy-section .panel-heading>svg{width:21px;height:21px}
+.v4-record-stats strong,.care07-metrics strong{letter-spacing:-.01em}
+:where(.v4-page,.care07,.family09,.sharing10) :is(input,select,textarea,button):focus-visible,
+.v4-article summary:focus-visible,.v5-rights-options button:focus-visible{
+ outline:var(--mm-focus-ring);outline-offset:3px
+}
+:where(.v4-page,.care07,.family09) :is(button,.v4-article summary){touch-action:manipulation}
+@media(min-width:761px) and (max-width:1080px){
+ .mm-current-feature{align-items:flex-start}.mm-current-release{align-self:flex-start}
+ :where(.v4-page,.care07) :is(.v4-record-stats,.care07-metrics){grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:760px){
+ .mm-current-feature{padding:17px 15px!important;gap:12px}
+ .mm-current-feature-heading{flex:1 1 100%;gap:12px}
+ .mm-current-feature-icon{flex-basis:45px;width:45px;height:45px;border-radius:13px}
+ .mm-current-feature h2{font-size:clamp(25px,6vw,30px)}
+ .mm-current-feature p{font-size:12.5px}
+ .mm-current-release{margin-left:57px;padding:6px 10px}
+ .v5-rights-options button{min-height:92px}
+ :where(.care07,.v4-page) :is(.care07-metrics>div,.v4-record-stats>div){padding:14px}
+}
+@media(max-width:420px){
+ .mm-current-feature-heading{align-items:flex-start}.mm-current-release{margin-left:0}
+ .mm-current-feature-icon{flex:0 0 40px;width:40px;height:40px}
+ .mm-current-feature h2{font-size:25px}
+ :where(.care07,.v4-page) :is(.care07-metrics,.v4-record-stats){grid-template-columns:minmax(0,1fr)}
+ .v4-record-row{align-items:flex-start}
+}
+@media(prefers-reduced-motion:reduce){
+ .v5-rights-options button,.family09 .family09-profiles button{transition:none!important}
+ .v5-rights-options button:not(:disabled):hover{transform:none}
+}
+@media(forced-colors:active){.mm-current-release,.mm-current-feature-icon{border:1px solid CanvasText}}

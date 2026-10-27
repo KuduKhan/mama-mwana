@@ -22,7 +22,7 @@ export default function LegacyAttributionV10({journey,child,userId,isDemo}:Props
     .select('journey_id,owner_id,kind,source_id,child_id,confirmed_by,confirmed_at,version')
     .eq('journey_id',journey.id).limit(500);
    if(!active)return;
-   if(loadError){setError('Historical attribution records are not available. The v1.0 reconciliation migration must be verified.');return;}
+   if(loadError){setError('Historical record attribution is unavailable. Verify the current record-linking database configuration and account permissions.');return;}
    setLinks((data??[]) as LegacyAssignment[]);setReady(true);
   })();
   return ()=>{active=false;};

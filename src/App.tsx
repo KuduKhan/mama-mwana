@@ -322,7 +322,7 @@ export default function App(){
   void client.from('privacy_preferences').select('in_app_reminders,guidance_context')
     .eq('owner_id',user.id).maybeSingle().then(({data,error})=>{
       if(!active)return;
-      if(error){setToast('Privacy settings unavailable. Apply the v0.4 database migration.');return;}
+      if(error){setToast('Privacy settings are temporarily unavailable. Ask the service administrator to verify the current database setup and access policies.');return;}
       if(data)setPrivacy({in_app_reminders:data.in_app_reminders,guidance_context:data.guidance_context});
       else setPrivacy(DEFAULT_PRIVACY);
     });
@@ -346,7 +346,7 @@ export default function App(){
   });
   writeQueue.current[j.id]=next;
   next.then(()=>{if(current.current?.id===j.id)setSaveStatus('saved');})
-    .catch((e:Error)=>{if(current.current?.id===j.id)setSaveStatus('error');setToast('Save failed: '+e.message+'. Check your connection and v0.6 migration.');});
+    .catch((e:Error)=>{if(current.current?.id===j.id)setSaveStatus('error');setToast('Save failed: '+e.message+'. Check your connection and confirm that current account and database access are configured correctly.');});
  },[demo,user]);
  async function changeClinical(kind:ClinicalKind,entry:ClinicalVersioned,remove=false):Promise<boolean>{
   const selected=current.current;
@@ -444,7 +444,7 @@ export default function App(){
   const saved=await changeClinical('growth',{id:crypto.randomUUID(),measured_on:growthDate,weight_kg:weight,length_cm:length});
   if(saved){setGrowthOpen(false);setGrowthWeight('');setGrowthLength('');setToast('Measurement recorded. Your clinician should interpret growth trends.');}
  }
- if(!demo&&dataError)return <div className="loading-screen" role="alert"><div className="loading-icon"><ShieldAlert size={28}/></div><h2>Records are temporarily unavailable</h2><p>{dataError}</p><p>Your existing journey has not been deleted. The v0.6 database upgrade must be applied and verified before continuing.</p><Button onClick={()=>window.location.reload()}>Retry securely</Button></div>;
+ if(!demo&&dataError)return <div className="loading-screen" role="alert"><div className="loading-icon"><ShieldAlert size={28}/></div><h2>Records are temporarily unavailable</h2><p>{dataError}</p><p>Your existing journey has not been deleted. The current database schema and your account permissions must be checked before continuing.</p><Button onClick={()=>window.location.reload()}>Retry securely</Button></div>;
  if(checking||loadingJourney)return <div className="loading-screen"><div className="loading-icon"><Heart size={28}/></div><p>Preparing your MamaMwana space…</p></div>;
  if(!demo&&!user)return <AuthGate onDemo={()=>{setDemo(true);setJourney(null);setJourneys([]);current.current=null;}}/>;
  if(!journey||creatingJourney)return <><CaregiverInbox userId={user?.id??null} demo={demo}/><Onboarding isDemo={demo} onCancel={journey?()=>{setCreatingJourney(false);enterTab('family');}:undefined} onCreate={j=>{setCreatingJourney(false);persist(j);enterTab('home');}}/></>;

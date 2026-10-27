@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { AlertTriangle, BookHeart, CheckCircle2, ExternalLink, HeartHandshake, LockKeyhole, MessageCircle, Plus, ShieldAlert, ShieldCheck } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import CurrentFeatureHeading from './CurrentFeatureHeading';
 import { getGuidance, isApprovedSource } from '../lib/safetyAssistant';
 import {canIndependentlyApprove} from '../lib/governance';
 import type { GuideResponse, Stage } from '../lib/safetyAssistant';
@@ -38,7 +39,7 @@ export default function GuidanceV04({stage,allowStageContext,userId,isDemo}:Prop
    client.from('clinical_reviewers').select('is_active').eq('user_id',userId).maybeSingle()
   ]).then(async ([published,assignment])=>{
    if(!live)return;
-   if(published.error){setError('Reviewed education library is not connected. Apply the v0.4 migration.');setLoading(false);return;}
+   if(published.error){setError('Reviewed learning articles are unavailable. Verify the approved-content database setup before relying on this library.');setLoading(false);return;}
    setArticles(((published.data??[]) as Article[]).filter(a=>isApprovedSource(a.source_url)));
    const reviewer=Boolean(assignment.data?.is_active);
    setIsReviewer(reviewer);
@@ -80,7 +81,7 @@ export default function GuidanceV04({stage,allowStageContext,userId,isDemo}:Prop
   setArticles(a=>[{...article,status:'approved'},...a]);
  }
  return <div className="page-content v4-page">
-  <div className="section-heading"><div><div className="eyebrow">MAMAMWANA GUIDANCE • V0.5</div><h2>Ask about your journey</h2><p>A source-linked educational guide with clear clinical safety boundaries.</p></div></div>
+  <CurrentFeatureHeading eyebrow="LEARNING • TRUSTED SOURCES" title="Ask about your journey" description="Explore source-linked educational information with clear clinical safety boundaries." Icon={BookHeart} tone="peach"/>
   <div className="v4-guidance-head">
    <span><HeartHandshake size={27}/></span><div><strong>Learning support, not a diagnosis</strong><p>Questions are processed in this browser session. No LLM, external AI service or chat history storage is used. This early guide is keyword-based and cannot reliably assess symptoms or emergencies.</p></div>
   </div>
@@ -99,7 +100,7 @@ export default function GuidanceV04({stage,allowStageContext,userId,isDemo}:Prop
   </section>}
   <section className="panel v4-library"><div className="panel-heading"><div><div className="eyebrow">CLINICALLY REVIEWED MATERIALS</div><h3>Reviewed learning articles</h3></div><ShieldCheck size={22}/></div>
    <p className="muted">Only articles explicitly approved by a database-assigned clinical reviewer are shown here. Source-linked answers above are <strong>not</strong> themselves certified as clinically reviewed.</p>
-   {loading?<p className="v4-hint">Loading library…</p>:articles.length===0?<p className="v4-empty">No clinician-approved MamaMwana articles have been published yet. The review workflow must be completed before showing that label.</p>:<div className="v4-article-grid">{articles.map(a=><article key={a.id} className="v4-article"><span className="v4-approved"><CheckCircle2 size={14}/> Reviewed • v{a.version}</span><h4>{a.title}</h4><p>{a.summary}</p><details><summary>Read this article</summary><p className="v4-article-body">{a.body}</p></details><a href={a.source_url} rel="noopener noreferrer" target="_blank">Official source <ExternalLink size={13}/></a></article>)}</div>}
+   {loading?<p className="v4-hint">Loading library…</p>:articles.length===0?<p className="v4-empty">No clinician-approved MamaMwana articles have been published yet. The review workflow must be completed before showing that label.</p>:<div className="v4-article-grid">{articles.map(a=><article key={a.id} className="v4-article"><span className="v4-approved"><CheckCircle2 size={14}/> Reviewed article · revision {a.version}</span><h4>{a.title}</h4><p>{a.summary}</p><details><summary>Read this article</summary><p className="v4-article-body">{a.body}</p></details><a href={a.source_url} rel="noopener noreferrer" target="_blank">Official source <ExternalLink size={13}/></a></article>)}</div>}
   </section>
   {isReviewer&&<section className="panel v4-review"><div className="eyebrow">RESTRICTED • AUTHORIZED REVIEWER</div><h3>Clinical content review desk</h3><p className="muted">Database-assigned clinicians may submit drafts. A different, independently authorized clinician must approve each submitted version. Published articles cannot be changed in place; every approval is logged. This still requires an external clinical governance policy.</p>
    <form onSubmit={createDraft} className="v4-review-form">
