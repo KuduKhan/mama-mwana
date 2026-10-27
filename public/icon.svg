@@ -1,1 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="17" fill="#276451"/><path d="M17 38c0-10 6-18 15-18s15 8 15 18" fill="none" stroke="#FCEBE0" stroke-width="5" stroke-linecap="round"/><circle cx="26" cy="32" r="6" fill="#F5B9A9"/><circle cx="39" cy="35" r="5" fill="#F9D7B9"/><path d="M20 43c5 7 20 8 26-1" fill="none" stroke="#FCEBE0" stroke-width="4" stroke-linecap="round"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="mm-logo-title">
+<title id="mm-logo-title">MamaMwana mother and child embrace</title>
+<defs>
+ <linearGradient id="forest" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#18654c"/><stop offset=".55" stop-color="#125841"/><stop offset="1" stop-color="#075039"/></linearGradient>
+ <linearGradient id="embrace" x1=".1" y1="0" x2=".8" y2="1"><stop stop-color="#fff7ed"/><stop offset="1" stop-color="#eee2d7"/></linearGradient>
+ <linearGradient id="mother" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#efbaa9"/><stop offset="1" stop-color="#d99e92"/></linearGradient>
+ <linearGradient id="child" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f8dabb"/><stop offset="1" stop-color="#e5c19f"/></linearGradient>
+</defs>
+<rect x="1" y="1" width="62" height="62" rx="19" fill="url(#forest)"/>
+<path d="M16.5 38.9C16.5 28.8 23.6 19.2 32.1 19.2S47.5 29.2 47.5 38.9" fill="none" stroke="url(#embrace)" stroke-width="5.8" stroke-linecap="round"/>
+<circle cx="25.9" cy="31.5" r="6.5" fill="url(#mother)"/>
+<circle cx="39.7" cy="34.3" r="5.25" fill="url(#child)"/>
+<path d="M19.7 43.2C26.2 50.7 38.7 52.7 46.7 42.3" fill="none" stroke="url(#embrace)" stroke-width="4.7" stroke-linecap="round"/>
+</svg>

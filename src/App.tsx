@@ -9,7 +9,7 @@ import {
   Sparkles, Stethoscope, Sun, TrendingUp, Utensils, X, ScrollText, Bot, ListTodo
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { configured, supabase } from './lib/supabase';
+import { authConfigured, authSupabase, configured, supabase } from './lib/supabase';
 import { APP_VERSION } from './lib/release';
 import {useMamaLocale} from './lib/locale';
 import {Settings2} from 'lucide-react';
@@ -118,7 +118,7 @@ function useModalFocus(open:boolean,onDismiss:()=>void,restoreSelector?:string){
 }
 function Brand({inverse=false}:{inverse?:boolean}){
  return <div className={'brand '+(inverse?'brand-inverse':'')}>
-   <div className="brand-icon" aria-hidden="true"><HeartHandshake size={23} strokeWidth={1.85}/><span className="brand-dot"/></div>
+   <span className="brand-icon"><img src="/icon.svg" width={48} height={48} alt="" aria-hidden="true"/></span>
    <div className="brand-title">mama<span>mwana</span><small>EVERY LITTLE BEGINNING MATTERS</small></div>
  </div>;
 }
@@ -141,14 +141,17 @@ function AuthGate({onDemo}:{onDemo:()=>void}){
  const [busy,setBusy]=useState(false);
  const [message,setMessage]=useState('');
  async function submit(e:FormEvent){
-  e.preventDefault(); if(!supabase)return;
+  e.preventDefault();if(!authSupabase)return;
   setBusy(true);setMessage('');
-  const result=mode==='signup'
-   ?await supabase.auth.signUp({email:email.trim(),password})
-   :await supabase.auth.signInWithPassword({email:email.trim(),password});
-  if(result.error)setMessage(result.error.message);
-  else if(mode==='signup')setMessage('Check your email for a verification link if confirmation is enabled. Then sign in.');
-  setBusy(false);
+  try{
+   const result=mode==='signup'
+    ?await authSupabase.auth.signUp({email:email.trim(),password})
+    :await authSupabase.auth.signInWithPassword({email:email.trim(),password});
+   if(result.error)setMessage(result.error.message);
+   else if(mode==='signup')setMessage('Check your email for an account verification link, if confirmation is enabled. Do not add personal health details until the care workspace is approved.');
+   else if(!configured)setMessage('Account sign-in verified. The private health-data workspace is still restricted; explore the sample-data demo.');
+  }catch{setMessage('Account service temporarily unavailable. Please try again.');}
+  finally{setBusy(false);}
  }
  return <div className="auth-layout">
    <div className="auth-story"><Brand inverse/><div className="auth-art" aria-hidden="true"><div className="art-orbit orbit-one"/><div className="art-orbit orbit-two"/><div className="art-center"><Heart size={76} strokeWidth={1.15}/><span className="art-small-dot"/></div><Sparkles className="art-spark-one"/><Sparkles className="art-spark-two"/></div>
@@ -156,13 +159,13 @@ function AuthGate({onDemo}:{onDemo:()=>void}){
    </div>
    <div className="auth-form-side"><div className="locale-auth"><label htmlFor="mamamwana-auth-locale">{t('app.language')}</label><select id="mamamwana-auth-locale" aria-label="Language / Lugha" value={locale} onChange={e=>setLocale(e.target.value==='sw'?'sw':'en')}><option value="en">English</option><option value="sw">Kiswahili</option></select></div><div className="auth-mobile-brand"><Brand/></div><div className="auth-panel">
    <div className="badge-soft"><Sparkles size={14}/> {t('auth.welcome')}</div>
-   <h2>{configured?(mode==='signup'?t('auth.begin'):t('auth.return')):'Explore the MamaMwana preview'}</h2>
-   <p className="muted">{configured?'Your personal pregnancy and early childhood companion starts here.':'This repository is ready for Supabase. You can explore all journeys in an interactive demo without saving personal data.'}</p>
-   {configured&&<><div className="auth-switch"><button className={mode==='signup'?'active':''} onClick={()=>{setMode('signup');setMessage('');}}>{t('auth.signup')}</button><button className={mode==='signin'?'active':''} onClick={()=>{setMode('signin');setMessage('');}}>{t('auth.signin')}</button></div>
+   <h2>{authConfigured?(mode==='signup'?t('auth.begin'):t('auth.return')):'Explore the MamaMwana preview'}</h2>
+   <p className="muted">{authConfigured?'Use a verified account for authentication. Private health records stay restricted until separately approved.':'Explore all journeys in an interactive demo without saving real personal information.'}</p>
+   {authConfigured&&<><div className="auth-switch"><button className={mode==='signup'?'active':''} onClick={()=>{setMode('signup');setMessage('');}}>{t('auth.signup')}</button><button className={mode==='signin'?'active':''} onClick={()=>{setMode('signin');setMessage('');}}>{t('auth.signin')}</button></div>
      <form onSubmit={submit} className="stack-form"><label>{t('auth.email')}<input type="email" required autoComplete="email" placeholder="mama@example.com" value={email} onChange={e=>setEmail(e.target.value)}/></label><label>{t('auth.password')}<input type="password" required minLength={8} autoComplete={mode==='signup'?'new-password':'current-password'} placeholder="At least 8 characters" value={password} onChange={e=>setPassword(e.target.value)}/></label>
      {message&&<div className="inline-note" role="status">{message}</div>}
      <Button type="submit" disabled={busy}>{busy?'Please wait...':mode==='signup'?'Create my account':'Sign in'} <ArrowRight size={16}/></Button></form></>}
-   <div className="demo-divider">{configured?'OR TRY THE EXPERIENCE':'INTERACTIVE PRODUCT PREVIEW'}</div>
+   <div className="demo-divider">{authConfigured?'OR TRY THE DEMO':'INTERACTIVE PRODUCT PREVIEW'}</div>
    <button className="demo-button" onClick={onDemo}><span className="demo-symbol"><Sparkles size={19}/></span><span><strong>{t('auth.demo')}</strong><small>{t('auth.demoDetails')}</small></span><ArrowRight size={18}/></button>
    <p className="footnote"><LockKeyhole size={14}/> Medical information should only be entered after your private database is connected. This app supports—not replaces—professional care.</p>
    </div></div>
@@ -606,11 +609,11 @@ export default function App(){
    <nav className="sidebar-nav" aria-label="Primary navigation">{NAV_GROUPS.map(group=><div key={group.key} className="mm13-nav-group" role="group" aria-labelledby={'mm13-group-'+group.key}><div id={'mm13-group-'+group.key} className="mm13-nav-group-label">{t(group.labelKey,group.label)}</div>{NAV.filter(item=>group.ids.includes(item.id)).map(({id,label,Icon})=><button key={id} onClick={()=>enterTab(id)} className={'nav-item '+(tab===id?'selected':'')} aria-current={tab===id?'page':undefined}><Icon size={19} strokeWidth={1.9} aria-hidden="true"/>{t('nav.'+id,label)}{tab===id&&<span className="nav-active-dot"/>}</button>)}</div>)}</nav>
    <div className="sidebar-spacer"/>
    <div className="sidebar-support"><span className="sidebar-support-icon"><ShieldCheck size={21}/></span><strong>Your health matters</strong><p>Medical concerns always deserve a real healthcare professional.</p><button onClick={()=>{setMenuOpen(false);setWarningOpen(true);}}>When to seek help <ArrowRight size={14}/></button></div>
-   <div className="sidebar-footer"><button onClick={signOut}><LogOut size={17}/>{demo?t('app.demoExit'):t('app.logout')}</button><span>© 2026 MamaMwana • v{APP_VERSION}</span></div>
+   <div className="sidebar-footer mm-sidebar-footer"><button onClick={signOut}><LogOut size={17}/>{demo?t('app.demoExit'):t('app.logout')}</button><div className="mm-sidebar-signature"><img src="/icon.svg" width={26} height={26} alt="" aria-hidden="true"/><span><strong>MamaMwana</strong><small>© {new Date().getFullYear()} · v{APP_VERSION}</small></span></div></div>
   </aside>
   {menuOpen&&<button className="drawer-backdrop" aria-label="Close menu" onClick={()=>setMenuOpen(false)}/>}
   <div className="app-main">
-   <header className="topbar"><div className="topbar-left"><button ref={hamburgerRef} className="hamburger" aria-label="Open navigation" aria-expanded={menuOpen} aria-controls="mamamwana-primary-navigation" onClick={()=>setMenuOpen(true)}><Menu size={22}/></button><div className="topbar-context"><div className="topbar-hello">{t('app.hello')}, {displayName} <Sparkles className="topbar-spark" size={18} strokeWidth={1.8} aria-hidden="true"/></div><div className="topbar-subtitle"><span className="topbar-current-page">{t('nav.'+tab,NAV.find(item=>item.id===tab)?.label??'Your journey')}</span><span className="topbar-subtitle-divider" aria-hidden="true">•</span> Growing with care</div></div></div><div className="topbar-actions">
+   <header className="topbar"><div className="topbar-left"><button ref={hamburgerRef} className="hamburger" aria-label="Open navigation" aria-expanded={menuOpen} aria-controls="mamamwana-primary-navigation" onClick={()=>setMenuOpen(true)}><Menu size={22}/></button><span className="mm-mobile-brand" aria-label="MamaMwana"><img src="/icon.svg" alt="" width={34} height={34} aria-hidden="true"/></span><div className="topbar-context"><div className="topbar-hello">{t('app.hello')}, {displayName} <Sparkles className="topbar-spark" size={18} strokeWidth={1.8} aria-hidden="true"/></div><div className="topbar-subtitle"><span className="topbar-current-page">{t('nav.'+tab,NAV.find(item=>item.id===tab)?.label??'Your journey')}</span><span className="topbar-subtitle-divider" aria-hidden="true">•</span> Growing with care</div></div></div><div className="topbar-actions">
      {demo?<span className="env-label"><Cloud size={15}/> {t('app.demo')}</span>:<span className={'env-label '+(saveStatus==='error'?'env-error':'')}><CheckCircle2 size={15}/>{saveStatus==='saving'?t('app.saving'):saveStatus==='error'?t('app.saved'):t('app.private')}</span>}
      <label className="locale-switch"><span className="sr-only">{t('app.language')}</span><select aria-label="Language / Lugha" value={locale} onChange={e=>setLocale(e.target.value==='sw'?'sw':'en')}><option value="en">EN</option><option value="sw">SW</option></select></label><button type="button" className="mm14-topbar" aria-label="Display preferences" aria-haspopup="dialog" onClick={()=>{setWarningOpen(false);setDisplayOpen(true);}} title={t('a11y.heading','Display and accessibility')}><Settings2 size={18} aria-hidden="true"/></button><button className="topbar-family" aria-label="Family journeys" onClick={()=>enterTab('family')}><Users size={16}/> {t('app.family')} ({journeys.length})</button><button aria-label="Health warning signs" className="topbar-icon" onClick={()=>setWarningOpen(true)}><ShieldAlert size={19}/></button><span className="avatar">{displayName.slice(0,1).toUpperCase()}</span>
    </div></header>
@@ -618,7 +621,19 @@ export default function App(){
     {demo&&<div className="demo-banner"><Sparkles size={16}/><span><strong>Interactive preview:</strong> use sample details only. Changes disappear when you leave this page.</span><button onClick={signOut}>Exit <ArrowRight size={14}/></button></div>}
    {locale==='sw'&&<p className="locale-clinical-review" role="status">{t('app.review')}</p>}
     <main id="mamamwana-main" tabIndex={-1}><Suspense fallback={<div className="mm-section-loading" role="status" aria-live="polite">Loading this section…</div>}>{tab==='home'?<Home/>:tab==='family'?<Family/>:tab==='pregnancy'?<Pregnancy/>:tab==='care'?<Care/>:tab==='visits'?<Visits/>:tab==='birth'?<Birth/>:tab==='baby'?<BabyPage/>:tab==='planner'?<CarePlannerV07 journey={activeJourney} isDemo={demo} userId={user?.id??null}/>:tab==='hub'?<CareJourneyHubV12 journey={activeJourney} isDemo={demo}/>:tab==='records'?<ClinicalRecordsV04 journey={activeJourney} isDemo={demo}/>:tab==='guidance'?<GuidanceV04 stage={phase} allowStageContext={privacy.guidance_context} userId={user?.id??null} isDemo={demo}/>:tab==='privacy'?<PrivacyV04 journeys={journeys} selectedId={activeJourney.id} choices={privacy} isDemo={demo} userId={user?.id??null} onChange={savePrivacy} onExport={exportAllData} onDelete={deleteJourney}/>:<Library/>}</Suspense></main>
-   <footer className="app-footer"><span>MamaMwana • Made for every little beginning</span><span>{t('app.educational')}</span></footer>
+   <footer className="app-footer mm-app-footer">
+    <div className="mm-footer-top">
+     <div className="mm-footer-identity"><Brand/><p>Thoughtful support from pregnancy to early childhood. Education and your own notes, never a substitute for a healthcare professional.</p></div>
+     <div className="mm-footer-links" aria-label="Footer navigation">
+      <strong>Explore MamaMwana</strong>
+      <button type="button" onClick={()=>enterTab('family')}><Users size={15} aria-hidden="true"/> Family journeys</button>
+      <button type="button" onClick={()=>enterTab('guidance')}><BookHeart size={15} aria-hidden="true"/> Care guidance</button>
+      <button type="button" onClick={()=>enterTab('privacy')}><ShieldCheck size={15} aria-hidden="true"/> Privacy & records</button>
+     </div>
+     <div className="mm-footer-trust"><strong><LockKeyhole size={16} aria-hidden="true"/> Privacy & trust</strong><p>Preview features use sample data. Controlled account sign-in does not authorize clinical data collection or caregiver access.</p><span><ShieldCheck size={15} aria-hidden="true"/> Safety-first experience</span></div>
+    </div>
+    <div className="mm-footer-bottom"><span>© {new Date().getFullYear()} MamaMwana · v{APP_VERSION}</span><span>{t('app.educational')}</span></div>
+   </footer>
   </div>
   <nav className="mobile-tabs" aria-label="Quick navigation">{[{id:'home' as Tab,label:'Home',Icon:House},{id:'care' as Tab,label:'Today',Icon:Heart},{id:'planner' as Tab,label:'Planner',Icon:ListTodo},{id:'visits' as Tab,label:'Visits',Icon:CalendarDays},{id:'baby' as Tab,label:'Baby',Icon:Baby}].map(({id,label,Icon})=><button key={id} className={tab===id?'active':''} aria-current={tab===id?'page':undefined} onClick={()=>enterTab(id)}><Icon size={21} strokeWidth={1.85} aria-hidden="true"/><span>{label}</span></button>)}</nav>
   {displayOpen&&<div className="modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setDisplayOpen(false);}}><div className="modal mm14-dialog" ref={displayDialogRef} role="dialog" aria-modal="true" aria-labelledby="mm14-preferences-title" tabIndex={-1}><button type="button" className="modal-close" aria-label={t('a11y.close','Close display preferences')} onClick={()=>setDisplayOpen(false)}><X size={20}/></button><DisplayPreferencesV14/></div></div>}
