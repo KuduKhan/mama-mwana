@@ -240,3 +240,8 @@ For local development: `npm install`, `npx playwright install chromium`, then `n
 This refinement preserves the original botanical visual system and all existing care features while increasing Care Journey Hub text legibility, small-screen summary-card space and touch targets. Sensitive visit-brief reveal and copy approval reset when switching the active journey. The private excerpt is excluded from print output, even when visible on screen. Mobile Chromium browser regression coverage checks the refreshed text sizes, interaction controls, and overflow.
 
 **Deployment safety:** Vercel may host the public **demo** with `VITE_AUTH_ACCESS_ENABLED=false`. Do **not** enable live intake of identifiable maternal/child health information or apply pending migrations without independent clinical, legal/privacy, database security, and release signoff. Add public Supabase identifiers only for an approved controlled deployment; never expose privileged keys in client-side environment variables.
+
+
+## v1.2.2 — Stability and UI Quality (October 2026)
+
+See [docs/V122_STABILITY_UI.md](docs/V122_STABILITY_UI.md) for browser CI recovery, route-level lazy loading, startup entry budget, shared design tokens, release-version consistency, accessibility testing, and retained clinical safety restrictions.

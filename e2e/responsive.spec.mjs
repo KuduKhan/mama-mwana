@@ -8,6 +8,7 @@ const tabs=[
  {name:'Daily care',id:'care'},
  {name:'Antenatal visits',id:'visits'},
  {name:'My care planner',id:'planner'},
+ {name:'Care journey hub',id:'hub'},
  {name:'Birth preparation',id:'birth'},
  {name:'Baby & growth',id:'baby'},
  {name:'Clinical timeline',id:'records'},
