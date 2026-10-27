@@ -620,7 +620,7 @@ export default function App(){
    <div className="mm-phone-pagebar">
     <div className="mm-phone-page-label"><span>{t('app.journey','YOUR JOURNEY')}</span><strong>{t('nav.'+tab,NAV.find(item=>item.id===tab)?.label??'Your journey')}</strong></div>
     <div className="mm-phone-page-tools">
-     <span className="mm-phone-mode"><span className="mm-phone-mode-dot" aria-hidden="true"/>{demo?t('app.demo','Demo'):saveStatus==='saving'?t('app.saving','Saving'):saveStatus==='error'?'Save issue':t('app.private','Private')}</span>
+     <span className="mm-phone-mode"><span className="mm-phone-mode-dot" aria-hidden="true"/>{demo?(locale==='sw'?'Onyesho':'Preview'):saveStatus==='saving'?t('app.saving','Saving'):saveStatus==='error'?'Save issue':t('app.private','Private')}</span>
      <button type="button" className="mm-phone-urgent" aria-label="Health warning signs" onClick={()=>setWarningOpen(true)}><ShieldAlert size={19} aria-hidden="true"/><span>Safety</span></button>
     </div>
    </div></header>

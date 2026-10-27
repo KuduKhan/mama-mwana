@@ -22,7 +22,7 @@ for(const width of [320,360,375,390,430,540,760]){
   await expect(page.locator('.mm-phone-pagebar')).toBeVisible();
   await expect(page.locator('.mm-mobile-wordmark')).toBeVisible();
   await expect(page.locator('.mm-phone-page-label strong')).toHaveText('Overview');
-  await expect(page.locator('.mm-phone-mode')).toContainText('Demo');
+  await expect(page.locator('.mm-phone-mode')).toContainText('Preview');
   const a=await inspect(page);
   expect(a.documentWidth).toBeLessThanOrEqual(a.viewport+2);
   for(const c of a.controls){
