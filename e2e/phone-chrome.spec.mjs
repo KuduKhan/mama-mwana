@@ -12,6 +12,7 @@ for(const width of [320,360,390,430,540,760]){
   const footer=page.locator('.mm-app-footer'),trust=footer.locator('.mm-footer-phone-trust');
   await expect(trust).toBeVisible();
   await expect(footer.locator('.mm-footer-links button')).toHaveCount(3);
+  await expect(footer.locator('.mm-footer-links')).toBeHidden();
   const m=await page.evaluate(()=>{
    const rect=q=>{const r=document.querySelector(q).getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height}};
    return {vw:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth,
@@ -27,7 +28,7 @@ for(const width of [320,360,390,430,540,760]){
    expect(m.firstRow[i].left).toBeGreaterThanOrEqual(m.firstRow[i-1].right-1);
    expect(m.firstRow[i].right).toBeLessThanOrEqual(m.vw+1);
   }
-  for(const h of m.links)expect(h).toBeGreaterThanOrEqual(44);
+  expect(m.links).toEqual([0,0,0]); // redundant mobile footer actions are intentionally hidden
   await footer.scrollIntoViewIfNeeded();
   const b=await footer.boundingBox();
   expect(b.height).toBeLessThanOrEqual(225);
@@ -41,11 +42,12 @@ for(const width of [320,360,390,430,540,760]){
   expect(clearance.foot).toBeLessThanOrEqual(clearance.dock+2);
  });
 }
-test('footer quick links remain tappable on a 320px phone',async({page})=>{
+test('all full navigation links remain accessible from one mobile menu',async({page})=>{
  await demo(page,320);
- const f=page.locator('.mm-app-footer');
+ await expect(page.locator('.mm-app-footer .mm-footer-links')).toBeHidden();
  for(const label of ['Family journeys','Care guidance','Privacy & records']){
-  await f.getByRole('button',{name:label}).click();
+  await page.getByRole('button',{name:'Open navigation'}).click();
+  await page.locator('.sidebar-nav').getByRole('button',{name:label}).click();
   await expect(page.locator('.mm-phone-page-label strong')).toHaveText(label);
  }
 });

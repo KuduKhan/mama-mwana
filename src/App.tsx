@@ -625,7 +625,7 @@ export default function App(){
     </div>
    </div></header>
    {!demo&&<BetaNoticeV10/>}
-    {demo&&<div className="demo-banner"><Sparkles size={16}/><span><strong>Interactive preview:</strong> use sample details only. Changes disappear when you leave this page.</span><button onClick={signOut}>Exit <ArrowRight size={14}/></button></div>}
+    {demo&&<div className="demo-banner"><Sparkles size={16}/><span><strong>Sample data only.</strong> Changes are not saved when you exit.</span><button onClick={signOut}>Exit <ArrowRight size={14}/></button></div>}
    {locale==='sw'&&<p className="locale-clinical-review" role="status">{t('app.review')}</p>}
     <main id="mamamwana-main" tabIndex={-1}><Suspense fallback={<div className="mm-section-loading" role="status" aria-live="polite">Loading this section…</div>}>{tab==='home'?<Home/>:tab==='family'?<Family/>:tab==='pregnancy'?<Pregnancy/>:tab==='care'?<Care/>:tab==='visits'?<Visits/>:tab==='birth'?<Birth/>:tab==='baby'?<BabyPage/>:tab==='planner'?<CarePlannerV07 journey={activeJourney} isDemo={demo} userId={user?.id??null}/>:tab==='hub'?<CareJourneyHubV12 journey={activeJourney} isDemo={demo}/>:tab==='records'?<ClinicalRecordsV04 journey={activeJourney} isDemo={demo}/>:tab==='guidance'?<GuidanceV04 stage={phase} allowStageContext={privacy.guidance_context} userId={user?.id??null} isDemo={demo}/>:tab==='privacy'?<PrivacyV04 journeys={journeys} selectedId={activeJourney.id} choices={privacy} isDemo={demo} userId={user?.id??null} onChange={savePrivacy} onExport={exportAllData} onDelete={deleteJourney}/>:<Library/>}</Suspense></main>
    <footer className="app-footer mm-app-footer">

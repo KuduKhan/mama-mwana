@@ -206,3 +206,195 @@
  .mm-phone-pagebar,.mobile-tabs,.mm-phone-urgent{border:1px solid CanvasText}
  .mobile-tabs button[aria-current="page"]{outline:2px solid Highlight;outline-offset:-3px}
 }
+
+/* Phone chrome: consolidated into the single mobile design contract. */
+/* MamaMwana compact phone chrome 1.4.0. Desktop and tablet widths >760px unchanged. */
+.mm-footer-phone-trust{display:none}
+@media(max-width:760px){
+ /* Reserve space beneath, not inside, the footer for the fixed five-item dock. */
+ .app-main{padding-bottom:calc(83px + env(safe-area-inset-bottom,0px))}
+ .topbar{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"identity controls" "current current";
+  gap:7px 6px;box-sizing:border-box;width:100%;max-width:100%;min-width:0;
+  padding:calc(8px + env(safe-area-inset-top,0px)) clamp(10px,3vw,18px) 8px}
+ .topbar-left{grid-area:identity;display:flex;align-items:center;min-width:0;max-width:100%;gap:7px;overflow:hidden}
+ .topbar .hamburger{flex:0 0 44px;width:44px;min-width:44px;height:44px;min-height:44px;z-index:1}
+ .mm-mobile-brand{display:flex;flex:0 0 32px;width:32px;height:32px}
+ .mm-mobile-brand img{width:32px;height:32px;max-width:32px}
+ .mm-mobile-wordmark{display:inline-flex;flex:0 1 auto;min-width:0;max-width:100%;font-size:clamp(14px,3.55vw,18px);
+  line-height:1.2;letter-spacing:-.65px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .topbar-actions{grid-area:controls;display:flex;align-items:center;justify-content:flex-end;flex:0 0 auto;min-width:0;max-width:100%;gap:6px}
+ .topbar .locale-switch,.topbar .mm14-topbar{flex:0 0 44px;width:44px;min-width:44px;max-width:44px;height:44px;min-height:44px}
+ .topbar .locale-switch select{box-sizing:border-box;width:44px;min-width:44px;max-width:44px;min-height:44px}
+ .mm-phone-pagebar{grid-area:current;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;
+  box-sizing:border-box;width:100%;max-width:100%;min-width:0;gap:6px;padding:7px 9px 7px 12px;border-radius:13px}
+ .mm-phone-page-label{min-width:0;max-width:100%;overflow:hidden}
+ .mm-phone-page-label strong{display:block;max-width:100%;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .mm-phone-page-tools{display:flex;justify-content:flex-end;align-items:center;flex:0 0 auto;min-width:0;gap:6px}
+ .mm-phone-mode{flex:0 0 auto;white-space:nowrap;max-width:85px;overflow:hidden}
+ .mm-phone-urgent{flex:0 0 44px;min-width:44px;min-height:44px;justify-content:center;padding:7px}
+ .mm-phone-urgent span{display:none}
+ .mm-app-footer{box-sizing:border-box;width:100%;max-width:100%;min-width:0;margin-top:12px;
+  padding:13px clamp(12px,3.8vw,20px) 11px;border-top:1px solid #d9e8d9}
+ .mm-footer-top{display:grid;grid-template-columns:minmax(0,1fr);gap:9px}
+ .mm-footer-identity{display:flex;align-items:center;min-width:0}
+ .mm-footer-identity .brand{max-width:100%;min-width:0;gap:8px}
+ .mm-footer-identity .brand-icon{width:31px;height:31px;flex:0 0 31px;border-radius:10px;box-shadow:0 3px 9px rgba(19,71,44,.10)}
+ .mm-footer-identity .brand-title{font-size:15px;line-height:1.15;letter-spacing:-.35px}
+ .mm-footer-identity .brand-title small,.mm-footer-identity>p{display:none}
+ .mm-footer-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;gap:6px;min-width:0;width:100%}
+ .mm-footer-links>strong{display:none}
+ .mm-footer-links button{min-width:0;max-width:100%;min-height:52px;padding:6px 4px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  text-align:center;border:1px solid #d9e9d9;border-radius:12px;background:#fffefb;color:#28573d;
+  font-size:10px;font-weight:740;line-height:1.15;white-space:normal;overflow-wrap:anywhere}
+ .mm-footer-links button svg{width:17px;height:17px;flex-shrink:0;color:#2f7658}
+ .mm-footer-links button:hover{background:#e9f5e8;border-color:#b2d2ba}
+ .mm-footer-links button:focus-visible,.mm-footer-phone-trust summary:focus-visible{outline:3px solid #236e52;outline-offset:2px}
+ .mm-footer-trust{display:none}
+ .mm-footer-phone-trust{display:block;min-width:0;width:100%;color:#355d45}
+ .mm-footer-phone-trust summary{display:flex;align-items:center;gap:8px;box-sizing:border-box;cursor:pointer;
+  width:100%;min-height:44px;padding:9px 11px;background:#eaf5e9;border:1px solid #d9e8d7;
+  border-radius:11px;font-size:11px;font-weight:750;line-height:1.35;list-style:none}
+ .mm-footer-phone-trust summary::-webkit-details-marker{display:none}
+ .mm-footer-phone-trust summary span{flex:1;min-width:0;overflow-wrap:anywhere}
+ .mm-footer-phone-trust summary svg{flex-shrink:0}
+ .mm-footer-phone-trust summary svg:last-child{transition:transform .15s ease}
+ .mm-footer-phone-trust[open] summary svg:last-child{transform:rotate(180deg)}
+ .mm-footer-phone-trust-content{min-width:0;padding:9px 11px 3px;border:1px solid #d9e8d7;border-top:0;
+  border-radius:0 0 11px 11px;font-size:11px;color:#416850;line-height:1.55;overflow-wrap:anywhere}
+ .mm-footer-phone-trust-content p{margin:0 0 8px}
+ .mm-footer-bottom{display:flex;align-items:center;justify-content:flex-start;flex-wrap:wrap;
+  padding:8px 0 0;margin:6px 0 0;border-top:1px solid #dfeadf;color:#54705c;font-size:10px;line-height:1.3}
+ .mm-footer-bottom span:last-child{display:none}
+}
+@media(max-width:360px){
+ .topbar{padding-inline:9px;gap:6px 4px}
+ .topbar-left{gap:4px}
+ .mm-mobile-brand{flex-basis:29px;width:29px;height:29px}
+ .mm-mobile-brand img{width:29px;height:29px}
+ .mm-mobile-wordmark{font-size:13.5px;letter-spacing:-.6px}
+ .topbar-actions{gap:4px}
+ .mm-phone-pagebar{padding:6px 7px 6px 9px;gap:4px}
+ .mm-phone-page-tools{gap:4px}
+ .mm-phone-mode{max-width:70px;padding:7px;font-size:9.5px}
+ .mm-footer-links{gap:5px}
+ .mm-footer-links button{font-size:9.5px}
+ .mm-app-footer{padding-inline:11px}
+}
+@media(max-width:760px) and (max-height:500px){
+ .topbar{position:relative;padding-top:5px;padding-bottom:6px;row-gap:5px}
+ .mm-phone-pagebar{padding-block:5px}
+ .app-main{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+ .mm-app-footer{margin-top:8px}
+}
+@media(max-width:760px) and (prefers-reduced-motion:reduce){.mm-footer-phone-trust summary svg:last-child{transition:none}}
+@media(max-width:760px) and (forced-colors:active){.mm-footer-links button,.mm-footer-phone-trust summary{border:1px solid CanvasText}}
+
+/* Mobile Experience — v1.4.0 single source of truth.
+   Place *all* phone-specific final presentation decisions here. The old
+   mobile-studio/phone-chrome files are no longer loaded after consolidation. */
+@media(max-width:760px){
+ :root{--mm-mobile-radius:17px;--mm-mobile-gap:12px}
+ html{scroll-padding-top:94px}
+ .app-main{min-width:0}
+ .topbar{row-gap:5px;padding-bottom:7px;background:rgba(255,254,251,.98)}
+ .topbar-left{min-width:0;gap:6px}
+ .topbar .hamburger,.topbar .mm14-topbar,.topbar .locale-switch,
+ .topbar .locale-switch select{min-height:44px}
+ .mm-phone-pagebar{
+  min-height:47px;padding:5px 7px 5px 12px;border-radius:13px;
+  background:#edf6ed;box-shadow:none
+ }
+ /* One page title; no extra "YOUR JOURNEY" heading in an already titled app. */
+ .mm-phone-page-label>span{display:none}
+ .mm-phone-page-label strong{font-size:clamp(14px,3.8vw,17px);line-height:1.2;font-weight:800}
+ .mm-phone-page-tools{gap:5px}
+ .mm-phone-mode{padding:6px 8px;max-width:78px}
+ .mm-phone-urgent{border-radius:12px;box-shadow:none}
+ /* The banner communicates the non-saved safety boundary only once. */
+ .demo-banner{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px var(--mm-phone-gutter,14px);gap:8px;
+  font-size:11px;line-height:1.4;min-width:0;
+  color:#775536;background:#fff7e8;border-bottom:1px solid #f0e0c3
+ }
+ .demo-banner>svg{width:15px;height:15px;flex:0 0 15px}
+ .demo-banner span{flex:1 1 auto;min-width:0;overflow-wrap:anywhere}
+ .demo-banner span strong{color:#724f2a}
+ .demo-banner button{
+  flex:0 0 auto;min-height:44px;min-width:44px;
+  padding:7px 4px 7px 9px;border-radius:11px;
+  font-size:11px;justify-content:center
+ }
+ /* One navigation system: bottom dock for daily destinations, drawer for all
+    thirteen features. The same destinations are not repeated in the footer. */
+ .mm-app-footer .mm-footer-links{display:none}
+ .mm-app-footer .mm-footer-top{gap:7px}
+ .mm-app-footer{padding-block:11px 10px;margin-top:13px;border-radius:0}
+ .mm-footer-phone-trust summary{background:transparent;border-color:#dbe7da}
+ .mm-footer-phone-trust-content{background:#f8fbf6}
+ .mm-app-footer .mm-footer-bottom{margin-top:5px;padding-top:7px}
+ .mobile-tabs{border-radius:19px;box-shadow:0 9px 30px rgba(20,61,42,.16);gap:2px}
+ .mobile-tabs button{min-height:53px;font-size:10px;line-height:1.25}
+ /* Intentional hierarchy: Today shows actionable counters and visit/journey
+    shortcuts. The duplicate care and visit metric summaries, and duplicated
+    Care Journey CTA, are collapsed on phones only. All destinations remain
+    available in Today, the dock, and the complete menu. */
+ .mm13-home .metrics-grid{
+  display:grid;grid-template-columns:minmax(0,1fr);
+  gap:0;margin:11px 0 17px
+ }
+ .mm13-home .metrics-grid>.metric-card:not(:first-child){display:none}
+ .mm13-home .metrics-grid>.metric-card:first-child{
+  display:grid;grid-template-columns:36px minmax(0,1fr);
+  grid-template-rows:auto auto auto;align-items:center;column-gap:10px;row-gap:2px;
+  min-height:0;padding:12px 14px;border-radius:15px
+ }
+ .mm13-home .metrics-grid>.metric-card:first-child .metric-icon{grid-row:1/4;grid-column:1}
+ .mm13-home .metrics-grid>.metric-card:first-child .metric-label,
+ .mm13-home .metrics-grid>.metric-card:first-child>strong,
+ .mm13-home .metrics-grid>.metric-card:first-child .metric-foot{grid-column:2;min-width:0}
+ .mm13-home .metrics-grid>.metric-card:first-child>strong{font-size:16px;line-height:1.4}
+ .mm13-home .metrics-grid>.metric-card:first-child .metric-foot{font-size:11px}
+ .mm13-home .m12-dashboard-link{display:none}
+ /* Today's date is visible in the focus card already; don't print it again in
+    the interactive daily-task card below. */
+ .mm13-home .today-panel .date-tag{display:none}
+ /* Hero remains an introduction, not a second oversized dashboard. */
+ .mm13-home .hero-card,.hero-card{min-height:0;padding:22px 17px 75px;border-radius:19px}
+ .hero-copy h2{font-size:clamp(28px,7.7vw,36px);line-height:1.14}
+ .hero-copy p{font-size:13px;line-height:1.58}
+ .hero-visual{opacity:.32;pointer-events:none}
+ .hero-floating{bottom:11px;right:11px;padding:8px 11px}
+ .mm13-home .mm13-today{padding:17px 14px;gap:11px;margin-bottom:12px;border-radius:19px}
+ .mm13-today-head h2{margin-top:4px}
+ .mm13-today-date{font-size:11px}
+ .mm13-home .mm13-action-grid{gap:8px}
+ .mm13-home .mm13-action-card{min-height:78px;padding:11px 12px;border-radius:14px;gap:11px}
+ .mm13-home .mm13-action-copy strong{font-size:14px;line-height:1.38}
+ .mm13-home .mm13-action-copy small{font-size:11px;line-height:1.4}
+ .page-content{padding-block:14px 23px}
+ .page-content>*{max-width:100%;min-width:0}
+ .section-heading,.panel-heading{gap:11px}
+ .panel,.ch-card{border-radius:var(--mm-mobile-radius);box-shadow:0 5px 18px rgba(20,76,43,.045)}
+ .mm-current-feature{border-radius:var(--mm-mobile-radius)}
+ .mm-current-feature .mm-current-release{font-size:10px}
+}
+@media(max-width:375px){
+ .topbar{column-gap:4px}
+ .mm-phone-pagebar{padding:5px 5px 5px 10px;gap:4px}
+ .mm-phone-mode{max-width:67px;padding:6px}
+ .mm-phone-urgent{min-width:44px;padding:7px}
+ .mm13-home .hero-card{padding-inline:15px}
+ .mm13-home .mm13-action-card{gap:8px}
+ .demo-banner{padding-inline:10px}
+ .mm-footer-phone-trust summary{padding:8px 10px}
+}
+@media(max-width:760px) and (max-height:500px){
+ .topbar{row-gap:3px}
+ .mm-phone-pagebar{min-height:44px}
+ .mm13-home .hero-card{padding-bottom:66px}
+}
+@media(max-width:760px) and (prefers-reduced-motion:reduce){
+ .mobile-tabs,.mm13-action-card{scroll-behavior:auto;transition:none!important}
+}

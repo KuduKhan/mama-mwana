@@ -285,3 +285,8 @@ Harmonizes child-health charts and immunization rows, care-planner forms, family
 ## Compact phone header and footer (October 2026)
 
 A concise phone-only branded footer with three direct quick links and expandable privacy details; accessible 44px header controls fit from 320px upwards. Footer dock clearance is placed outside the footer so it is not unnecessarily tall. Desktop appearance remains intact. See [docs/PHONE_CHROME_V140.md](docs/PHONE_CHROME_V140.md).
+
+
+## Unified phone experience (October 2026)
+
+Mobile Studio and phone chrome are consolidated into a single actively imported phone stylesheet. The phone home screen removes duplicate care/visit summaries and redundant journey entry links; navigation remains accessible through the five-tab dock and all-section drawer. The mobile footer retains branding and expandable safety details without duplicating the navigation menu. Desktop remains unchanged. See [docs/MOBILE_UNIFIED_V140.md](docs/MOBILE_UNIFIED_V140.md).
