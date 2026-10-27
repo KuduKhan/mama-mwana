@@ -1,0 +1,77 @@
+/* MamaMwana v1.3.1 — visual consistency & accessible interaction polish.
+   Preserves v1.3.0 botanical design and uses shared tokens, without clinical changes. */
+:root{
+ --mm-quality-divider:var(--mm-border);
+ --mm-quality-focus:var(--mm-focus-ring);
+ --mm-quality-surface:var(--mm-surface-warm);
+}
+/* A consistent action and form hierarchy across dashboard and Care Journey. */
+.mm13-action-card,.m12-hub .panel,.mm13-timeline-tools :is(input,select){
+ border-color:var(--mm-quality-divider);
+}
+.mm13-action-card,.m12-hub .panel{border-radius:var(--mm-radius-md)}
+.mm13-action-card:focus-visible,.mm13-clear:focus-visible,
+.mm13-event-details summary:focus-visible,
+.m12-hub :is(button,input,select):focus-visible,
+.sidebar-nav .nav-item:focus-visible,
+.sidebar-support button:focus-visible{
+ outline:var(--mm-quality-focus);outline-offset:3px;
+}
+.mm13-timeline-tools :is(input,select){min-height:var(--mm-touch-min);border-radius:var(--mm-radius-sm)}
+.m12-filters button,.mm13-clear{min-height:var(--mm-touch-min)}
+.mm13-event-details summary{min-height:var(--mm-touch-min);font-size:13px}
+.mm13-today-head p,.mm13-action-copy small,.mm13-action-label,
+.mm13-results-row p,.mm13-nav-group-label{line-height:1.55}
+.mm13-nav-group-label{font-size:11px;letter-spacing:.075em}
+.sidebar-nav .mm13-nav-group .nav-item{min-height:var(--mm-touch-min);font-size:13px}
+.sidebar-footer button,.sidebar-support button{min-height:var(--mm-touch-min)}
+/* App shell handles dynamic browser chrome, short landscape devices, and safe areas. */
+.app-shell{min-height:100dvh}
+.sidebar-nav{scrollbar-gutter:stable}
+.mobile-tabs{padding-bottom:max(env(safe-area-inset-bottom,0px),4px)}
+.m12-hub .m12-summary>div,.mm13-action-card,.mm13-today{min-width:0}
+.m12-hub :is(h2,h3,p,strong,small),.mm13-action-copy>*{overflow-wrap:anywhere}
+@media(max-width:760px){
+ .hamburger,.mobile-close,.topbar-family{
+  width:44px;min-width:44px;height:44px;min-height:44px;
+  display:grid;place-items:center;padding:8px
+ }
+ .sidebar-nav{overscroll-behavior:contain}
+ .mm13-action-card{min-height:92px}
+ .mm13-timeline-tools{gap:11px}
+ .mm13-today{margin-bottom:15px}
+}
+@media(max-width:400px){
+ .topbar{gap:5px;padding-inline:10px}
+ .topbar-left{flex:1 1 auto;min-width:0;gap:7px}
+ .topbar-actions{flex:0 0 auto;gap:5px}
+ .topbar .avatar{display:none}
+ .topbar-subtitle{display:none}
+ .topbar-hello{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .topbar .env-label{padding:6px 8px}
+ .sidebar-header{padding-inline:15px}
+ .mm13-today{padding:15px 12px}
+ .mm13-today-date{white-space:normal;max-width:100%}
+}
+@media(max-height:600px) and (max-width:900px){
+ .sidebar-header{padding-block:10px}
+ .sidebar-intro{display:none}
+ .sidebar-support{margin-block:6px;padding-block:9px}
+ .sidebar-nav{min-height:0;overflow-y:auto}
+}
+/* System accessibility preferences: no forced animations or color-only focus rings. */
+@media(prefers-reduced-motion:reduce){
+ html{scroll-behavior:auto}
+ .sidebar,.mm13-action-card,.nav-item,.mm13-today{scroll-behavior:auto;transition:none!important;animation:none!important}
+}
+@media(prefers-contrast:more){
+ .mm13-action-card,.mm13-timeline-tools :is(input,select),.m12-hub .panel{border-color:#65816f;border-width:2px}
+ .mm13-nav-group-label,.mm13-action-copy small{color:#294d39}
+}
+@media(forced-colors:active){
+ .sidebar-nav .nav-item[aria-current="page"],
+ .mobile-tabs button[aria-current="page"],.m12-filters button[aria-pressed="true"]{
+  outline:2px solid Highlight;outline-offset:-3px
+ }
+ .mm13-action-card:focus-visible,.mm13-event-details summary:focus-visible{outline:3px solid Highlight}
+}

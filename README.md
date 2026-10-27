@@ -250,3 +250,8 @@ See [docs/V122_STABILITY_UI.md](docs/V122_STABILITY_UI.md) for browser CI recove
 ## v1.3.0 — Premium Experience (October 2026)
 
 Improves the Today dashboard hierarchy, groups 13 destinations into three scannable navigation sections, adds local-only care-timeline search/status/sort/detail controls, and extends 320px–desktop responsiveness without altering clinical safety or private-note consent. See [docs/V130_PREMIUM_EXPERIENCE.md](docs/V130_PREMIUM_EXPERIENCE.md).
+
+
+## v1.3.1 — UI Quality and Device QA (October 2026)
+
+Improves focus-safe mobile navigation, 44px mobile actions, harmonized botanical components, contrast/reduced-motion behavior and Chromium simulated Android/iPhone checks. Physical-device Safari/Chrome and TalkBack/VoiceOver checks remain a separate, unverified release gate. See [docs/V131_DEVICE_QA.md](docs/V131_DEVICE_QA.md). No clinical-data access changes.
