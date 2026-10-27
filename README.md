@@ -255,3 +255,8 @@ Improves the Today dashboard hierarchy, groups 13 destinations into three scanna
 ## v1.3.1 — UI Quality and Device QA (October 2026)
 
 Improves focus-safe mobile navigation, 44px mobile actions, harmonized botanical components, contrast/reduced-motion behavior and Chromium simulated Android/iPhone checks. Physical-device Safari/Chrome and TalkBack/VoiceOver checks remain a separate, unverified release gate. See [docs/V131_DEVICE_QA.md](docs/V131_DEVICE_QA.md). No clinical-data access changes.
+
+
+## v1.4.0 — Personalized Family Experience (October 2026)
+
+Family-specific journey selection and read-only summaries, editable local display preferences, nonclinical English/Kiswahili interface strings, and clearer two-sided caregiver consent acknowledgements. Clinical Kiswahili content is **not** externally reviewed and remains in English pending authorized independent clinical/linguistic signoff; public deployment remains demo-only. See [docs/V140_FAMILY_CONSENT_A11Y.md](docs/V140_FAMILY_CONSENT_A11Y.md).

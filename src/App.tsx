@@ -12,6 +12,9 @@ import type { LucideIcon } from 'lucide-react';
 import { configured, supabase } from './lib/supabase';
 import { APP_VERSION } from './lib/release';
 import {useMamaLocale} from './lib/locale';
+import {Settings2} from 'lucide-react';
+import DisplayPreferencesV14 from './components/DisplayPreferencesV14';
+import FamilySnapshotV14 from './components/FamilySnapshotV14';
 import {applyClinicalMutation,editJourneyClinical,isClinicalConflict,loadCanonicalJourneys,nonClinicalJourneyPayload} from './lib/clinical';
 import type {ClinicalKind,ClinicalVersioned} from './lib/clinical';
 const GuidanceV04 = lazy(() => import('./components/GuidanceV04'));
@@ -269,6 +272,8 @@ export default function App(){
  const [toast,setToast]=useState('');
  const [warningOpen,setWarningOpen]=useState(false);
  const warningDialogRef=useModalFocus(warningOpen,()=>setWarningOpen(false));
+ const [displayOpen,setDisplayOpen]=useState(false);
+ const displayDialogRef=useModalFocus(displayOpen,()=>setDisplayOpen(false),'[aria-label="Display preferences"]');
  const [birthOpen,setBirthOpen]=useState(false);
  const [weekView,setWeekView]=useState<number|null>(null);
  const [newVisit,setNewVisit]=useState(false);
@@ -461,6 +466,7 @@ export default function App(){
 
  function Home(){
  return <div className="page-content mm13-home">
+   {journeys.length>1&&<div className="mm14-home-family" aria-label={t('family.quick','Family quick switch')}><span>{t('family.quick','Family quick switch')}</span><div>{journeys.map(j=><button key={j.id} type="button" aria-pressed={j.id===activeJourney.id} onClick={()=>selectJourney(j)}>{j.baby_birth_date?(j.baby_name||t('family.baby','Baby')):t('family.pregnancy','Pregnancy journey')}{j.id===activeJourney.id?' · '+t('family.current','Current'):''}</button>)}</div></div>}
   <section className="mm13-today" aria-labelledby="mm13-today-heading">
    <div className="mm13-today-head"><div><span className="eyebrow">{t('home.todayEyebrow','YOUR DAILY FOCUS')}</span><h2 id="mm13-today-heading">{t('home.todayTitle','Your day at a glance')}</h2><p>{t('home.todaySubtitle','Pick up where you left off. Personal reminders, not medical advice.')}</p></div><span className="mm13-today-date"><Sun size={16} aria-hidden="true"/>{readable(todayISO())}</span></div>
    <div className="mm13-action-grid" aria-label="Suggested next steps">
@@ -502,8 +508,9 @@ export default function App(){
  function Family(){
   return <div className="page-content"><SectionTitle eyebrow="YOUR CONNECTED STORY" title="Family journeys" subtitle="Switch between your recorded pregnancies and children. Each journey stays private." action={<Button Icon={Plus} onClick={createAnotherJourney}>New pregnancy</Button>}/>
    <Panel className="family-intro"><span className="small-round mint"><Users size={21}/></span><div><h3>Every chapter has its place</h3><p>Starting another journey does not erase your previous pregnancy, birth or baby records. Distinct child profiles can include twins and multiples. Legacy charts remain linked to the original journey.</p></div></Panel>
-   <div className="family-list">{journeys.map(j=>{const born=Boolean(j.baby_birth_date);return <button key={j.id} className={'family-journey '+(j.id===activeJourney.id?'current':'')} onClick={()=>selectJourney(j)}>
-     <span className="family-avatar">{born?<Baby size={25}/>:<Heart size={25}/>}</span><span className="family-journey-copy"><strong>{born?j.baby_name+'’s journey':'Pregnancy journey'}</strong><small>{born?'Born '+readable(j.baby_birth_date!):'Estimated due '+readable(j.due_date)} · {j.mother_name}</small></span><span className="family-tag">{j.id===activeJourney.id?'Viewing':'Open'}</span><ChevronRight size={18}/></button>;})}</div>
+   <FamilySnapshotV14 journeys={journeys} activeId={activeJourney.id} onSelect={selectJourney}/>
+    <div className="family-list">{journeys.map(j=>{const born=Boolean(j.baby_birth_date);return <button key={j.id} className={'family-journey '+(j.id===activeJourney.id?'current':'')} onClick={()=>selectJourney(j)}>
+     <span className="family-avatar">{born?<Baby size={25}/>:<Heart size={25}/>}</span><span className="family-journey-copy"><strong>{born?j.baby_name+'’s journey':'Pregnancy journey'}</strong><small>{born?'Born '+readable(j.baby_birth_date!):'Estimated due '+readable(j.due_date)} · {j.mother_name}</small></span><span className="family-tag">{j.id===activeJourney.id?t('family.current','Current'):t('family.switch','Open')}</span><ChevronRight size={18}/></button>;})}</div>
    <FamilyChildrenV09 journey={activeJourney} isDemo={demo} userId={user?.id??null}/>
    <CaregiverInbox userId={user?.id??null} demo={demo}/>
     <p className="footnote">Profiles belong to the signed-in account, and are not automatically shared with healthcare providers.</p>
@@ -605,7 +612,7 @@ export default function App(){
   <div className="app-main">
    <header className="topbar"><div className="topbar-left"><button ref={hamburgerRef} className="hamburger" aria-label="Open navigation" aria-expanded={menuOpen} aria-controls="mamamwana-primary-navigation" onClick={()=>setMenuOpen(true)}><Menu size={22}/></button><div className="topbar-context"><div className="topbar-hello">{t('app.hello')}, {displayName} <Sparkles className="topbar-spark" size={18} strokeWidth={1.8} aria-hidden="true"/></div><div className="topbar-subtitle"><span className="topbar-current-page">{t('nav.'+tab,NAV.find(item=>item.id===tab)?.label??'Your journey')}</span><span className="topbar-subtitle-divider" aria-hidden="true">•</span> Growing with care</div></div></div><div className="topbar-actions">
      {demo?<span className="env-label"><Cloud size={15}/> {t('app.demo')}</span>:<span className={'env-label '+(saveStatus==='error'?'env-error':'')}><CheckCircle2 size={15}/>{saveStatus==='saving'?t('app.saving'):saveStatus==='error'?t('app.saved'):t('app.private')}</span>}
-     <label className="locale-switch"><span className="sr-only">{t('app.language')}</span><select aria-label="Language / Lugha" value={locale} onChange={e=>setLocale(e.target.value==='sw'?'sw':'en')}><option value="en">EN</option><option value="sw">SW</option></select></label><button className="topbar-family" aria-label="Family journeys" onClick={()=>enterTab('family')}><Users size={16}/> {t('app.family')} ({journeys.length})</button><button aria-label="Health warning signs" className="topbar-icon" onClick={()=>setWarningOpen(true)}><ShieldAlert size={19}/></button><span className="avatar">{displayName.slice(0,1).toUpperCase()}</span>
+     <label className="locale-switch"><span className="sr-only">{t('app.language')}</span><select aria-label="Language / Lugha" value={locale} onChange={e=>setLocale(e.target.value==='sw'?'sw':'en')}><option value="en">EN</option><option value="sw">SW</option></select></label><button type="button" className="mm14-topbar" aria-label="Display preferences" aria-haspopup="dialog" onClick={()=>{setWarningOpen(false);setDisplayOpen(true);}} title={t('a11y.heading','Display and accessibility')}><Settings2 size={18} aria-hidden="true"/></button><button className="topbar-family" aria-label="Family journeys" onClick={()=>enterTab('family')}><Users size={16}/> {t('app.family')} ({journeys.length})</button><button aria-label="Health warning signs" className="topbar-icon" onClick={()=>setWarningOpen(true)}><ShieldAlert size={19}/></button><span className="avatar">{displayName.slice(0,1).toUpperCase()}</span>
    </div></header>
    {!demo&&<BetaNoticeV10/>}
     {demo&&<div className="demo-banner"><Sparkles size={16}/><span><strong>Interactive preview:</strong> use sample details only. Changes disappear when you leave this page.</span><button onClick={signOut}>Exit <ArrowRight size={14}/></button></div>}
@@ -614,7 +621,8 @@ export default function App(){
    <footer className="app-footer"><span>MamaMwana • Made for every little beginning</span><span>{t('app.educational')}</span></footer>
   </div>
   <nav className="mobile-tabs" aria-label="Quick navigation">{[{id:'home' as Tab,label:'Home',Icon:House},{id:'care' as Tab,label:'Today',Icon:Heart},{id:'planner' as Tab,label:'Planner',Icon:ListTodo},{id:'visits' as Tab,label:'Visits',Icon:CalendarDays},{id:'baby' as Tab,label:'Baby',Icon:Baby}].map(({id,label,Icon})=><button key={id} className={tab===id?'active':''} aria-current={tab===id?'page':undefined} onClick={()=>enterTab(id)}><Icon size={21} strokeWidth={1.85} aria-hidden="true"/><span>{label}</span></button>)}</nav>
-  {warningOpen&&<div className="modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setWarningOpen(false);}}><div className="modal warning-modal" ref={warningDialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="urgent-title"><button className="modal-close" aria-label="Close" onClick={()=>setWarningOpen(false)}><X size={20}/></button><div className="modal-mark danger"><ShieldAlert size={26}/></div><h2 id="urgent-title">When to seek urgent help</h2><p className="muted">If you or your baby has any of these concerns, seek immediate in-person medical assessment or contact local emergency services. Do not wait for an app response.</p><ul className="urgent-list">{URGENT.map(t=><li key={t}><span className="urgent-dot"/>{t}</li>)}</ul><p className="footnote">This is not an exhaustive list. If something feels seriously wrong, get checked promptly. For urgent warning signs, follow your local emergency care instructions.</p><Button onClick={()=>setWarningOpen(false)}>I understand</Button></div></div>}
+  {displayOpen&&<div className="modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setDisplayOpen(false);}}><div className="modal mm14-dialog" ref={displayDialogRef} role="dialog" aria-modal="true" aria-labelledby="mm14-preferences-title" tabIndex={-1}><button type="button" className="modal-close" aria-label={t('a11y.close','Close display preferences')} onClick={()=>setDisplayOpen(false)}><X size={20}/></button><DisplayPreferencesV14/></div></div>}
+   {warningOpen&&<div className="modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setWarningOpen(false);}}><div className="modal warning-modal" ref={warningDialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="urgent-title"><button className="modal-close" aria-label="Close" onClick={()=>setWarningOpen(false)}><X size={20}/></button><div className="modal-mark danger"><ShieldAlert size={26}/></div><h2 id="urgent-title">When to seek urgent help</h2><p className="muted">If you or your baby has any of these concerns, seek immediate in-person medical assessment or contact local emergency services. Do not wait for an app response.</p><ul className="urgent-list">{URGENT.map(t=><li key={t}><span className="urgent-dot"/>{t}</li>)}</ul><p className="footnote">This is not an exhaustive list. If something feels seriously wrong, get checked promptly. For urgent warning signs, follow your local emergency care instructions.</p><Button onClick={()=>setWarningOpen(false)}>I understand</Button></div></div>}
   {birthOpen&&<BirthModal dueDate={activeJourney.due_date} onClose={()=>setBirthOpen(false)} onBirth={markBirth}/>}
   {toast&&<Notification message={toast} onClose={()=>setToast('')}/>}
  </div>;
