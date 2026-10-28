@@ -36,6 +36,8 @@ const recipientErasure=readFileSync('supabase/migrations/20261029_000012_v12_rec
 expectMatch(recipientErasure,/alter\s+table\s+public\.caregiver_invitations[\s\S]*drop\s+constraint\s+caregiver_invitations_accepted_by_fkey/i,'v12 must replace accepted-recipient foreign key', 'v12');
 expectMatch(recipientErasure,/foreign\s+key\s*\(accepted_by\)[\s\S]*references\s+auth\.users\s*\(id\)\s*on\s+delete\s+cascade/i,'recipient account deletion must remove invitation without triggering a guarded FK UPDATE','v12');
 rejectMatch(recipientErasure,/disable\s+row\s+level\s+security|drop\s+table|truncate\s+table|grant\s+all/i,'v12 must preserve data-RLS and minimum privilege','v12');
+expectMatch(recipientErasure,/create\s+or\s+replace\s+function\s+private\.audit_family_write\(\)/i,'v12 must guard family events during Auth owner cascade','v12');
+expectMatch(recipientErasure,/tg_op='DELETE'\s+and\s+not\s+exists\s*\(\s*select\s+1\s+from\s+auth\.users/i,'family audit must not reinsert records after account deletion','v12');
 
 for(const [re,message] of [
  [/confirmed_by\s+is\s+distinct\s+from\s+auth\.uid\(\)/i,'attributions require authenticated actor'],
