@@ -1,5 +1,8 @@
 # MamaMwana — Real two-account testing on local Supabase (no paid branch)
 
+> **October 29, 2026 update:** All eleven hosted migrations are now applied. This guide still deliberately tests against a completely local Supabase stack; it must **never** connect to the hosted project. An automated local GoTrue two-account test workflow has been added at `.github/workflows/local-auth-security.yml`; its test report is valid only after GitHub Actions completes successfully. See [current signoff](V10_RELEASE_SIGNOFF.md).
+
+
 This workflow uses the Supabase CLI and a Docker-compatible local container runtime. It does **not** connect to the hosted MamaMwana project and requires no new Supabase paid development branch.
 
 ## Prerequisites
