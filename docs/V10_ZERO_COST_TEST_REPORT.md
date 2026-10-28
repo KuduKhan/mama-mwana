@@ -1,5 +1,8 @@
 # MamaMwana — Zero-additional-infrastructure security validation
 
+> **Historical report (25 October 2026):** Migration and approval statements in this report are accurate to their original test date but **superseded** for current hosted migration state. Supabase project migration history on 29 October confirms all eleven hosted migrations were applied. The new cross-account local GoTrue workflow and current security/advisor posture are tracked in [SECURITY_POSTURE_20261029.md](SECURITY_POSTURE_20261029.md). This historical report must not be interpreted as current clinical-release approval.
+
+
 **Test date:** 25 October 2026 (Africa/Nairobi)  
 **Scope:** Dedicated MamaMwana Supabase project `jkazrgobphetdbfdvotf`, GitHub PR #10.  
 **Environment policy:** No paid branch or project was created. The database was tested with transaction-local synthetic fixtures and explicit `ROLLBACK`.

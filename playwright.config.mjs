@@ -2,6 +2,8 @@ import {defineConfig,devices} from '@playwright/test';
 
 export default defineConfig({
  testDir:'./e2e',
+ // Cross-engine mobile checks run only in their own WebKit/Android project config.
+ testIgnore:'**/platform-accessibility.spec.mjs',
  timeout:60_000,
  expect:{timeout:12_000},
  fullyParallel:false,

@@ -1,5 +1,8 @@
 # MamaMwana — Real two-account testing on local Supabase (no paid branch)
 
+> **October 29, 2026 update:** All eleven hosted migrations are now applied. This guide still deliberately tests against a completely local Supabase stack; it must **never** connect to the hosted project. An automated local GoTrue two-account test workflow has been added at `.github/workflows/local-auth-security.yml`; its test report is valid only after GitHub Actions completes successfully. See [current signoff](V10_RELEASE_SIGNOFF.md).
+
+
 This workflow uses the Supabase CLI and a Docker-compatible local container runtime. It does **not** connect to the hosted MamaMwana project and requires no new Supabase paid development branch.
 
 ## Prerequisites
@@ -51,3 +54,7 @@ npx supabase --workdir .mamamwana-local stop
 ```
 
 Documentation: https://supabase.com/docs/guides/local-development/cli/getting-started
+
+
+## 29 October 2026 automated local evidence
+[Local GoTrue / two-account GitHub Actions run 40785256481](https://github.com/KuduKhan/mama-mwana/actions/runs/40785256481): **11 passed, zero failed** across four authenticated integration suites and **both disposable accounts successfully deleted**. Supabase was started in Docker on the temporary GitHub runner; local fixture records and Docker volumes were removed. No hosted Supabase credentials or patient records were accessed. The staged v12 FK and family-audit cascade corrections were required to make deletion pass. Do not interpret this result as hosted recovery, production signup or Kenyan clinical/privacy approval.

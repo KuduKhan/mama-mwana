@@ -1,0 +1,59 @@
+name: MamaMwana cross-engine mobile accessibility evidence
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/mobile-platform-qa.yml'
+      - 'playwright.mobile.config.mjs'
+      - 'e2e/platform-accessibility.spec.mjs'
+      - 'src/**'
+      - 'public/**'
+      - 'package.json'
+      - 'package-lock.json'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  mobile-emulation:
+    name: Mobile engine / ${{ matrix.project }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - project: iphone-webkit
+            browser: webkit
+          - project: android-chromium
+            browser: chromium
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install application dependencies
+        run: npm install --no-audit --no-fund
+      - name: Install platform browser engine and Linux dependencies
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Exercise demo only, not actual hardware or assistive technology
+        run: npx playwright test --config playwright.mobile.config.mjs --project ${{ matrix.project }} --max-failures=1
+        env:
+          CI: 'true'
+      - name: Retain sample-only screen images for human hardware comparison
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mamamwana-sample-${{ matrix.project }}
+          path: test-results/**/SAMPLE-*.png
+          if-no-files-found: ignore
+          retention-days: 3
+      - name: Retain failed screenshots/traces (demo only)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mamamwana-platform-failures-${{ matrix.project }}
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 3
