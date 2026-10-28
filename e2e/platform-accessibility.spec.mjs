@@ -123,15 +123,27 @@ test('landscape, scrolling, footer dock separation and reduced-motion modes',asy
  expect(animation).toMatch(/0(?:s|\.0+s|\.01ms)|0\.00001s/);
  const height=await page.evaluate(()=>document.documentElement.clientHeight);
  const width=await page.evaluate(()=>document.documentElement.clientWidth);
- await page.setViewportSize({width:Math.max(width,height),height:Math.min(width,height)});
- await fit(page,'landscape');
- await page.getByRole('button',{name:'Open navigation'}).click();
- await expect(page.locator('.sidebar-support').getByRole('button',{name:'When to seek help'})).toBeVisible();
- await page.keyboard.press('Escape');
- await page.evaluate(()=>window.scrollTo(0,document.documentElement.scrollHeight));
- const gap=await page.evaluate(()=>({
-  footer:document.querySelector('.mm-renewed-footer').getBoundingClientRect().bottom,
-  dock:document.querySelector('.mobile-tabs').getBoundingClientRect().top
- }));
- expect(gap.footer).toBeLessThanOrEqual(gap.dock+2);
+ const landscapeWidth=Math.max(width,height);
+ await page.setViewportSize({width:landscapeWidth,height:Math.min(width,height)});
+ await fit(page,'native device landscape');
+ // Pixel 7's landscape CSS width exceeds the 760px navigation breakpoint.
+ // It intentionally uses tablet/desktop navigation, unlike iPhone 13.
+ if(landscapeWidth<=760){
+  await expect(page.locator('.mobile-tabs')).toBeVisible();
+  await page.getByRole('button',{name:'Open navigation'}).click();
+  await expect(page.locator('.sidebar-support').getByRole('button',{name:'When to seek help'})).toBeVisible();
+  await page.keyboard.press('Escape');
+  await page.evaluate(()=>window.scrollTo(0,document.documentElement.scrollHeight));
+  const gap=await page.evaluate(()=>({
+   footer:document.querySelector('.mm-renewed-footer').getBoundingClientRect().bottom,
+   dock:document.querySelector('.mobile-tabs').getBoundingClientRect().top
+  }));
+  expect(gap.footer).toBeLessThanOrEqual(gap.dock+2);
+ }else{
+  await expect(page.locator('.mobile-tabs')).toBeHidden();
+  await expect(page.locator('.sidebar-nav')).toBeVisible();
+  await expect(page.locator('.mm-renewed-header .topbar-hello')).toBeVisible();
+  await page.locator('.sidebar-nav').getByRole('button',{name:'Care guidance'}).click();
+  await fit(page,'wide phone landscape care guidance');
+ }
 });
