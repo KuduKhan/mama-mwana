@@ -1,5 +1,8 @@
 # MamaMwana v1.0-rc.1 — Production demo deployment decision
 
+> **October 29, 2026 reconciliation:** All eleven hosted migrations, including the previously pending v1.0 legacy-link and v1.1 caregiver-invitation migrations, are now applied. Earlier statements below describe the historical release decision when those migrations were not yet applied. This remains a **demo-only production deployment**, with no production Supabase URL or publishable key, and no clinical launch approval. See [current release signoff](V10_RELEASE_SIGNOFF.md) and [security posture](SECURITY_POSTURE_20261029.md).
+
+
 **Deployment scope:** GitHub `main` → Vercel project `mama-mwana`.  
 **Classification:** Public-facing interactive **DEMO ONLY**. **NOT a clinical service launch.**
 
