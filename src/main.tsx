@@ -24,4 +24,5 @@ import './experience-polish.css';
 import './component-fit.css';
 import './mobile-experience.css';
 import './chrome-renewal.css';
+import './clinical-warmth.css';
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><FailureBoundary><LocaleProvider><AccessibilityProvider><App /></AccessibilityProvider></LocaleProvider></FailureBoundary></React.StrictMode>);
