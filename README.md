@@ -300,3 +300,8 @@ The MamaMwana header and footer are redesigned with balanced phone controls, a q
 ## Clinical Warmth UI refinements (October 2026)
 
 The latest polish uses a single compact globe-only native language selector on phones, retains the full bilingual accessible name, and harmonizes botanical/clinical cards, icon containers, focus and hover states, handwritten accents, and custom decorative SVG care art. New styles are responsive, reduced-motion-aware and scoped to visual presentation; clinical data security and health content are unchanged. See [docs/CLINICAL_WARMTH_UI.md](docs/CLINICAL_WARMTH_UI.md).
+
+
+## Release-readiness evidence (October 2026)
+
+Cross-engine mobile browser emulation (WebKit iPhone and Android-like Chromium) is now a separate CI workflow, **not physical hardware acceptance**. A second local-only Supabase workflow runs disposable, independently authenticated two-account RLS/RPC tests without accessing the hosted project. See [physical-device signoff](docs/DEVICE_HARDWARE_ACCEPTANCE.md), [security posture](docs/SECURITY_POSTURE_20261029.md), and [clinical/privacy release decision](docs/V10_RELEASE_SIGNOFF.md). The public app remains a non-clinical demo; no real health-data authorization was enabled.

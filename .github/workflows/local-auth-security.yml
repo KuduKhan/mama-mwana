@@ -1,0 +1,47 @@
+name: MamaMwana local verified Auth & RLS isolation
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/local-auth-security.yml'
+      - 'supabase/migrations/**'
+      - 'tests/**'
+      - 'scripts/run-local-security.mjs'
+      - 'scripts/prepare-local-migrations.mjs'
+      - 'scripts/local-db-boundary.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verified-auth:
+    name: Two local GoTrue accounts / clinical and caregiver isolation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install locked app dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Install pinned local-only Supabase CLI
+        run: npm install --no-save --no-audit --no-fund supabase@2.122.0
+      - name: Verify local container runtime and hard boundary
+        run: |
+          docker info > /dev/null
+          node --input-type=module -e "import {assertLocalSupabaseEndpoint} from './scripts/local-db-boundary.mjs';for(const url of ['https://jkazrgobphetdbfdvotf.supabase.co','https://example.supabase.co','http://localhost.supabase.co:54321']){try{assertLocalSupabaseEndpoint(url);process.exit(1)}catch(e){if(e.message==='1')throw e}}console.log('Remote targets refused')"
+      - name: Prepare local-only migration workspace
+        run: npm run test:local:prepare
+      - name: Initialize local stack without linking production
+        run: npx supabase --workdir .mamamwana-local init
+      - name: Start isolated local Auth, Postgres and REST services
+        run: npx supabase --workdir .mamamwana-local start
+      - name: Run real two-session authenticated isolation tests
+        run: npm run test:local:security
+      - name: Stop local Docker stack
+        if: always()
+        run: npx supabase --workdir .mamamwana-local stop || true
