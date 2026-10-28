@@ -26,8 +26,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Install locked app dependencies
-        run: npm ci --no-audit --no-fund
+      - name: Install application dependencies
+        run: npm install --no-audit --no-fund
       - name: Install pinned local-only Supabase CLI
         run: npm install --no-save --no-audit --no-fund supabase@2.122.0
       - name: Verify local container runtime and hard boundary
