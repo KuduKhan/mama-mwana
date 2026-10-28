@@ -295,3 +295,8 @@ Mobile Studio and phone chrome are consolidated into a single actively imported 
 ## Premium app chrome — header and footer rebuild (October 2026)
 
 The MamaMwana header and footer are redesigned with balanced phone controls, a quieter page/status strip, crisp botanical branding, a compact expandable safety/legal footer and accessible desktop footer links. The responsive QA gate includes all major widths and landscape. See [docs/V140_CHROME_RENEWAL.md](docs/V140_CHROME_RENEWAL.md).
+
+
+## Clinical Warmth UI refinements (October 2026)
+
+The latest polish uses a single compact globe-only native language selector on phones, retains the full bilingual accessible name, and harmonizes botanical/clinical cards, icon containers, focus and hover states, handwritten accents, and custom decorative SVG care art. New styles are responsive, reduced-motion-aware and scoped to visual presentation; clinical data security and health content are unchanged. See [docs/CLINICAL_WARMTH_UI.md](docs/CLINICAL_WARMTH_UI.md).
