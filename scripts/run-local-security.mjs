@@ -85,13 +85,21 @@ async function main(){
   if(results!==0)throw new Error('Local integration tests failed; inspect test output.');
   console.log('Authenticated local two-user security suite passed.');
  }finally{
-  let cleanupFailed=false;
+  const cleanupErrors=[];
   for(const userId of created.reverse()){
    const {error}=await service.auth.admin.deleteUser(userId);
-   if(error)cleanupFailed=true;
+   if(error)cleanupErrors.push({
+    code:error.code||'unknown',status:error.status||0,
+    // All names in this disposable run use *.example.invalid. Do not log email,
+    // password, token, account ID or clinical payloads in GitHub Actions.
+    reason:String(error.message||'delete failed').replace(/[\\w.+-]+@[\\w.-]+/g,'[redacted-email]').slice(0,250)
+   });
   }
-  if(cleanupFailed)console.error('Local cleanup incomplete: reset only the LOCAL Supabase instance before reuse.');
-  else console.log('Local fixture accounts removed; dependent records cascade-deleted.');
+  if(cleanupErrors.length){
+   console.error('Local authenticated fixture deletion FAILED:',JSON.stringify(cleanupErrors));
+   throw new Error('MM_LOCAL_FIXTURE_CLEANUP_FAILED: signed-in user deletion must succeed to pass release checks.');
+  }
+  console.log('Local fixture accounts removed; dependent records cascade-deleted.');
  }
  if(results!==0)process.exitCode=results;
 }
