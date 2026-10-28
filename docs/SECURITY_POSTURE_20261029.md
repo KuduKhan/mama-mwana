@@ -27,3 +27,10 @@ Advisory references:
 - [Password protection](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection)
 
 No privileged clinical DB schema change, live user creation, production data exposure or subscription change was made as part of this audit.
+
+## 29 October 2026 local deletion finding — staging mitigation, not applied remotely
+- Real local GoTrue sign-in and two-account API isolation succeeded, **11 integration assertions passed**. The initial runner nevertheless reported failed fixture-user deletion. That run is NOT acceptable proof of full erasure because its cleanup did not fail the workflow.
+- The `caregiver_invitations.accepted_by` foreign key originally used `ON DELETE SET NULL`. PostgreSQL implements this as an UPDATE, which calls `private.mm_guard_caregiver_invite()`; the trigger requires a verified interactive user and rejects the FK-initiated update. Thus deleting a recipient with an accepted or revoked invitation can fail, while read-only sharing access may have been revoked.
+- A **staged, not remotely applied** v12 migration changes that FK to `ON DELETE CASCADE`. Recipient account deletion then removes the invitation and does not leave an orphaned recipient email/authorization; the owner-only invitation lifecycle and explicit revoke rules remain unchanged.
+- The local runner now **fails closed** if cleanup returns an error, reporting redacted diagnostics. The GitHub local Docker job destroys its disposable volumes after testing. Require a clean passing rerun including deletion and full integration suite before treating this as repaired.
+- This is a privacy/erasure-path schema change requiring an approved hosted backup/recovery plan and independent reviewer signoff before any hosted deployment. No hosted migration was applied during this work.
