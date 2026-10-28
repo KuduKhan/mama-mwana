@@ -44,4 +44,4 @@ jobs:
         run: npm run test:local:security
       - name: Stop local Docker stack
         if: always()
-        run: npx supabase --workdir .mamamwana-local stop || true
+        run: npx supabase --workdir .mamamwana-local stop --no-backup || true
