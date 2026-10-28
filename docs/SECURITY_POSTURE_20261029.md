@@ -34,3 +34,10 @@ No privileged clinical DB schema change, live user creation, production data exp
 - A **staged, not remotely applied** v12 migration changes that FK to `ON DELETE CASCADE`. Recipient account deletion then removes the invitation and does not leave an orphaned recipient email/authorization; the owner-only invitation lifecycle and explicit revoke rules remain unchanged.
 - The local runner now **fails closed** if cleanup returns an error, reporting redacted diagnostics. The GitHub local Docker job destroys its disposable volumes after testing. Require a clean passing rerun including deletion and full integration suite before treating this as repaired.
 - This is a privacy/erasure-path schema change requiring an approved hosted backup/recovery plan and independent reviewer signoff before any hosted deployment. No hosted migration was applied during this work.
+
+## Verified remediation result (local, 29 October 2026)
+After the FK and family-audit cascade repair in the **staged v12 migration**, [GitHub Actions run 40785256481](https://github.com/KuduKhan/mama-mwana/actions/runs/40785256481) completed successfully. It created two independent local GoTrue accounts, executed **11/11** authenticated clinical/family/caregiver/care-plan isolation assertions and **successfully deleted both accounts** with cascading records. The runner now fails on any cleanup error and the CI job destroys its local-only volumes. Earlier runs which passed integration assertions but failed user deletion are invalid as erasure evidence.
+
+The hosted database still contains **11 applied migrations**. The v12 account-erasure fix is **source-only and not applied to the hosted project**, pending approved backup/restoration, independent security/privacy review and controlled migration rollout. Browser screenshots and local fixtures contain only disposable sample data.
+
+Browser-engine evidence: [CI run 40785256459](https://github.com/KuduKhan/mama-mwana/actions/runs/40785256459) passed **5 WebKit iPhone-profile and 5 Android Chromium-profile tests**. Neither performs physical-device VoiceOver/TalkBack assessment.

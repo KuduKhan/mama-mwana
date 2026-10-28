@@ -50,3 +50,7 @@ Production demo: https://mama-mwana.vercel.app
 Any critical issue in urgent care, privacy, caregiver consent, data isolation, input accessibility or 320px reflow blocks signoff.
 
 For the automated *simulation-only* checks use GitHub Actions workflow `mobile-platform-qa.yml`; WebKit on Linux is a Safari-engine proxy, not Safari on a real iPhone. Browser/device emulation does not exercise VoiceOver or TalkBack.
+
+
+## Automated browser-engine QA evidence (not physical)
+On 29 October 2026, [workflow run 40785256459](https://github.com/KuduKhan/mama-mwana/actions/runs/40785256459) passed **5 Safari-engine WebKit** and **5 Android-like Chromium** tests covering 13 mobile feature sections, navigation, native language selection, forms, urgent guidance, reduced motion and landscape. This helps target physical testing; it cannot validate actual Android Chrome/VoiceOver/TalkBack, mobile keyboard occlusion on hardware, real Safari WebKit platform APIs or 200–400% system accessibility scaling. All A1–D1 hardware evidence fields above remain NOT RUN.

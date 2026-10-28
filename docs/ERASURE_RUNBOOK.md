@@ -27,3 +27,7 @@ The endpoint verifies the JWT with Supabase Auth, a current operator assignment,
 Run `npm run test` and the opt-in `tests/clinical.integration.test.ts` tests against disposable Supabase only. CI unit tests do not execute migrations or verify SQL RLS. Use `supabase db reset` and `supabase test db` under a correctly configured local Supabase CLI to run a full migration and security test suite before enabling erasure.
 
 Source: https://supabase.com/docs/reference/javascript/auth-admin-deleteuser ; https://supabase.com/docs/guides/database/postgres/row-level-security
+
+
+## 29 October 2026 — account deletion regression repaired locally, hosted migration pending
+The independently authenticated local GoTrue tests initially passed their 11 isolation assertions but exposed failure to delete synthetic users. Review traced the likely cascade defects to `caregiver_invitations.accepted_by` (`ON DELETE SET NULL` hitting the session-guard trigger) and family event auditing during `auth.users` owner deletion. The staged v12 migration fixes these by recipient-invitation deletion cascade and suppression of new family audit rows when the owner is already being deleted. [Clean local verification run 40785256481](https://github.com/KuduKhan/mama-mwana/actions/runs/40785256481) now reports 11 integration tests passed and both fixture accounts successfully deleted. **The remote project has not received v12; real hosted erasure and a complete backup restore must still be tested and authorized.**
