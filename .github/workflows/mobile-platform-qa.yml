@@ -33,8 +33,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Install locked application dependencies
-        run: npm ci --no-audit --no-fund
+      - name: Install application dependencies
+        run: npm install --no-audit --no-fund
       - name: Install platform browser engine and Linux dependencies
         run: npx playwright install --with-deps ${{ matrix.browser }}
       - name: Exercise demo only, not actual hardware or assistive technology
