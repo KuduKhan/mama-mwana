@@ -37,3 +37,12 @@ jobs:
         run: npm run build
       - name: Initial JavaScript performance budget
         run: npm run quality:bundle
+      - name: Emit sanitized v2 engineering evidence
+        run: npm run release:v2:technical-evidence
+      - name: Preserve non-clinical technical evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: mamamwana-v2-engineering-evidence-${{ github.run_id }}
+          path: .mamamwana-evidence/build.json
+          retention-days: 7
+          if-no-files-found: error

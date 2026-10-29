@@ -9,3 +9,6 @@ coverage
 
 # Generated, disposable Supabase migration testing workspace.
 .mamamwana-local/
+
+# Generated sanitized CI evidence (uploaded as Actions artifacts, not committed).
+.mamamwana-evidence/
