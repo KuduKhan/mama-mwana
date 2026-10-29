@@ -18,7 +18,7 @@ function useNetworkHint(){
 }
 export function ConnectionStatusV16({demo}:{demo:boolean}){
  const {t}=useMamaLocale();const online=useNetworkHint();
- return <div className={'mm16-connection '+(online?'online':'offline')} role="status" aria-live="polite" data-connection={online?'online':'offline'}>
+ return <div className={'mm16-connection '+(online?'online':'offline')} aria-live="polite" data-connection={online?'online':'offline'}>
   {online?<Wifi size={17} aria-hidden="true"/>:<CloudOff size={17} aria-hidden="true"/>}
   <span>{online?t('v16.online','Connection available'):t('v16.offline','Offline — changes may not save')}</span>
   {!online&&<small>{demo?t('v16.demoMemory','Demo entries remain only in this open page.'):t('v16.noSync','Do not enter new medical information while offline; reconnect and confirm saved records.')}</small>}
