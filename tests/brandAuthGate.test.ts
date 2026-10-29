@@ -16,9 +16,10 @@ describe('auth-only preview and consent-based clinical release gate',()=>{
  });
  it('uses one vector icon for app manifest, sidebar and auth',()=>{
   const a=readFileSync(join(process.cwd(),'src/App.tsx'),'utf8');
+  const ui=readFileSync(join(process.cwd(),'src/ui/primitives.tsx'),'utf8');
   const p=JSON.parse(readFileSync(join(process.cwd(),'public/manifest.webmanifest'),'utf8'));
   const m=readFileSync(join(process.cwd(),'public/icon.svg'),'utf8');
-  expect(a.match(/src="\/icon.svg"/g)?.length).toBeGreaterThanOrEqual(3);
+  expect((a+'\n'+ui).match(/src="\/icon.svg"/g)?.length).toBeGreaterThanOrEqual(3);
   expect(p.icons.every((x:{src:string})=>x.src==='/icon.svg')).toBe(true);
   expect(m).toContain('MamaMwana mother and child embrace');
  });

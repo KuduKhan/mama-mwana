@@ -259,3 +259,57 @@
  from{transform:scaleX(.14);opacity:.25}
  to{transform:scaleX(1);opacity:.88}
 }
+
+
+/* v1.4.1 premium precision: shared rhythm rather than one-off card overrides.
+   Keep clinical urgency expressed by text, not color/animation. */
+.page-content{width:100%;min-width:0;box-sizing:border-box}
+.page-content :is(.panel,.ch-card,.mm13-today,.mm14-family-summary,.metric-card,.care07-entry){
+  box-sizing:border-box;min-width:0;
+}
+.page-content :is(.panel,.ch-card,.mm13-today,.mm14-family-summary){
+  box-shadow:var(--mm-shadow-card);
+}
+.page-content :is(.section-heading,.panel-heading,.mm14-family-heading) :is(h2,h3,p){
+  overflow-wrap:break-word;
+}
+.page-content :is(input,textarea,select){
+  max-width:100%;font:inherit;line-height:1.45;
+}
+.page-content :is(input,textarea,select):focus-visible{
+  border-color:var(--mm-botanical);box-shadow:var(--mm-control-ring);
+}
+.page-content :is(button,.btn,a[href],summary):focus-visible{
+  outline:3px solid var(--mm-focus);outline-offset:3px;
+}
+.page-content .muted{line-height:1.6}
+.page-content :is(.mm13-action-copy,.mm14-family-card-body,.task-description){
+  min-width:0;overflow-wrap:anywhere;
+}
+.page-content :is(.mm13-action-card,.mm14-family-card,.task-row,.care07-entry){
+  -webkit-tap-highlight-color:transparent;
+}
+@media(min-width:1025px){
+ .page-content{max-width:var(--mm-content-max);margin-inline:auto}
+ .page-content .section-heading p{max-width:var(--mm-reading-max)}
+}
+@media(max-width:760px){
+ .page-content :is(.mm13-action-card,.mm14-family-card){min-width:0}
+ .page-content :is(input,textarea,select){font-size:max(16px,1em)}
+ .page-content :is(.panel,.ch-card,.mm14-family-summary){overflow-wrap:anywhere}
+}
+@media(prefers-reduced-motion:reduce){
+ .page-content :is(button,.btn,.mm13-action-card,.mm14-family-card){scroll-behavior:auto;transition:none!important}
+}
+:root[data-mm-motion="reduce"] .page-content :is(button,.btn,.mm13-action-card,.mm14-family-card){
+ transition:none!important;
+}
+@media(forced-colors:active){
+ .page-content :is(button,.btn,a[href],input,textarea,select):focus-visible{outline:2px solid Highlight;outline-offset:2px}
+}
+
+/* Keyboard navigation must show an explicit focus ring in the masthead. */
+.mm-renewed-header .topbar-actions :is(button,select):focus-visible,
+.mm-renewed-header .mm-language-switch:focus-within{
+ outline:3px solid var(--mm-focus);outline-offset:3px;
+}
