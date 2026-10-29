@@ -1,4 +1,4 @@
-/* MamaMwana shared design contract — active v1.4.0 experience.
+/* MamaMwana shared design contract — active v1.4.1 experience.
    Values retain the existing botanical identity; page styles consume these tokens.
    Keep medical meaning in text rather than color alone. */
 :root {
@@ -30,6 +30,14 @@
   --mm-space-6:24px;
   --mm-radius-sm:12px;
   --mm-radius-md:16px;
+  --mm-radius-lg:22px;
+  --mm-space-5:20px;
+  --mm-space-8:32px;
+  --mm-content-max:1180px;
+  --mm-reading-max:68ch;
+  --mm-control-ring:0 0 0 4px rgba(39,123,94,.13);
+  --mm-shadow-sm:0 3px 12px rgba(22,68,51,.05);
+  --mm-shadow-card:0 10px 30px rgba(22,68,51,.07),0 2px 7px rgba(22,68,51,.025);
 }
 /* Only loading placeholders use these utilities, not sensitive health details. */
 .mm-section-loading {
