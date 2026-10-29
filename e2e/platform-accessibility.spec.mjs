@@ -147,3 +147,49 @@ test('landscape, scrolling, footer dock separation and reduced-motion modes',asy
   await fit(page,'wide phone landscape care guidance');
  }
 });
+
+test('native globe hit area is tappable and never loses its accessible name',async({page})=>{
+ await demo(page);
+ const hit=await page.evaluate(()=>{
+  const host=document.querySelector('.mm-renewed-header .mm-language-switch');
+  const rect=host.getBoundingClientRect();
+  const target=document.elementFromPoint(rect.left+rect.width/2,rect.top+rect.height/2);
+  const selector=host.querySelector('select');
+  return {hit:target===selector||selector.contains(target),
+   width:rect.width,height:rect.height,
+   name:selector.getAttribute('aria-label')};
+ });
+ expect(hit.hit,'The visible globe must actually forward taps to the language select').toBe(true);
+ expect(hit.width).toBeGreaterThanOrEqual(44);
+ expect(hit.height).toBeGreaterThanOrEqual(44);
+ expect(hit.name).toBe('Language / Lugha');
+ const select=page.getByRole('combobox',{name:'Language / Lugha'});
+ await select.selectOption('sw');
+ await expect(page.locator('html')).toHaveAttribute('lang','sw');
+ await select.selectOption('en');
+ await expect(page.locator('html')).toHaveAttribute('lang','en');
+});
+test('focus restoration, native disclosure and accessible emergency dialog on simulated touch phone',async({page})=>{
+ await demo(page);
+ const menu=page.getByRole('button',{name:'Open navigation'});
+ await menu.focus();await page.keyboard.press('Enter');
+ await expect(menu).toHaveAttribute('aria-expanded','true');
+ await expect(page.getByRole('button',{name:'Close navigation'})).toBeFocused();
+ await page.keyboard.press('Escape');
+ await expect(menu).toHaveAttribute('aria-expanded','false');
+ await expect(menu).toBeFocused();
+ const footer=page.locator('.mm-renewed-footer');
+ const summary=footer.locator('.mm-footer-phone-trust summary');
+ await summary.scrollIntoViewIfNeeded();
+ await summary.click();
+ await expect(footer.locator('.mm-footer-phone-trust')).toHaveAttribute('open','');
+ await expect(footer).toContainText('not medical advice');
+ await summary.click();
+ await expect(footer.locator('.mm-footer-phone-trust')).not.toHaveAttribute('open','');
+ await page.getByRole('button',{name:'Health warning signs'}).last().click();
+ const warning=page.getByRole('dialog',{name:'When to seek urgent help'});
+ await expect(warning).toHaveAttribute('aria-modal','true');
+ await expect(page.getByRole('button',{name:'Close'})).toBeFocused();
+ await page.keyboard.press('Escape');
+ await expect(warning).toHaveCount(0);
+});
