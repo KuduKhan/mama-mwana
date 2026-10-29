@@ -15,7 +15,9 @@
     "security:sql": "node scripts/check-sql-release.mjs",
     "test:local:security": "node scripts/run-local-security.mjs",
     "test:local:prepare": "node scripts/prepare-local-migrations.mjs",
-    "quality:bundle": "node scripts/check-entry-budget.mjs"
+    "quality:bundle": "node scripts/check-entry-budget.mjs",
+    "release:v2:status": "node scripts/check-v2-readiness.mjs",
+    "release:v2:authorize": "node scripts/check-v2-readiness.mjs --require-go"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.58.0",
