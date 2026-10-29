@@ -3,6 +3,7 @@ import {NAV,NAV_GROUPS,MOBILE_NAV,isTab,type Tab} from './ui/navigation';
 import {Brand,Button,SectionTitle,Panel,ProgressBar} from './ui/primitives';
 import {useModalFocus} from './ui/useModalFocus';
 import {AuthGate,Onboarding,NewVisitForm,BirthModal} from './components/EntryFlows';
+import {ConnectionStatusV16,NotificationCenterV16,FamilyTimelineV16,EducationReviewV16} from './components/ConnectedFamilyV16';
 import type { FormEvent } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { Activity, ArrowLeft, ArrowRight, Baby, BookHeart, CalendarDays, Check, CheckCircle2, Cloud, Droplets, ExternalLink, Footprints, Heart, HeartHandshake, HeartPulse, LockKeyhole, LogOut, Menu, Moon, Plus, Globe2, ShieldAlert, ShieldCheck, Users, Bell, Download, NotebookPen, ChevronRight, ChevronDown, Sparkles, Stethoscope, Sun, TrendingUp, Utensils, X } from 'lucide-react';
@@ -328,6 +329,7 @@ export default function App(){
     <button type="button" className="mm13-action-card" onClick={()=>enterTab('hub')} aria-label="Open care journey"><span className="mm13-action-icon lilac"><NotebookPen size={19} aria-hidden="true"/></span><span className="mm13-action-copy"><span className="mm13-action-label">{t('home.journeyAction','Explore care journey')}</span><strong>{activeJourney.visits.length} {t('home.visitsRecorded','visit entries')}</strong><small>{t('home.journeyDetail','Your recorded moments, in one place')}</small></span><ArrowRight size={18} aria-hidden="true"/></button>
    </div>
   </section>
+   <div className="mm16-layout"><NotificationCenterV16 journey={activeJourney} enabled={privacy.in_app_reminders} onVisit={()=>enterTab("visits")}/><section className="mm16-panel" aria-label="Connection status"><div className="mm16-panel-head"><div><h3>{t("v16.connection","Low-connectivity readiness")}</h3><p>{t("v16.connectionDetail","Public demo shell available offline after initial load. No private records are cached.")}</p></div></div><ConnectionStatusV16 demo={demo}/></section></div>
    <div className="hero-card">
     <div className="hero-warmth" aria-hidden="true"/>
     <div className="hero-copy"><span className="hero-eyebrow"><Sparkles size={14}/> {topLabel}</span>
@@ -363,6 +365,7 @@ export default function App(){
   return <div className="page-content"><SectionTitle eyebrow="YOUR CONNECTED STORY" title="Family journeys" subtitle="Switch between your recorded pregnancies and children. Each journey stays private." action={<Button Icon={Plus} onClick={createAnotherJourney}>New pregnancy</Button>}/>
    <Panel className="family-intro"><span className="small-round mint"><Users size={21}/></span><div><h3>Every chapter has its place</h3><p>Starting another journey does not erase your previous pregnancy, birth or baby records. Distinct child profiles can include twins and multiples. Legacy charts remain linked to the original journey.</p></div></Panel>
    <FamilySnapshotV14 journeys={journeys} activeId={activeJourney.id} onSelect={selectJourney}/>
+   <FamilyTimelineV16 journeys={journeys} activeId={activeJourney.id} onSelect={selectJourney}/>
     <div className="family-list">{journeys.map(j=>{const born=Boolean(j.baby_birth_date);return <button key={j.id} className={'family-journey '+(j.id===activeJourney.id?'current':'')} onClick={()=>selectJourney(j)}>
      <span className="family-avatar">{born?<Baby size={25}/>:<Heart size={25}/>}</span><span className="family-journey-copy"><strong>{born?j.baby_name+'’s journey':'Pregnancy journey'}</strong><small>{born?'Born '+readable(j.baby_birth_date!):'Estimated due '+readable(j.due_date)} · {j.mother_name}</small></span><span className="family-tag">{j.id===activeJourney.id?t('family.current','Current'):t('family.switch','Open')}</span><ChevronRight size={18}/></button>;})}</div>
    <FamilyChildrenV09 journey={activeJourney} isDemo={demo} userId={user?.id??null}/>
@@ -447,6 +450,7 @@ export default function App(){
  }
  function Library(){
  return <div className="page-content"><SectionTitle eyebrow="KNOWLEDGE WITH CARE" title="Health & learning library" subtitle="Practical education grounded in trusted health organizations. Always follow your own care team’s advice."/>
+  <EducationReviewV16/>
   <div className="library-grid"><Panel className="library-card"><span className="small-round mint"><Utensils size={22}/></span><h3>Food and hydration</h3><p>Eat varied, nutritious and safely prepared foods. Wash produce, cook meat and eggs thoroughly, avoid unpasteurized dairy, and discuss supplements and any special dietary needs with your care team.</p></Panel><Panel className="library-card"><span className="small-round peach"><Activity size={22}/></span><h3>Movement and comfort</h3><p>With an uncomplicated pregnancy and medical clearance, gentle movement can be beneficial. Stop if you experience concerning symptoms and seek professional advice. From 28 weeks, go to sleep on your side.</p></Panel><Panel className="library-card"><span className="small-round lilac"><Baby size={22}/></span><h3>After baby arrives</h3><p>Newborns need safe sleep on their backs, feeding support and routine newborn checks. Mothers need postnatal assessments, pain and wound support, and attention to emotional wellbeing.</p></Panel><Panel className="library-card"><span className="small-round sand"><Stethoscope size={22}/></span><h3>Health appointments</h3><p>Use your country’s current maternal and child health handbook and clinician-provided schedule for visits, immunizations and investigations. MamaMwana does not automatically prescribe them.</p></Panel></div>
   <Panel className="resources-panel"><div className="eyebrow">EVIDENCE & REFERENCES</div><h3>Learn from trusted sources</h3><div className="resource-links">{SOURCES.map(s=><a key={s.url} href={s.url} target="_blank" rel="noreferrer"><span><BookHeart size={18}/>{s.title}</span><ExternalLink size={17}/></a>)}</div><p className="footnote">General education content • Initial review October 2026 • Requires professional clinical review before use in a live health service. Not a medical device, diagnosis or individualized treatment plan.</p></Panel>
   <WarningCard onOpen={()=>setWarningOpen(true)}/>
