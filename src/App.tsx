@@ -28,7 +28,7 @@ import BetaNoticeV10 from './components/BetaNoticeV10';
 import type {PrivacyChoices} from './lib/privacy';
 const ChildHealthV03 = lazy(() => import('./components/ChildHealthV03'));
 import { BIRTH_CHECKLIST, ageInMonths, daysBetween, getPhase, isDate, postpartumDay, pregnancyStage, readable, todayISO } from './lib/domain';
-import type { FeedingMethod, Feeling, Journey, Visit } from './lib/domain';
+import type { FeedingMethod, Feeling, Journey } from './lib/domain';
 import { reminderStatus, visitReminders, visitCalendarUrl } from './lib/reminders';
 import { CARE_TASKS, CHILDHOOD_TASKS, educationForWeek, MILESTONES, POSTPARTUM_TASKS, SOURCES } from './content/education';
 

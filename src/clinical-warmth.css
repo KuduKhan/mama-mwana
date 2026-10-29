@@ -307,3 +307,9 @@
 @media(forced-colors:active){
  .page-content :is(button,.btn,a[href],input,textarea,select):focus-visible{outline:2px solid Highlight;outline-offset:2px}
 }
+
+/* Keyboard navigation must show an explicit focus ring in the masthead. */
+.mm-renewed-header .topbar-actions :is(button,select):focus-visible,
+.mm-renewed-header .mm-language-switch:focus-within{
+ outline:3px solid var(--mm-focus);outline-offset:3px;
+}

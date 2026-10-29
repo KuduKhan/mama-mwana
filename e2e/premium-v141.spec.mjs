@@ -33,6 +33,7 @@ for(const width of [320,390,768,1440]){
 test('v1.4.1 maintains visible focus and honors reduced motion',async({page})=>{
  await demo(page,390);
  const open=page.getByRole('button',{name:'Display preferences'});
+ await page.keyboard.press('Tab');
  await open.focus();
  const outline=await open.evaluate(el=>getComputedStyle(el).outlineStyle);
  expect(outline).not.toBe('none');
