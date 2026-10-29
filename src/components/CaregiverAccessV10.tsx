@@ -3,6 +3,7 @@ import type {FormEvent} from 'react';
 import type {FamilyChild} from '../lib/family';
 import {supabase} from '../lib/supabase';
 import {useMamaLocale} from '../lib/locale';
+import {caregiverAccessStatus} from '../lib/caregiverPermissionView';
 type Invite={id:string;owner_id:string;child_id:string;invited_email:string;status:'pending'|'accepted'|'revoked';accepted_by:string|null;expires_at:string;shared_until:string|null;version:number};
 type Shared={child:{id:string;display_name:string;born_on:string;sex:string};growth:{measured_on:string;weight_kg:number|null;length_cm:number|null}[];vaccinations:{given_on:string;vaccine_label:string}[];notice:string};
 const select='id,owner_id,child_id,invited_email,status,accepted_by,expires_at,shared_until,version';
@@ -53,6 +54,7 @@ export function CaregiverOwnerPanel({child,userId,demo}:{child:FamilyChild|null;
    <ul><li>One child profile: display name and date of birth.</li><li>Recorded growth measurements and vaccination notes entered for that child.</li><li>No pregnancy journal, private care planner, wellbeing entries, unrelated siblings, or write access.</li></ul>
    <p>Read-only invitations expire after seven days; accepted access expires after thirty days or sooner if revoked. No automatic email is sent.</p>
   </details>
+  <div className="mm16-permissions" aria-label="Caregiver access boundaries"><h4>Permission summary</h4><p><strong>View:</strong> one child profile, entered growth and vaccinations only.</p><p><strong>Cannot:</strong> edit records, read pregnancy notes, see other siblings or extend access.</p><p><strong>Duration:</strong> invitation 7 days; accepted read-only access 30 days, revocable by owner. Database permission checks always apply.</p></div>
   <form className="sharing10-form" onSubmit={e=>{void invite(e)}}>
    <label>Verified caregiver email<input type="email" autoComplete="email" required maxLength={254} value={email} onChange={e=>setEmail(e.target.value)} placeholder="caregiver@example.com"/></label>
    <label className="sharing10-check"><input type="checkbox" checked={attest} onChange={e=>setAttest(e.target.checked)}/> I confirm that I have parental or legal authority to request sharing of this child's information.</label>
@@ -61,7 +63,7 @@ export function CaregiverOwnerPanel({child,userId,demo}:{child:FamilyChild|null;
   </form>
   {error&&<p role="alert" className="sharing10-error">{error}</p>}
   {message&&<p role="status">{message}</p>}
-  <div className="sharing10-list">{invites.map(i=><article key={i.id}><span><strong>{i.invited_email}</strong><small>{i.status} · {i.status==='accepted'?'Access ends '+(i.shared_until??''):'Invitation ends '+i.expires_at}</small></span>{i.status!=='revoked'&&<button type="button" disabled={busy} onClick={()=>{void revoke(i)}}>Revoke</button>}</article>)}</div>
+  <div className="sharing10-list">{invites.map(i=><article key={i.id}><span><strong>{i.invited_email}</strong><small><span className={'mm16-access-state '+caregiverAccessStatus(i)}>{caregiverAccessStatus(i)}</span>{i.status==='accepted'?'Access ends '+(i.shared_until??''):'Invitation ends '+i.expires_at}</small></span>{i.status!=='revoked'&&<button type="button" disabled={busy} onClick={()=>{void revoke(i)}}>Revoke</button>}</article>)}</div>
   {demo&&<small>Demo preview: sharing is not active.</small>}
  </section>;
 }
@@ -97,7 +99,7 @@ export function CaregiverInbox({userId,demo}:{userId:string|null;demo:boolean}){
   <p>Only a caregiver signed in with the invited, verified email can accept. You receive time-limited, read-only access; you cannot edit records or see the owner's private pregnancy notes.</p>
   {error&&<p role="alert" className="sharing10-error">{error}</p>}
   {message&&<p role="status">{message}</p>}
-  <div className="sharing10-list">{invites.map(i=><article key={i.id}><span><strong>Child profile shared privately</strong><small>{i.status==='accepted'?'Read-only access until '+(i.shared_until??''):'Invitation expires '+i.expires_at}</small></span><div className="sharing10-actions">
+  <div className="sharing10-list">{invites.map(i=><article key={i.id}><span><strong>Child profile shared privately</strong><small><span className={'mm16-access-state '+caregiverAccessStatus(i)}>{caregiverAccessStatus(i)}</span>{i.status==='accepted'?'Read-only access until '+(i.shared_until??''):'Invitation expires '+i.expires_at}</small></span><div className="sharing10-actions">
    {i.status==='pending'&&<label className="mm14-consent"><input type="checkbox" checked={acceptedFor===i.id} onChange={e=>setAcceptedFor(e.target.checked?i.id:null)}/>{t('caregiver.acceptScope','I understand that this is read-only access to one child profile, not the full family health record.')}</label>}
    {i.status==='pending'&&<button type="button" disabled={busy||acceptedFor!==i.id} onClick={()=>{void change(i,'accepted')}}>Accept</button>}
    {i.status==='accepted'&&<button type="button" disabled={busy} onClick={()=>{void read(i)}}>View child summary</button>}

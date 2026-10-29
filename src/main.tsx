@@ -4,6 +4,7 @@ import App from './App';
 import {LocaleProvider} from './lib/locale';
 import {AccessibilityProvider} from './lib/accessibility';
 import FailureBoundary from './components/FailureBoundary';
+import {setupDemoOfflineShell} from './lib/demoOfflineShell';
 import './design-tokens.css';
 import './styles.css';
 import './v03.css';
@@ -25,4 +26,8 @@ import './component-fit.css';
 import './mobile-experience.css';
 import './chrome-renewal.css';
 import './clinical-warmth.css';
+import './connected-family-v16.css';
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><FailureBoundary><LocaleProvider><AccessibilityProvider><App /></AccessibilityProvider></LocaleProvider></FailureBoundary></React.StrictMode>);
+
+// Public demo cache only. Does not enable clinical offline writes or background sync.
+void setupDemoOfflineShell();
