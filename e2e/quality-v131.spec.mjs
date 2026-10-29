@@ -1,7 +1,7 @@
 import {test,expect,devices} from '@playwright/test';
 import {readFileSync} from 'node:fs';
 const {version}=JSON.parse(readFileSync(new URL('../package.json',import.meta.url),'utf8'));
-const displayVersion=version.includes('-')?displayVersion.split('.').slice(0,2).join('.')+' Preview':displayVersion;
+const displayVersion=version.includes('-')?'v'+version.split('.').slice(0,2).join('.')+' Preview':'v'+version;
 
 async function demo(page){
  await page.goto('/');
