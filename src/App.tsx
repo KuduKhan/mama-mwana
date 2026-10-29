@@ -1,18 +1,16 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
-import type { FormEvent, ReactNode } from 'react';
+import {NAV,NAV_GROUPS,MOBILE_NAV,isTab,type Tab} from './ui/navigation';
+import {Brand,Button,SectionTitle,Panel,ProgressBar} from './ui/primitives';
+import {useModalFocus} from './ui/useModalFocus';
+import {AuthGate,Onboarding,NewVisitForm,BirthModal} from './components/EntryFlows';
+import type { FormEvent } from 'react';
 import type { User } from '@supabase/supabase-js';
-import {
-  Activity, ArrowLeft, ArrowRight, Baby, BookHeart, CalendarDays,
-  Check, CheckCircle2, CircleHelp, ClipboardList,
-  Cloud, Droplets, ExternalLink, Footprints, Heart, HeartHandshake, HeartPulse,
-  House, Leaf, LockKeyhole, LogOut, Menu, Moon, Plus, Globe2, ShieldAlert, ShieldCheck, Users, Bell, Download, NotebookPen, ChevronRight, ChevronDown,
-  Sparkles, Stethoscope, Sun, TrendingUp, Utensils, X, ScrollText, Bot, ListTodo
-} from 'lucide-react';
+import { Activity, ArrowLeft, ArrowRight, Baby, BookHeart, CalendarDays, Check, CheckCircle2, Cloud, Droplets, ExternalLink, Footprints, Heart, HeartHandshake, HeartPulse, LockKeyhole, LogOut, Menu, Moon, Plus, Globe2, ShieldAlert, ShieldCheck, Users, Bell, Download, NotebookPen, ChevronRight, ChevronDown, Sparkles, Stethoscope, Sun, TrendingUp, Utensils, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { authConfigured, authSupabase, configured, supabase } from './lib/supabase';
+import { configured, supabase } from './lib/supabase';
 import { APP_VERSION } from './lib/release';
 import {useMamaLocale} from './lib/locale';
-import {Settings2} from 'lucide-react';
+import { Settings2 } from 'lucide-react';
 import DisplayPreferencesV14 from './components/DisplayPreferencesV14';
 import FamilySnapshotV14 from './components/FamilySnapshotV14';
 import {applyClinicalMutation,editJourneyClinical,isClinicalConflict,loadCanonicalJourneys,nonClinicalJourneyPayload} from './lib/clinical';
@@ -29,39 +27,11 @@ import {buildCompleteExport,emptyPrivateExportRows,fetchPrivateExportRows} from 
 import BetaNoticeV10 from './components/BetaNoticeV10';
 import type {PrivacyChoices} from './lib/privacy';
 const ChildHealthV03 = lazy(() => import('./components/ChildHealthV03'));
-import {
-  BIRTH_CHECKLIST, addDays, ageInMonths, daysBetween, getPhase, isDate,
-  isValidBirthDate, makeJourney, postpartumDay, pregnancyStage, readable, todayISO,
-  validateOnboarding
-} from './lib/domain';
+import { BIRTH_CHECKLIST, ageInMonths, daysBetween, getPhase, isDate, postpartumDay, pregnancyStage, readable, todayISO } from './lib/domain';
 import type { FeedingMethod, Feeling, Journey, Visit } from './lib/domain';
 import { reminderStatus, visitReminders, visitCalendarUrl } from './lib/reminders';
-import {
-  CARE_TASKS, CHILDHOOD_TASKS, educationForWeek, MILESTONES, POSTPARTUM_TASKS, SOURCES
-} from './content/education';
+import { CARE_TASKS, CHILDHOOD_TASKS, educationForWeek, MILESTONES, POSTPARTUM_TASKS, SOURCES } from './content/education';
 
-type Tab = 'home'|'family'|'pregnancy'|'care'|'visits'|'birth'|'baby'|'records'|'guidance'|'privacy'|'library'|'planner'|'hub';
-type NavItem = {id:Tab; label:string; Icon:LucideIcon};
-const NAV:NavItem[]=[
- {id:'home',label:'Overview',Icon:House},
- {id:'family',label:'Family journeys',Icon:Users},
- {id:'pregnancy',label:'My pregnancy',Icon:Heart},
- {id:'care',label:'Daily care',Icon:Leaf},
- {id:'visits',label:'Antenatal visits',Icon:CalendarDays},
- {id:'planner',label:'My care planner',Icon:ListTodo},
- {id:'hub',label:'Care journey hub',Icon:NotebookPen},
- {id:'birth',label:'Birth preparation',Icon:ClipboardList},
- {id:'baby',label:'Baby & growth',Icon:Baby},
- {id:'records',label:'Clinical timeline',Icon:ScrollText},
- {id:'guidance',label:'Care guidance',Icon:Bot},
- {id:'privacy',label:'Privacy & records',Icon:LockKeyhole},
- {id:'library',label:'Health library',Icon:BookHeart}
-];
-const NAV_GROUPS:readonly {key:string;labelKey:string;label:string;ids:readonly Tab[]}[]=[
- {key:'daily',labelKey:'navGroup.daily',label:'Daily essentials',ids:['home','care','planner','visits']},
- {key:'family',labelKey:'navGroup.family',label:'Family & milestones',ids:['family','pregnancy','hub','birth','baby']},
- {key:'support',labelKey:'navGroup.support',label:'Records & support',ids:['records','guidance','privacy','library']}
-];
 const TASK_ICONS:Record<string,LucideIcon>={
  droplets:Droplets,utensils:Utensils,footprints:Footprints,moon:Moon,heart:Heart,
  'heart-pulse':HeartPulse,baby:Baby,'hand-heart':HeartHandshake
@@ -76,130 +46,10 @@ const URGENT=[
  'Newborn breathing problems, poor feeding or unusual unresponsiveness'
 ];
 const uniqueToggle=(a:string[],id:string)=>a.includes(id)?a.filter(v=>v!==id):[...a,id];
-const isTab=(value:unknown):value is Tab=>typeof value==='string'&&NAV.some(item=>item.id===value);
 
-/** Keyboard-only modal behavior: trap Tab, support Escape, restore original focus. */
-function useModalFocus(open:boolean,onDismiss:()=>void,restoreSelector?:string){
- const dialogRef=useRef<HTMLDivElement|null>(null);
- const dismissRef=useRef(onDismiss);
- dismissRef.current=onDismiss;
- useEffect(()=>{
-  if(!open||!dialogRef.current)return;
-  const dialog=dialogRef.current;
-  const before=document.activeElement instanceof HTMLElement?document.activeElement:null;
-  const focusable=()=>Array.from(dialog.querySelectorAll<HTMLElement>(
-   'button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])'
-  )).filter(element=>element.getClientRects().length>0);
-  (focusable()[0]??dialog).focus();
-  const onKey=(event:KeyboardEvent)=>{
-   if(event.key==='Escape'){event.preventDefault();event.stopPropagation();dismissRef.current();return;}
-   if(event.key!=='Tab')return;
-   const items=focusable();
-   if(!items.length){event.preventDefault();dialog.focus();return;}
-   const first=items[0],last=items[items.length-1];
-   if(event.shiftKey&&(document.activeElement===first||!dialog.contains(document.activeElement))){
-    event.preventDefault();last.focus();
-   }else if(!event.shiftKey&&(document.activeElement===last||!dialog.contains(document.activeElement))){
-    event.preventDefault();first.focus();
-   }
-  };
-  document.addEventListener('keydown',onKey,true);
-  return ()=>{
-   document.removeEventListener('keydown',onKey,true);
-   // Some parent sections are recreated on close. Resolve the returned focus
-   // target from the new DOM instead of relying on a detached button node.
-   if(before?.isConnected)before.focus();
-   else if(restoreSelector)queueMicrotask(()=>{
-    document.querySelector<HTMLElement>(restoreSelector)?.focus();
-   });
-  };
- },[open]);
- return dialogRef;
-}
-function Brand({inverse=false}:{inverse?:boolean}){
- return <div className={'brand '+(inverse?'brand-inverse':'')}>
-   <span className="brand-icon"><img src="/icon.svg" width={48} height={48} alt="" aria-hidden="true"/></span>
-   <div className="brand-title">mama<span>mwana</span><small>EVERY LITTLE BEGINNING MATTERS</small></div>
- </div>;
-}
-function Button({children,onClick,type='button',variant='primary',disabled=false,Icon}:{
- children:ReactNode;onClick?:()=>void;type?:'button'|'submit';variant?:'primary'|'secondary'|'subtle'|'danger';disabled?:boolean;Icon?:LucideIcon
-}){return <button type={type} onClick={onClick} className={'btn btn-'+variant} disabled={disabled}>{Icon&&<Icon size={17}/>}<span>{children}</span></button>;}
-function SectionTitle({eyebrow,title,subtitle,action}:{eyebrow:string;title:string;subtitle?:string;action?:ReactNode}){
- return <div className="section-heading"><div><div className="eyebrow">{eyebrow}</div><h2>{title}</h2>{subtitle&&<p>{subtitle}</p>}</div>{action}</div>;
-}
-function Panel({children,className=''}:{children:ReactNode;className?:string}){return <section className={'panel '+className}>{children}</section>;}
-function ProgressBar({value}:{value:number}){return <div className="progress-rail" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={value}><span style={{width:String(Math.min(100,Math.max(0,value)))+'%'}}/></div>;}
 function formatAge(months:number){return months<1?'Under 1 month':months<12?months+' month'+(months===1?'':'s'):(Math.floor(months/12)+' year'+(Math.floor(months/12)===1?'':'s')+(months%12?' '+months%12+' mo':''));}
 function Notification({message,onClose}:{message:string;onClose:()=>void}){return <div className="toast" role="status">{message}<button aria-label="Dismiss notification" onClick={onClose}><X size={16}/></button></div>;}
 
-function AuthGate({onDemo}:{onDemo:()=>void}){
- const {locale,setLocale,t}=useMamaLocale();
- const [mode,setMode]=useState<'signin'|'signup'>('signup');
- const [email,setEmail]=useState('');
- const [password,setPassword]=useState('');
- const [busy,setBusy]=useState(false);
- const [message,setMessage]=useState('');
- async function submit(e:FormEvent){
-  e.preventDefault();if(!authSupabase)return;
-  setBusy(true);setMessage('');
-  try{
-   const result=mode==='signup'
-    ?await authSupabase.auth.signUp({email:email.trim(),password})
-    :await authSupabase.auth.signInWithPassword({email:email.trim(),password});
-   if(result.error)setMessage(result.error.message);
-   else if(mode==='signup')setMessage('Check your email for an account verification link, if confirmation is enabled. Do not add personal health details until the care workspace is approved.');
-   else if(!configured)setMessage('Account sign-in verified. The private health-data workspace is still restricted; explore the sample-data demo.');
-  }catch{setMessage('Account service temporarily unavailable. Please try again.');}
-  finally{setBusy(false);}
- }
- return <div className="auth-layout">
-   <div className="auth-story"><Brand inverse/><div className="auth-art" aria-hidden="true"><div className="art-orbit orbit-one"/><div className="art-orbit orbit-two"/><div className="art-center"><Heart size={76} strokeWidth={1.15}/><span className="art-small-dot"/></div><Sparkles className="art-spark-one"/><Sparkles className="art-spark-two"/></div>
-     <div className="auth-story-copy"><div className="eyebrow pale">A GENTLER WAY TO GROW</div><h1>Every beginning<br/>deserves <em className="handwritten-accent">care.</em></h1><p>From the first exciting weeks through your baby’s earliest milestones—one thoughtful place for your whole journey.</p><div className="auth-micro"><span><CheckCircle2 size={16}/> Pregnancy to parenthood</span><span><ShieldCheck size={16}/> Private by design</span></div></div>
-   </div>
-   <div className="auth-form-side"><div className="locale-auth"><label htmlFor="mamamwana-auth-locale">{t('app.language')}</label><select id="mamamwana-auth-locale" aria-label="Language / Lugha" value={locale} onChange={e=>setLocale(e.target.value==='sw'?'sw':'en')}><option value="en">English</option><option value="sw">Kiswahili</option></select></div><div className="auth-mobile-brand"><Brand/></div><div className="auth-panel">
-   <div className="badge-soft"><Sparkles size={14}/> {t('auth.welcome')}</div>
-   <h2>{authConfigured?(mode==='signup'?t('auth.begin'):t('auth.return')):'Explore the MamaMwana preview'}</h2>
-   <p className="muted">{authConfigured?'Use a verified account for authentication. Private health records stay restricted until separately approved.':'Explore all journeys in an interactive demo without saving real personal information.'}</p>
-   {authConfigured&&<><div className="auth-switch"><button className={mode==='signup'?'active':''} onClick={()=>{setMode('signup');setMessage('');}}>{t('auth.signup')}</button><button className={mode==='signin'?'active':''} onClick={()=>{setMode('signin');setMessage('');}}>{t('auth.signin')}</button></div>
-     <form onSubmit={submit} className="stack-form"><label>{t('auth.email')}<input type="email" required autoComplete="email" placeholder="mama@example.com" value={email} onChange={e=>setEmail(e.target.value)}/></label><label>{t('auth.password')}<input type="password" required minLength={8} autoComplete={mode==='signup'?'new-password':'current-password'} placeholder="At least 8 characters" value={password} onChange={e=>setPassword(e.target.value)}/></label>
-     {message&&<div className="inline-note" role="status">{message}</div>}
-     <Button type="submit" disabled={busy}>{busy?'Please wait...':mode==='signup'?'Create my account':'Sign in'} <ArrowRight size={16}/></Button></form></>}
-   <div className="demo-divider">{authConfigured?'OR TRY THE DEMO':'INTERACTIVE PRODUCT PREVIEW'}</div>
-   <button className="demo-button" onClick={onDemo}><span className="demo-symbol"><Sparkles size={19}/></span><span><strong>{t('auth.demo')}</strong><small>{t('auth.demoDetails')}</small></span><ArrowRight size={18}/></button>
-   <p className="footnote"><LockKeyhole size={14}/> Medical information should only be entered after your private database is connected. This app supports—not replaces—professional care.</p>
-   </div></div>
- </div>;
-}
-function Onboarding({onCreate,isDemo,onCancel}:{onCreate:(j:Journey)=>void;isDemo:boolean;onCancel?:()=>void}){
- const [name,setName]=useState(isDemo?'Amina':'');
- const [due,setDue]=useState(addDays(todayISO(),112));
- const [error,setError]=useState('');
- function submit(e:FormEvent){e.preventDefault();const validation=validateOnboarding(name,due);if(validation){setError(validation);return;}onCreate(makeJourney(name,due));}
- return <div className="onboarding">
-   <div className="onboarding-top"><Brand/><div className="onboarding-top-actions">{onCancel&&<Button variant="subtle" Icon={ArrowLeft} onClick={onCancel}>Back to family</Button>}<span className="mini-pill">{isDemo?'Preview mode':'Private profile setup'}</span></div></div>
-   <div className="onboarding-grid"><div className="onboarding-intro"><div className="badge-soft"><Heart size={14}/> First things first</div><h1>Tell us a little<br/>about <em className="handwritten-accent">your journey.</em></h1><p>We’ll use your estimated due date to help you discover pregnancy stages, suggested learning and gentle everyday reminders.</p>
-     <div className="setup-benefits"><span><CheckCircle2/> Week-by-week guidance</span><span><CheckCircle2/> Personal appointment journal</span><span><CheckCircle2/> One continuous baby journey</span></div>
-     <div className="onboard-decoration"><Heart size={72} strokeWidth={1}/></div></div>
-   <Panel className="onboard-form"><h2>Create your pregnancy profile</h2><p className="muted">You can adjust your plan with advice from your healthcare professional.</p>
-   <form onSubmit={submit} className="stack-form"><label>What should we call you?<input maxLength={80} required placeholder="Your first name" value={name} onChange={e=>setName(e.target.value)}/></label>
-   <label>Your estimated due date<input type="date" required value={due} onChange={e=>setDue(e.target.value)}/></label>
-   <div className="inline-note"><CircleHelp size={17}/> Use a due date given by your midwife, doctor or ultrasound report if available. The app does not establish gestational age.</div>
-   {error&&<div className="error" role="alert">{error}</div>}
-   <Button type="submit">Create my journey <ArrowRight size={16}/></Button></form></Panel></div>
- </div>;
-}
-function NewVisitForm({onSave,onCancel}:{onSave:(v:Visit)=>void;onCancel:()=>void}){
- const [date,setDate]=useState(addDays(todayISO(),7)),[clinic,setClinic]=useState(''),[notes,setNotes]=useState('');
- function submit(e:FormEvent){e.preventDefault();if(!isDate(date)||!clinic.trim())return;onSave({id:crypto.randomUUID(),scheduled_on:date,clinic:clinic.trim().slice(0,100),notes:notes.trim().slice(0,500),attended:false});}
- return <form className="inline-form" onSubmit={submit}><div className="form-row"><label>Visit date<input type="date" required value={date} onChange={e=>setDate(e.target.value)}/></label><label>Facility / contact<input required maxLength={100} placeholder="Clinic or midwife" value={clinic} onChange={e=>setClinic(e.target.value)}/></label></div><label>Questions or notes (optional)<textarea maxLength={500} rows={2} placeholder="What would you like to ask?" value={notes} onChange={e=>setNotes(e.target.value)}/></label><div className="button-row"><Button type="submit" Icon={Plus}>Save visit</Button><Button variant="subtle" onClick={onCancel}>Cancel</Button></div></form>;
-}
-function BirthModal({onClose,onBirth,dueDate}:{onClose:()=>void;onBirth:(date:string,name:string)=>void;dueDate:string}){
- const [date,setDate]=useState(todayISO()),[name,setName]=useState(''),[error,setError]=useState('');
- const dialogRef=useModalFocus(true,onClose,'.baby-locked .btn');
- function submit(e:FormEvent){e.preventDefault();if(!isValidBirthDate(date,dueDate)){setError('Please enter a valid birth date. Contact your care provider if your dates need correcting.');return;}if(name.trim().length<1||name.trim().length>80){setError('Enter your baby’s name (up to 80 characters).');return;}onBirth(date,name.trim());}
- return <div className="modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)onClose();}}><div className="modal" ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="birth-title"><button className="modal-close" aria-label="Close" onClick={onClose}><X size={20}/></button><div className="modal-mark"><Baby size={26}/></div><h2 id="birth-title">Hello, little one! <span aria-hidden="true">♡</span></h2><p className="muted">This special moment connects your pregnancy journal with your baby’s growth tracker and your postpartum recovery guidance.</p><form className="stack-form" onSubmit={submit}><label>Baby’s name<input value={name} maxLength={80} required placeholder="Your baby’s name" onChange={e=>setName(e.target.value)}/></label><label>Date of birth<input type="date" required max={todayISO()} value={date} onChange={e=>setDate(e.target.value)}/></label><div className="inline-note">Birth and recovery information should be confirmed with your maternity care team. This does not replace medical discharge instructions.</div>{error&&<div role="alert" className="error">{error}</div>}<Button type="submit">Begin our next chapter <ArrowRight size={16}/></Button></form></div></div>;
-}
 function WarningCard({onOpen}:{onOpen:()=>void}){return <button className="warning-card" onClick={onOpen}><span className="warning-icon"><ShieldAlert size={20}/></span><span><strong>Know when to get help</strong><small>Important signs for mother and baby</small></span><ArrowRight size={18}/></button>;}
 function SourcesSmall(){return <div className="source-row">Sources: {SOURCES.slice(0,3).map((s,i)=><a key={s.url} href={s.url} target="_blank" rel="noreferrer">{i>0?' · ':''}{s.title.replace(' recommendations','')}</a>)}</div>;}
 
@@ -650,7 +500,7 @@ export default function App(){
     <div className="mm-footer-bottom"><span>© {new Date().getFullYear()} MamaMwana · v{APP_VERSION}</span><span>{t('app.educational')}</span></div>
    </footer>
   </div>
-  <nav className="mobile-tabs" aria-label="Quick navigation">{[{id:'home' as Tab,label:'Home',Icon:House},{id:'care' as Tab,label:'Today',Icon:Heart},{id:'planner' as Tab,label:'Planner',Icon:ListTodo},{id:'visits' as Tab,label:'Visits',Icon:CalendarDays},{id:'baby' as Tab,label:'Baby',Icon:Baby}].map(({id,label,Icon})=><button key={id} className={tab===id?'active':''} aria-current={tab===id?'page':undefined} onClick={()=>enterTab(id)}><Icon size={21} strokeWidth={1.85} aria-hidden="true"/><span>{label}</span></button>)}</nav>
+  <nav className="mobile-tabs" aria-label="Quick navigation">{MOBILE_NAV.map(({id,label,Icon})=><button key={id} className={tab===id?'active':''} aria-current={tab===id?'page':undefined} onClick={()=>enterTab(id)}><Icon size={21} strokeWidth={1.85} aria-hidden="true"/><span>{label}</span></button>)}</nav>
   {displayOpen&&<div className="modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setDisplayOpen(false);}}><div className="modal mm14-dialog" ref={displayDialogRef} role="dialog" aria-modal="true" aria-labelledby="mm14-preferences-title" tabIndex={-1}><button type="button" className="modal-close" aria-label={t('a11y.close','Close display preferences')} onClick={()=>setDisplayOpen(false)}><X size={20}/></button><DisplayPreferencesV14/></div></div>}
    {warningOpen&&<div className="modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setWarningOpen(false);}}><div className="modal warning-modal" ref={warningDialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="urgent-title"><button className="modal-close" aria-label="Close" onClick={()=>setWarningOpen(false)}><X size={20}/></button><div className="modal-mark danger"><ShieldAlert size={26}/></div><h2 id="urgent-title">When to seek urgent help</h2><p className="muted">If you or your baby has any of these concerns, seek immediate in-person medical assessment or contact local emergency services. Do not wait for an app response.</p><ul className="urgent-list">{URGENT.map(t=><li key={t}><span className="urgent-dot"/>{t}</li>)}</ul><p className="footnote">This is not an exhaustive list. If something feels seriously wrong, get checked promptly. For urgent warning signs, follow your local emergency care instructions.</p><Button onClick={()=>setWarningOpen(false)}>I understand</Button></div></div>}
   {birthOpen&&<BirthModal dueDate={activeJourney.due_date} onClose={()=>setBirthOpen(false)} onBirth={markBirth}/>}
