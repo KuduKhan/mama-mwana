@@ -1,6 +1,6 @@
 # MamaMwana v0.6 — authorized erasure operations
 
-**Never activate this function for real accounts without a completed legal, clinical, privacy, database and security review.** No MamaMwana Supabase project was available in the connected account. Nothing here has been deployed or run against user records.
+**Never activate this function for real accounts without completed legal, clinical, privacy, database and security review.** This historical v0.6 note is superseded: a dedicated MamaMwana hosted project is connected for read-only metadata checks, with eleven hosted migrations. Staged v12 remains unapplied pending authorized encrypted-restoration testing and independent signoff. No erasure executor activation is authorized.
 
 ## Preconditions
 
