@@ -1,7 +1,7 @@
 import {describe,expect,it} from 'vitest';
 import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
-import {APP_VERSION} from '../src/lib/release';
+import {APP_VERSION,APP_DISPLAY_VERSION,APP_IS_PREVIEW,APP_CLINICAL_RELEASE_STATUS} from '../src/lib/release';
 
 const root=process.cwd();
 const ui=[
@@ -19,7 +19,22 @@ describe('current release visual and operational copy',()=>{
   const pkg=JSON.parse(readFileSync(join(root,'package.json'),'utf8'));
   expect(APP_VERSION).toBe(pkg.version);
   const component=readFileSync(join(root,'src/components/CurrentFeatureHeading.tsx'),'utf8');
-  expect(component).toContain('APP_VERSION');
+  expect(component).toContain('APP_DISPLAY_VERSION');
+ });
+ it('shows an explicit v2 preview without representing it as a clinical launch',()=>{
+  expect(APP_VERSION).toMatch(/^2\.0\.0-beta\.\d+$/);
+  expect(APP_DISPLAY_VERSION).toBe('v2.0 Preview');
+  expect(APP_IS_PREVIEW).toBe(true);
+  expect(APP_CLINICAL_RELEASE_STATUS).toBe('NO_GO');
+  const doc=JSON.parse(readFileSync(join(root,'docs/V200_RELEASE_SIGNOFF.json'),'utf8'));
+  expect(doc.status).toBe('NO_GO');
+  expect(doc.productionClinicalAccess).toBe(false);
+  expect(doc.requiredGates.every((gate:{status:string})=>gate.status==='pending')).toBe(true);
+  const app=readFileSync(join(root,'src/App.tsx'),'utf8');
+  expect(app).toContain('APP_DISPLAY_VERSION');
+  expect(app).not.toContain('v{APP_VERSION}');
+  const sw=readFileSync(join(root,'public/demo-offline-sw.js'),'utf8');
+  expect(sw).toContain('mamamwana-public-demo-v2.0.0-beta.1');
  });
  it('has no old application release headings or obsolete end-user migration prompts',()=>{
   for(const path of ui){
