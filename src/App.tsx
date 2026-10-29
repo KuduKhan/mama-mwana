@@ -4,12 +4,13 @@ import {Brand,Button,SectionTitle,Panel,ProgressBar} from './ui/primitives';
 import {useModalFocus} from './ui/useModalFocus';
 import {AuthGate,Onboarding,NewVisitForm,BirthModal} from './components/EntryFlows';
 import {ConnectionStatusV16,NotificationCenterV16,FamilyTimelineV16,EducationReviewV16} from './components/ConnectedFamilyV16';
+import ReleaseShowcaseV20 from './components/ReleaseShowcaseV20';
 import type { FormEvent } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { Activity, ArrowLeft, ArrowRight, Baby, BookHeart, CalendarDays, Check, CheckCircle2, Cloud, Droplets, ExternalLink, Footprints, Heart, HeartHandshake, HeartPulse, LockKeyhole, LogOut, Menu, Moon, Plus, Globe2, ShieldAlert, ShieldCheck, Users, Bell, Download, NotebookPen, ChevronRight, ChevronDown, Sparkles, Stethoscope, Sun, TrendingUp, Utensils, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { configured, supabase } from './lib/supabase';
-import { APP_VERSION } from './lib/release';
+import { APP_DISPLAY_VERSION } from './lib/release';
 import {useMamaLocale} from './lib/locale';
 import { Settings2 } from 'lucide-react';
 import DisplayPreferencesV14 from './components/DisplayPreferencesV14';
@@ -321,6 +322,7 @@ export default function App(){
  function Home(){
  return <div className="page-content mm13-home">
    {journeys.length>1&&<div className="mm14-home-family" aria-label={t('family.quick','Family quick switch')}><span>{t('family.quick','Family quick switch')}</span><div>{journeys.map(j=><button key={j.id} type="button" aria-pressed={j.id===activeJourney.id} onClick={()=>selectJourney(j)}>{j.baby_birth_date?(j.baby_name||t('family.baby','Baby')):t('family.pregnancy','Pregnancy journey')}{j.id===activeJourney.id?' · '+t('family.current','Current'):''}</button>)}</div></div>}
+  <ReleaseShowcaseV20 onFamily={()=>enterTab('family')} onLearning={()=>enterTab('library')}/>
   <section className="mm13-today" aria-labelledby="mm13-today-heading">
    <div className="mm13-today-head"><div><span className="eyebrow">{t('home.todayEyebrow','YOUR DAILY FOCUS')}</span><h2 id="mm13-today-heading">{t('home.todayTitle','Your day at a glance')}</h2><p>{t('home.todaySubtitle','Pick up where you left off. Personal reminders, not medical advice.')}</p></div><span className="mm13-today-date"><Sun size={16} aria-hidden="true"/>{readable(todayISO())}</span></div>
    <div className="mm13-action-grid" aria-label="Suggested next steps">
@@ -464,7 +466,7 @@ export default function App(){
    <nav className="sidebar-nav" aria-label="Primary navigation">{NAV_GROUPS.map(group=><div key={group.key} className="mm13-nav-group" role="group" aria-labelledby={'mm13-group-'+group.key}><div id={'mm13-group-'+group.key} className="mm13-nav-group-label">{t(group.labelKey,group.label)}</div>{NAV.filter(item=>group.ids.includes(item.id)).map(({id,label,Icon})=><button key={id} onClick={()=>enterTab(id)} className={'nav-item '+(tab===id?'selected':'')} aria-current={tab===id?'page':undefined}><Icon size={19} strokeWidth={1.9} aria-hidden="true"/>{t('nav.'+id,label)}{tab===id&&<span className="nav-active-dot"/>}</button>)}</div>)}</nav>
    <div className="sidebar-spacer"/>
    <div className="sidebar-support"><span className="sidebar-support-icon"><ShieldCheck size={21}/></span><strong>Your health matters</strong><p>Medical concerns always deserve a real healthcare professional.</p><button onClick={()=>{setMenuOpen(false);setWarningOpen(true);}}>When to seek help <ArrowRight size={14}/></button></div>
-   <div className="sidebar-footer mm-sidebar-footer"><button onClick={signOut}><LogOut size={17}/>{demo?t('app.demoExit'):t('app.logout')}</button><div className="mm-sidebar-signature"><img src="/icon.svg" width={26} height={26} alt="" aria-hidden="true"/><span><strong>MamaMwana</strong><small>© {new Date().getFullYear()} · v{APP_VERSION}</small></span></div></div>
+   <div className="sidebar-footer mm-sidebar-footer"><button onClick={signOut}><LogOut size={17}/>{demo?t('app.demoExit'):t('app.logout')}</button><div className="mm-sidebar-signature"><img src="/icon.svg" width={26} height={26} alt="" aria-hidden="true"/><span><strong>MamaMwana</strong><small>© {new Date().getFullYear()} · {APP_DISPLAY_VERSION}</small></span></div></div>
   </aside>
   {menuOpen&&<button className="drawer-backdrop" aria-label="Close menu" onClick={()=>setMenuOpen(false)}/>}
   <div className="app-main">
@@ -480,7 +482,7 @@ export default function App(){
     </div>
    </div></header>
    {!demo&&<BetaNoticeV10/>}
-    {demo&&<div className="demo-banner"><Sparkles size={16}/><span><strong>Sample data only.</strong> Changes are not saved when you exit.</span><button onClick={signOut}>Exit <ArrowRight size={14}/></button></div>}
+    {demo&&<div className="demo-banner"><Sparkles size={16}/><span className="mm20-banner-version">{APP_DISPLAY_VERSION}</span><span><strong>Sample data only.</strong> Changes are not saved when you exit.</span><button onClick={signOut}>Exit <ArrowRight size={14}/></button></div>}
    {locale==='sw'&&<p className="locale-clinical-review" role="status">{t('app.review')}</p>}
     <main id="mamamwana-main" tabIndex={-1}><Suspense fallback={<div className="mm-section-loading" role="status" aria-live="polite">Loading this section…</div>}>{tab==='home'?<Home/>:tab==='family'?<Family/>:tab==='pregnancy'?<Pregnancy/>:tab==='care'?<Care/>:tab==='visits'?<Visits/>:tab==='birth'?<Birth/>:tab==='baby'?<BabyPage/>:tab==='planner'?<CarePlannerV07 journey={activeJourney} isDemo={demo} userId={user?.id??null}/>:tab==='hub'?<CareJourneyHubV12 journey={activeJourney} isDemo={demo}/>:tab==='records'?<ClinicalRecordsV04 journey={activeJourney} isDemo={demo}/>:tab==='guidance'?<GuidanceV04 stage={phase} allowStageContext={privacy.guidance_context} userId={user?.id??null} isDemo={demo}/>:tab==='privacy'?<PrivacyV04 journeys={journeys} selectedId={activeJourney.id} choices={privacy} isDemo={demo} userId={user?.id??null} onChange={savePrivacy} onExport={exportAllData} onDelete={deleteJourney}/>:<Library/>}</Suspense></main>
    <footer className="app-footer mm-app-footer mm-renewed-footer">
@@ -501,7 +503,7 @@ export default function App(){
       <p>Preview features use sample data. Controlled sign-in does not authorize clinical data collection or caregiver access.</p>
      </div>
     </details>
-    <div className="mm-footer-bottom"><span>© {new Date().getFullYear()} MamaMwana · v{APP_VERSION}</span><span>{t('app.educational')}</span></div>
+    <div className="mm-footer-bottom"><span>© {new Date().getFullYear()} MamaMwana · {APP_DISPLAY_VERSION}</span><span>{t('app.educational')}</span></div>
    </footer>
   </div>
   <nav className="mobile-tabs" aria-label="Quick navigation">{MOBILE_NAV.map(({id,label,Icon})=><button key={id} className={tab===id?'active':''} aria-current={tab===id?'page':undefined} onClick={()=>enterTab(id)}><Icon size={21} strokeWidth={1.85} aria-hidden="true"/><span>{label}</span></button>)}</nav>

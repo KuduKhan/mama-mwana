@@ -2,6 +2,7 @@ import {test,expect} from '@playwright/test';
 import {readFileSync} from 'node:fs';
 
 const {version:appVersion}=JSON.parse(readFileSync(new URL('../package.json',import.meta.url),'utf8'));
+const displayVersion=appVersion.includes('-')?'v'+appVersion.split('.').slice(0,2).join('.')+' Preview':'v'+appVersion;
 
 async function openDemo(page,width=390){
  await page.setViewportSize({width,height:820});
@@ -26,7 +27,7 @@ test('shared botanical tokens remain available without altering the original pal
   };
  });
  expect(tokens).toEqual({forest:'#153f36',sage:'#f1f7f0',touch:'44px'});
- await expect(page.locator('.sidebar-footer')).toContainText('v'+appVersion);
+ await expect(page.locator('.sidebar-footer')).toContainText(displayVersion);
 });
 test('mobile quick navigation has 44px targets and reports its active section',async({page})=>{
  await openDemo(page,390);

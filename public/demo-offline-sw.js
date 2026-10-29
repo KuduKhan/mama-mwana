@@ -1,5 +1,5 @@
 /* MamaMwana demo-only offline shell. DO NOT cache Auth, API, patient content or requests. */
-const NAME='mamamwana-public-demo-v1.6.0';
+const NAME='mamamwana-public-demo-v2.0.0-beta.1';
 const PUBLIC=['/','/icon.svg','/manifest.webmanifest'];
 const isAsset=(url)=>url.origin===self.location.origin&&/^\/assets\/[A-Za-z0-9_-]+\.(js|css)$/.test(url.pathname);
 self.addEventListener('install',event=>{

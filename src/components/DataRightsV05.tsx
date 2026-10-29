@@ -2,7 +2,7 @@ import {useEffect,useState} from 'react';
 import {ClipboardCheck,FileCheck2,Info,ShieldCheck} from 'lucide-react';
 import {supabase} from '../lib/supabase';
 import {DATA_RIGHTS_LABELS,canRequestRight} from '../lib/governance';
-import {APP_VERSION} from '../lib/release';
+import {APP_DISPLAY_VERSION} from '../lib/release';
 import type {DataRightRequest,DataRightType} from '../lib/governance';
 
 interface Props { userId:string|null; isDemo:boolean }
@@ -49,7 +49,7 @@ export default function DataRightsV05({userId,isDemo}:Props){
   }finally{setBusy(false);}
  }
  return <section className="panel v4-privacy-section v5-rights">
-  <div className="panel-heading"><div><div className="eyebrow">ACCOUNT DATA RIGHTS • v{APP_VERSION}</div><h3>Requests and review status</h3></div><ShieldCheck size={20}/></div>
+  <div className="panel-heading"><div><div className="eyebrow">ACCOUNT DATA RIGHTS • {APP_DISPLAY_VERSION}</div><h3>Requests and review status</h3></div><ShieldCheck size={20}/></div>
   <p className="muted">Submit a formal request to access, correct or erase account-level information. The request is recorded privately for authorized staff review. This does <strong>not</strong> automatically delete your login, journey history, backups, or other retained records.</p>
   {isDemo?<p className="v5-rights-notice"><Info size={16}/> Sign in to submit a real request. Demo mode never sends or stores requests.</p>:!userId?<p className="v5-rights-notice">Sign in to manage your requests.</p>:
   <>

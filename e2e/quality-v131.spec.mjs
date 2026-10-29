@@ -1,6 +1,7 @@
 import {test,expect,devices} from '@playwright/test';
 import {readFileSync} from 'node:fs';
 const {version}=JSON.parse(readFileSync(new URL('../package.json',import.meta.url),'utf8'));
+const displayVersion=version.includes('-')?'v'+version.split('.').slice(0,2).join('.')+' Preview':'v'+version;
 
 async function demo(page){
  await page.goto('/');
@@ -98,7 +99,7 @@ test('version label and optional reduced motion remain consistent',async({page})
  await page.setViewportSize({width:390,height:780});
  await page.emulateMedia({reducedMotion:'reduce'});
  await demo(page);
- await expect(page.locator('.sidebar-footer')).toContainText('v'+version);
+ await expect(page.locator('.sidebar-footer')).toContainText(displayVersion);
  const state=await page.evaluate(()=>({media:matchMedia('(prefers-reduced-motion: reduce)').matches,transition:getComputedStyle(document.querySelector('.mm13-action-card')).transitionDuration}));
  expect(state.media).toBe(true);
  expect(state.transition).toBe('0s');

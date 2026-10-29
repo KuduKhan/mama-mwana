@@ -7,6 +7,7 @@ import {addDays,isDate,isValidBirthDate,makeJourney,todayISO,validateOnboarding}
 import type {Journey,Visit} from '../lib/domain';
 import {Brand,Button,Panel} from '../ui/primitives';
 import {useModalFocus} from '../ui/useModalFocus';
+import {APP_DISPLAY_VERSION} from '../lib/release';
 export function AuthGate({onDemo}:{onDemo:()=>void}){
  const {locale,setLocale,t}=useMamaLocale();
  const [mode,setMode]=useState<'signin'|'signup'>('signup');
@@ -32,7 +33,7 @@ export function AuthGate({onDemo}:{onDemo:()=>void}){
      <div className="auth-story-copy"><div className="eyebrow pale">A GENTLER WAY TO GROW</div><h1>Every beginning<br/>deserves <em className="handwritten-accent">care.</em></h1><p>From the first exciting weeks through your baby’s earliest milestones—one thoughtful place for your whole journey.</p><div className="auth-micro"><span><CheckCircle2 size={16}/> Pregnancy to parenthood</span><span><ShieldCheck size={16}/> Private by design</span></div></div>
    </div>
    <div className="auth-form-side"><div className="locale-auth"><label htmlFor="mamamwana-auth-locale">{t('app.language')}</label><select id="mamamwana-auth-locale" aria-label="Language / Lugha" value={locale} onChange={e=>setLocale(e.target.value==='sw'?'sw':'en')}><option value="en">English</option><option value="sw">Kiswahili</option></select></div><div className="auth-mobile-brand"><Brand/></div><div className="auth-panel">
-   <div className="badge-soft"><Sparkles size={14}/> {t('auth.welcome')}</div>
+   <div className="badge-soft"><Sparkles size={14}/> {t('auth.welcome')}</div><div className="mm20-auth-edition">{APP_DISPLAY_VERSION} <span aria-hidden="true">·</span> Educational demo</div>
    <h2>{authConfigured?(mode==='signup'?t('auth.begin'):t('auth.return')):'Explore the MamaMwana preview'}</h2>
    <p className="muted">{authConfigured?'Use a verified account for authentication. Private health records stay restricted until separately approved.':'Explore all journeys in an interactive demo without saving real personal information.'}</p>
    {authConfigured&&<><div className="auth-switch"><button className={mode==='signup'?'active':''} onClick={()=>{setMode('signup');setMessage('');}}>{t('auth.signup')}</button><button className={mode==='signin'?'active':''} onClick={()=>{setMode('signin');setMessage('');}}>{t('auth.signin')}</button></div>
