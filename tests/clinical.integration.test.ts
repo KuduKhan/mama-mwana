@@ -60,7 +60,7 @@ describe.skipIf(!enabled)('v0.6 two-account Supabase RLS and optimistic-lock int
    p_delete:false
   });
   expect(badPayload.error?.message).toContain('MM_INVALID');
-  const noRecord=await a.from('journey_visits').select('id')
+  const noRecord=await a.from('journey_visits').select('source_id')
    .eq('journey_id',journeyId).eq('source_id',recordId);
   expect(noRecord.error).toBeNull();
   expect(noRecord.data).toEqual([]);
