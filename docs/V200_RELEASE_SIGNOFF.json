@@ -1,0 +1,89 @@
+{
+  "candidate": "v2.0.0",
+  "status": "NO_GO",
+  "productionClinicalAccess": false,
+  "evaluatedAt": "2026-10-30",
+  "scope": "Readiness only; no live clinical release authorized.",
+  "requiredGates": [
+    {
+      "id": "clinical",
+      "label": "Independent maternal, postpartum, newborn and child-health clinical review",
+      "status": "pending",
+      "evidence": null,
+      "reviewer": null,
+      "signedAt": null
+    },
+    {
+      "id": "bilingual",
+      "label": "Clinician-reviewed Kiswahili medical translation and content governance",
+      "status": "pending",
+      "evidence": null,
+      "reviewer": null,
+      "signedAt": null
+    },
+    {
+      "id": "privacy",
+      "label": "Kenya ODPC/legal assessment, DPIA, child-data lawful basis, consent, retention and erasure",
+      "status": "pending",
+      "evidence": null,
+      "reviewer": null,
+      "signedAt": null
+    },
+    {
+      "id": "security",
+      "label": "Independent penetration test, privileged RPC review and findings closure",
+      "status": "pending",
+      "evidence": null,
+      "reviewer": null,
+      "signedAt": null
+    },
+    {
+      "id": "isolation",
+      "label": "Verified production-like user, owner and caregiver RLS/RPC isolation, revocation and expiry",
+      "status": "pending",
+      "evidence": null,
+      "reviewer": null,
+      "signedAt": null
+    },
+    {
+      "id": "recovery",
+      "label": "Encrypted backup and complete restoration drill, recorded RTO/RPO, roles and Auth configuration",
+      "status": "pending",
+      "evidence": null,
+      "reviewer": null,
+      "signedAt": null
+    },
+    {
+      "id": "erasure",
+      "label": "Approved v12 account-erasure FK rollout after verified backup and restore",
+      "status": "pending",
+      "evidence": null,
+      "reviewer": null,
+      "signedAt": null
+    },
+    {
+      "id": "devices",
+      "label": "Signed real iOS Safari/VoiceOver, Android TalkBack, tablet/desktop and keyboard accessibility acceptance",
+      "status": "pending",
+      "evidence": null,
+      "reviewer": null,
+      "signedAt": null
+    },
+    {
+      "id": "operations",
+      "label": "Production incident response, role provisioning, monitoring without PHI and support ownership",
+      "status": "pending",
+      "evidence": null,
+      "reviewer": null,
+      "signedAt": null
+    },
+    {
+      "id": "release",
+      "label": "Independent clinical, legal/privacy, security and designated release-owner signatures on exact production SHA",
+      "status": "pending",
+      "evidence": null,
+      "reviewer": null,
+      "signedAt": null
+    }
+  ]
+}
