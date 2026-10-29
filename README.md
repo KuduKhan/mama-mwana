@@ -313,3 +313,8 @@ Cross-engine mobile browser emulation (WebKit iPhone and Android-like Chromium) 
 - [Local verified two-account GoTrue and RLS test](https://github.com/KuduKhan/mama-mwana/actions/runs/40785256481): 11 integrated tests passed, both disposable users deleted and local stack destroyed.
 - A staged v12 migration repairs actual recipient-account deletion and family audit cascades in **local** tests. Hosted Supabase remains at 11 applied migrations; production stays demo-only until authorized database recovery and approvals.
 - Independent physical hardware, licensed clinical content review, Kenya DPIA/privacy and hosted recovery/signoff remain mandatory before patient-data launch.
+
+
+## Medical-data production fail-safe (October 2026)
+
+Vercel production builds fail when the clinical workspace flag `VITE_AUTH_ACCESS_ENABLED=true` is configured, until a reviewed source change removes the `MM_PRODUCTION_CLINICAL_NO_GO` gate following signed clinical, security, privacy, restoration and physical-device release acceptance. Preview/disposable testing remains permitted. Read [docs/SECURITY_POSTURE_20261029.md](docs/SECURITY_POSTURE_20261029.md) and [docs/DEVICE_HARDWARE_ACCEPTANCE.md](docs/DEVICE_HARDWARE_ACCEPTANCE.md).

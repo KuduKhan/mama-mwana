@@ -44,6 +44,30 @@ describe.skipIf(!enabled)('v1.0 caregiver access: verified, revocable and read-o
   const prior=await b.rpc('get_shared_child_summary',{p_child_id:childId});
   expect(prior.error).not.toBeNull();
  });
+ it('denies anonymous summary RPC and rejects owner-forged consent and recipient tampering',async()=>{
+  const anon=createClient(url,key,settings);
+  const noSession=await anon.rpc('get_shared_child_summary',{p_child_id:childId});
+  expect(noSession.error).not.toBeNull();
+  const ownerCannotAccept=await a.from('caregiver_invitations')
+   .update({status:'accepted',version:inviteVersion+1})
+   .eq('id',inviteId).eq('version',inviteVersion).select('id');
+  expect(ownerCannotAccept.error).not.toBeNull();
+  const changedIdentity=await b.from('caregiver_invitations')
+   .update({status:'accepted',invited_email:'forged@example.invalid',version:inviteVersion+1})
+   .eq('id',inviteId).eq('version',inviteVersion).select('id');
+  expect(changedIdentity.error).not.toBeNull();
+  const changedExpiry=await b.from('caregiver_invitations')
+   .update({status:'accepted',expires_at:new Date(Date.now()+14*86400000).toISOString(),version:inviteVersion+1})
+   .eq('id',inviteId).eq('version',inviteVersion).select('id');
+  expect(changedExpiry.error).not.toBeNull();
+  const stillPending=await a.from('caregiver_invitations')
+   .select('version,status,invited_email').eq('id',inviteId).single();
+  expect(stillPending.error).toBeNull();
+  expect(stillPending.data?.status).toBe('pending');
+  expect(stillPending.data?.version).toBe(inviteVersion);
+  expect(stillPending.data?.invited_email).toBe(recipient);
+  await anon.auth.signOut();
+ });
  it('allows recipient acceptance without widening base clinical RLS',async()=>{
   const res=await b.from('caregiver_invitations').update({status:'accepted',version:inviteVersion+1})
    .eq('id',inviteId).eq('version',inviteVersion).select('id,version,status').single();
@@ -56,6 +80,21 @@ describe.skipIf(!enabled)('v1.0 caregiver access: verified, revocable and read-o
    owner_id:ownerId,child_id:childId,measured_on:new Date().toISOString().slice(0,10),weight_kg:2.5,version:1
   });
   expect(wrong.error).not.toBeNull();
+ });
+ it('cannot renew or re-accept an active share using a stale or extended grant',async()=>{
+  const repeated=await b.from('caregiver_invitations')
+   .update({status:'accepted',version:inviteVersion+1})
+   .eq('id',inviteId).eq('version',inviteVersion).select('id');
+  expect(repeated.error).not.toBeNull();
+  const extended=await b.from('caregiver_invitations')
+   .update({status:'accepted',shared_until:new Date(Date.now()+365*86400000).toISOString(),version:inviteVersion+1})
+   .eq('id',inviteId).eq('version',inviteVersion).select('id');
+  expect(extended.error).not.toBeNull();
+  const unchanged=await a.from('caregiver_invitations')
+   .select('status,version').eq('id',inviteId).single();
+  expect(unchanged.error).toBeNull();
+  expect(unchanged.data?.status).toBe('accepted');
+  expect(unchanged.data?.version).toBe(inviteVersion);
  });
  it('revokes access immediately at summary-RPC boundary',async()=>{
   const result=await a.from('caregiver_invitations').update({status:'revoked',version:inviteVersion+1})

@@ -41,6 +41,31 @@ describe.skipIf(!enabled)('v0.6 two-account Supabase RLS and optimistic-lock int
   const r=await b.rpc('apply_clinical_change',{p_journey_id:journeyId,p_kind:'visit',p_source_id:recordId,p_expected_version:0,p_payload:{scheduled_on:'2026-11-01',clinic:'Test facility',notes:'',attended:false},p_delete:false});
   expect(r.error?.message).toContain('MM_UNAUTHORIZED');
  });
+ it('rejects anonymous RPC execution and owner-scoped unsupported clinical mutations',async()=>{
+  const guest=createClient(url,anon,{auth:{persistSession:false,autoRefreshToken:false}});
+  const anonChange=await guest.rpc('apply_clinical_change',{
+   p_journey_id:journeyId,p_kind:'visit',p_source_id:recordId,
+   p_expected_version:0,p_payload:{scheduled_on:'2026-11-01',clinic:'Synthetic clinic',notes:'',attended:false},
+   p_delete:false
+  });
+  expect(anonChange.error).not.toBeNull();
+  const badKind=await a.rpc('apply_clinical_change',{
+   p_journey_id:journeyId,p_kind:'unsupported',p_source_id:recordId,
+   p_expected_version:0,p_payload:{},p_delete:false
+  });
+  expect(badKind.error?.message).toContain('MM_INVALID');
+  const badPayload=await a.rpc('apply_clinical_change',{
+   p_journey_id:journeyId,p_kind:'visit',p_source_id:recordId,
+   p_expected_version:0,p_payload:{scheduled_on:'2026-11-01',clinic:'',notes:'',attended:false},
+   p_delete:false
+  });
+  expect(badPayload.error?.message).toContain('MM_INVALID');
+  const noRecord=await a.from('journey_visits').select('source_id')
+   .eq('journey_id',journeyId).eq('source_id',recordId);
+  expect(noRecord.error).toBeNull();
+  expect(noRecord.data).toEqual([]);
+  await guest.auth.signOut();
+ });
  it('atomically versions user A clinical writes and rejects stale replay',async()=>{
   const create=await a.rpc('apply_clinical_change',{p_journey_id:journeyId,p_kind:'visit',p_source_id:recordId,p_expected_version:0,p_payload:{scheduled_on:'2026-11-01',clinic:'Integration test facility',notes:'',attended:false},p_delete:false});
   expect(create.error).toBeNull();inserted=true;latestVersion=create.data.version;expect(latestVersion).toBe(1);

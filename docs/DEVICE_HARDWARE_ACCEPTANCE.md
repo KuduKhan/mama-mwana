@@ -54,3 +54,10 @@ For the automated *simulation-only* checks use GitHub Actions workflow `mobile-p
 
 ## Automated browser-engine QA evidence (not physical)
 On 29 October 2026, [workflow run 40785256459](https://github.com/KuduKhan/mama-mwana/actions/runs/40785256459) passed **5 Safari-engine WebKit** and **5 Android-like Chromium** tests covering 13 mobile feature sections, navigation, native language selection, forms, urgent guidance, reduced motion and landscape. This helps target physical testing; it cannot validate actual Android Chrome/VoiceOver/TalkBack, mobile keyboard occlusion on hardware, real Safari WebKit platform APIs or 200–400% system accessibility scaling. All A1–D1 hardware evidence fields above remain NOT RUN.
+
+
+## Additional QA checks (simulation and hardware matrix, Oct 29)
+
+The mobile WebKit/Android Chromium emulation suite now tests whether the actual globe icon's center hit target reaches the native select element, validates accessible EN/SW name and language switching, checks drawer keyboard focus restoration, confirms a native privacy disclosure works, and tests emergency dialog `aria-modal` and focus. This is **proxy evidence only**; no mobile hardware, TalkBack, VoiceOver, virtual keyboard or native OS text scaling was touched.
+
+Before signing any A1–I2 or tablet/desktop acceptance record, attach a date-stamped screenshot or screen recording from the **real device**, with its OS/browser/assistive-tech version, UI setting, release commit, synthetic-only data and tester signature. The accessibility lead must test the risk-critical controls with the real screen reader. A saved emulator screenshot cannot substitute for the record.
