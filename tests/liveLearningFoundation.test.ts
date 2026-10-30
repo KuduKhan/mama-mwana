@@ -25,6 +25,16 @@ describe('live educational foundation without clinical activation',()=>{
   expect(portal).not.toMatch(/from ['"]\.\.\/lib\/(?:clinical|supabase|privateExport|childHealth)/);
   expect(portal).not.toMatch(/\b(?:createClient|fetch|localStorage|sessionStorage)\s*\(/);
  });
+ it('exposes email recovery without bypassing medical-access release gates',()=>{
+  const auth=source('src/components/EntryFlows.tsx');
+  const app=source('src/App.tsx');
+  const recovery=source('src/components/AccountPasswordReset.tsx');
+  expect(auth).toContain('resetPasswordForEmail');
+  expect(auth).toContain('emailRedirectTo:window.location.origin');
+  expect(app).toContain("event==='PASSWORD_RECOVERY'");
+  expect(recovery).toContain('authSupabase.auth.updateUser({password})');
+  expect(recovery).toContain('authSupabase.auth.signOut()');
+ });
  it('continues to block production clinical-data authorization',()=>{
   const supa=source('src/lib/supabase.ts');
   const guard=source('scripts/clinical-release-boundary.mjs');
