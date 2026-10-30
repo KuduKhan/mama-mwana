@@ -301,7 +301,7 @@ export default function App(){
  function createAnotherJourney(){setCreatingJourney(true);setWeekView(null);setMenuOpen(false);}
  async function signOut(){
   if(demo)setDemo(false);
-  else if(authSupabase){const {error}=await authSupabase.auth.signOut();if(error){setToast('Could not securely sign out. Check connectivity and try again.');return;}setUser(null);}
+  else if(authSupabase){const {error}=await authSupabase.auth.signOut();if(error)throw new Error('ACCOUNT_SIGN_OUT_FAILED');setUser(null);}
   setPublicLearning(false);setJourneys([]);setJourney(null);current.current=null;persistedIds.current.clear();setDataError('');setCreatingJourney(false);setTab('home');window.history.replaceState({...window.history.state,mmPage:'home'},'');
  }
  function markBirth(date:string,name:string){modify(j=>({...j,baby_birth_date:date,baby_name:name}));setBirthOpen(false);enterTab('baby');setToast('Welcome, '+name+'! Your pregnancy journey remains connected.');}
