@@ -9,15 +9,16 @@ import {APP_DISPLAY_VERSION} from '../lib/release';
 // profiles, care-provider integrations or clinical backend calls are made here.
 const LibraryPage=lazy(()=>import('../features/learning/LibraryPage'));
 export default function LiveLearningWorkspace({user=null,onBack,onSignOut}:{
- user?:User|null;onBack?:()=>void;onSignOut?:()=>void;
+ user?:User|null;onBack?:()=>void;onSignOut?:()=>Promise<void>|void;
 }){
  const {locale,setLocale}=useMamaLocale();
  const [emergency,setEmergency]=useState(false);
  const [busy,setBusy]=useState(false);
+ const [signOutError,setSignOutError]=useState('');
  async function exit(){
   if(!onSignOut||busy)return;
-  setBusy(true);
-  try{await onSignOut();}finally{setBusy(false);}
+  setBusy(true);setSignOutError('');
+  try{await onSignOut();}catch{setSignOutError('Could not sign out securely. Check your connection and try again.');}finally{setBusy(false);}
  }
  return <div className="mm-live-learning">
   <header className="mm-live-header">
@@ -42,6 +43,7 @@ export default function LiveLearningWorkspace({user=null,onBack,onSignOut}:{
       <span>{user?'You are signed in to a real account. The clinical workspace is not authorized and cannot accept health records.':'Learning is available without signing in. No health profile is saved.'}</span>
      </div></div>
    </div>
+   {signOutError&&<p role="alert" className="error">{signOutError}</p>}
    <Panel className="mm-live-care-boundary"><LockKeyhole size={20} aria-hidden="true"/>
     <div><strong>Private care records remain closed</strong>
      <p>Pregnancy journals, child records, clinical interpretation and provider messaging are disabled until independent clinical, privacy, security and operational approval. Do not enter personal medical details into public learning or sample modes.</p></div>
