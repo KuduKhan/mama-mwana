@@ -1,0 +1,69 @@
+{
+  "schema": "mamamwana.v200.acceptance-matrix.v1",
+  "candidate": "v2.0.0",
+  "clinicalLaunchAuthorization": "NONE",
+  "scope": "Reviewer worklist only; not certification or signoff",
+  "evidenceStorage": "Access-controlled external evidence vault, not GitHub",
+  "gates": [
+    {
+      "id": "clinical",
+      "owner": "Independent obstetric/midwifery and pediatric professionals",
+      "test": "Versioned maternal, newborn, emergency and child-care clinical source review and red-flag escalation; signed safety assessment.",
+      "status": "awaiting-independent-review"
+    },
+    {
+      "id": "bilingual",
+      "owner": "Independent clinical expert and Kiswahili medical editor",
+      "test": "Review source-aligned medical translation, danger-sign semantics and controlled medical-content revisions.",
+      "status": "awaiting-independent-review"
+    },
+    {
+      "id": "privacy",
+      "owner": "Kenyan privacy lead and legal counsel",
+      "test": "ODPC, DPIA, children and guardians, lawful basis, retention, erasure, processor contracts, transfers and DHA certification applicability.",
+      "status": "awaiting-independent-review"
+    },
+    {
+      "id": "security",
+      "owner": "Independent accredited security assessor",
+      "test": "External penetration test, privileged RPCs, IDOR, auth session freshness, consent impersonation and remediation retest.",
+      "status": "awaiting-independent-review"
+    },
+    {
+      "id": "isolation",
+      "owner": "Independent technical security reviewer",
+      "test": "Verified production-like synthetic accounts, deny cross-owner/caregiver/child access, expiry, revocation and cleanup.",
+      "status": "awaiting-independent-review"
+    },
+    {
+      "id": "recovery",
+      "owner": "Authorized infrastructure and independent recovery engineer",
+      "test": "Real encrypted backup recovery into disposable isolated setup; verify Auth, database roles, RLS, functions; measured RTO/RPO.",
+      "status": "awaiting-independent-review"
+    },
+    {
+      "id": "erasure",
+      "owner": "Privacy lead and authorized database change owner",
+      "test": "Following signed restore, controlled v12 FK rollout review, rollback, recipient account deletion and final evidence.",
+      "status": "awaiting-independent-review"
+    },
+    {
+      "id": "devices",
+      "owner": "Independent physical-device accessibility tester",
+      "test": "Real iOS VoiceOver, Android TalkBack, desktop/tablet keyboard and 200–400 percent zoom signoff.",
+      "status": "awaiting-independent-review"
+    },
+    {
+      "id": "operations",
+      "owner": "Named operations owner and incident-response lead",
+      "test": "Run incident drill, no-PHI monitoring, controlled SMTP, clinician escalation, support and rollback runbooks.",
+      "status": "awaiting-independent-review"
+    },
+    {
+      "id": "release",
+      "owner": "Independent clinical, privacy, security and release signatories",
+      "test": "Reconcile signed evidence and exact SHA/configuration, DHA/facility requirements; separate clinical activation PR.",
+      "status": "awaiting-independent-review"
+    }
+  ]
+}

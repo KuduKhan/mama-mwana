@@ -7,6 +7,7 @@ import type { PrivacyChoices } from '../lib/privacy';
 import DataRightsV05 from './DataRightsV05';
 import CurrentFeatureHeading from './CurrentFeatureHeading';
 import PrivacyTrustV205 from './PrivacyTrustV205';
+import ConnectedServicesReadinessV21 from './ConnectedServicesReadinessV21';
 
 interface Props {
  journeys:Journey[];
@@ -49,6 +50,7 @@ export default function PrivacyV04({journeys,selectedId,choices,isDemo,userId,on
  return <div className="page-content v4-page">
   <CurrentFeatureHeading eyebrow="YOUR DATA • YOUR CHOICES" title="Privacy & records" description="Understand your information, manage optional settings, and review private account controls." Icon={ShieldCheck} tone="sage"/>
   <PrivacyTrustV205 isDemo={isDemo}/>
+  <ConnectedServicesReadinessV21/>
   <div className="v4-privacy-hero"><span><ShieldCheck size={30}/></span><div><h3>Health data deserves extra care</h3><p>Pregnancy and child health entries can be sensitive personal information. Signed-in records are associated with your authenticated account and protected with database row-level access policies. Review the app’s privacy notices before entering real records.</p></div></div>
   <section className="panel v4-privacy-section"><div className="panel-heading"><div><div className="eyebrow">OPTIONAL EXPERIENCE SETTINGS</div><h3>Feature preferences</h3></div><LockKeyhole size={20}/></div>
    <p className="muted">Essential account storage is required for signed-in journeys. These controls affect only the specified optional features, not medical records, research consent or any third-party data sharing.</p>
