@@ -4,6 +4,7 @@
  */
 import {readFileSync} from 'node:fs';
 import {resolve} from 'node:path';
+import {fileURLToPath} from 'node:url';
 export const REQUIRED_SERVICES=Object.freeze(['clinician','growth','reminders','coordination','interop']);
 export const REQUIRED_GATES=Object.freeze(['clinical','bilingual','privacy','security','isolation','recovery','erasure','devices','operations','release']);
 const text=path=>readFileSync(resolve(path),'utf8');
@@ -61,7 +62,7 @@ export function currentV21Boundary(){
   worklist:json('docs/RC1_EXTERNAL_ACCEPTANCE.json')
  };
 }
-if(process.argv[1]&&resolve(process.argv[1])===resolve(new URL(import.meta.url).pathname)){
+if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
  const issues=auditV21Boundary(currentV21Boundary());
  if(issues.length){console.error('MM_V21_BOUNDARY_AUDIT_FAILED: '+issues.join(', '));process.exitCode=1;}
  else console.log('PASS v2.1 five services LOCKED; ten RC.1 gates PENDING; no activation or provider adapter in reviewed files.');
