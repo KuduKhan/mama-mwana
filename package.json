@@ -1,7 +1,7 @@
 {
   "name": "mama-mwana",
   "private": true,
-  "version": "2.0.0-beta.11",
+  "version": "2.0.0-beta.12",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -23,7 +23,8 @@
     "release:v2:privacy-safety": "node scripts/check-beta-privacy-safety.mjs",
     "release:v2:acceptance-packet": "node scripts/generate-v200-acceptance.mjs",
     "security:rpc-review": "node scripts/audit-privileged-rpc-boundaries.mjs",
-    "quality:experience": "node scripts/check-v2-experience.mjs"
+    "quality:experience": "node scripts/check-v2-experience.mjs",
+    "quality:routes": "node scripts/check-route-splitting.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.58.0",

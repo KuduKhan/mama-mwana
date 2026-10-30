@@ -6,7 +6,9 @@ import {LocaleProvider} from './lib/locale';
 import {AccessibilityProvider} from './lib/accessibility';
 import FailureBoundary from './components/FailureBoundary';
 import {setupDemoOfflineShell} from './lib/demoOfflineShell';
-// Final shared design layer: layout rhythm, icon precision and accessible micro-interactions.
+import {setLowDataDisplayHint} from './lib/lowDataDisplay';
+// Prefer reduced visual complexity on user-requested data saving and constrained networks.
+setLowDataDisplayHint();
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><FailureBoundary><LocaleProvider><AccessibilityProvider><App /></AccessibilityProvider></LocaleProvider></FailureBoundary></React.StrictMode>);
 
 // Public demo cache only. Does not enable clinical offline writes or background sync.

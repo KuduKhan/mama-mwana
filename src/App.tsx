@@ -7,10 +7,10 @@ import {AuthGate,Onboarding,NewVisitForm,BirthModal} from './components/EntryFlo
 import {ConnectionStatusV16,NotificationCenterV16,FamilyTimelineV16,EducationReviewV16} from './components/ConnectedFamilyV16';
 import ReleaseShowcaseV20 from './components/ReleaseShowcaseV20';
 import SmartHomeV202 from './components/SmartHomeV202';
-import {FamilyIntelligenceV203,VisitPreparationV203} from './components/FamilyIntelligenceV203';
-import PublicLearningV204 from './components/PublicLearningV204';
-import LearningAcademyV209 from './components/LearningAcademyV209';
-import {FamilyExperienceV208,VisitFollowThroughV208} from './components/FamilyExperienceV208';
+const FamilyIntelligenceV203=lazy(()=>import('./components/FamilyIntelligenceV203').then(m=>({default:m.FamilyIntelligenceV203})));
+const VisitPreparationV203=lazy(()=>import('./components/FamilyIntelligenceV203').then(m=>({default:m.VisitPreparationV203})));
+const FamilyExperienceV208=lazy(()=>import('./components/FamilyExperienceV208').then(m=>({default:m.FamilyExperienceV208})));
+const VisitFollowThroughV208=lazy(()=>import('./components/FamilyExperienceV208').then(m=>({default:m.VisitFollowThroughV208})));
 import type { FormEvent } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { Activity, ArrowLeft, ArrowRight, Baby, BookHeart, CalendarDays, Check, CheckCircle2, Cloud, Droplets, ExternalLink, Footprints, Heart, HeartHandshake, HeartPulse, LockKeyhole, LogOut, Menu, Moon, Plus, Globe2, ShieldAlert, ShieldCheck, Users, Bell, Download, NotebookPen, Search, ChevronRight, ChevronDown, Sparkles, Stethoscope, Sun, TrendingUp, Utensils, X } from 'lucide-react';

@@ -14,6 +14,7 @@ export default defineConfig(({mode})=>{
  return {
  plugins:[react()],
  build:{
+  manifest:true,
   rollupOptions:{
    output:{
     // Keep the stable Supabase client separate from the UI entry. Browser downloads

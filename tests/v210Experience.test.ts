@@ -8,7 +8,7 @@ describe('beta.10 privacy and experience release contract',()=>{
  });
  it('only caches the public education allowlist',()=>{
   const sw=readFileSync('public/demo-offline-sw.js','utf8');
-  expect(sw).toContain('mamamwana-public-demo-v2.0.0-beta.11');
+  expect(sw).toContain('mamamwana-public-demo-v2.0.0-beta.12');
   expect(sw).toContain("'/learning/mamamwana-learning-essentials-v209.txt'");
  });
 });
