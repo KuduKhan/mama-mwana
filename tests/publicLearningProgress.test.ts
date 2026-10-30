@@ -13,7 +13,7 @@ describe('device-only public education progress',()=>{
    setItem:(k:string,v:string)=>{map.set(k,v);},
    removeItem:(k:string)=>{map.delete(k);}
   };
-  storePublicAnswers(storage,{questions:0,privacy:1,secret:'not allowed'} as Record<string,number>);
+  storePublicAnswers(storage,{questions:0,privacy:1,secret:999});
   expect(JSON.parse(map.get(PUBLIC_LEARNING_KEY)??'{}')).toEqual({questions:0,privacy:1});
   expect(readPublicAnswers(storage)).toEqual({questions:0,privacy:1});
   storePublicAnswers(storage,{});
