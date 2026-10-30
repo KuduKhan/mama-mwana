@@ -1,44 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import './styles/appStyles';
 import {LocaleProvider} from './lib/locale';
 import {AccessibilityProvider} from './lib/accessibility';
 import FailureBoundary from './components/FailureBoundary';
 import {setupDemoOfflineShell} from './lib/demoOfflineShell';
-import './design-tokens.css';
-import './styles.css';
-import './v03.css';
-import './v04.css';
-import './v05.css';
-import './v07.css';
-import './premium.css';
-import './v09.css';
-import './v10.css';
-import './v10-legacy.css';
-import './v11-sharing.css';
-import './care-journey-v12.css';
-import './premium-v13.css';
-import './quality-v131.css';
-import './premium-v14.css';
-import './premium-current.css';
-import './experience-polish.css';
-import './component-fit.css';
-import './mobile-experience.css';
-import './chrome-renewal.css';
-import './clinical-warmth.css';
-import './connected-family-v16.css';
-import './experience-v20.css';
-import './studio-v202.css';
-import './family-v203.css';
-import './learning-v204.css';
-import './quality-v205.css';
-import './connected-services-v21.css';
-// Final shared design layer: layout rhythm, icon precision and accessible micro-interactions.
-import './premium-finish-v20.css';
-import './experience-v207.css';
-import './experience-v208.css';
-import './experience-v209.css';
-import './experience-v210.css';
+import {setLowDataDisplayHint} from './lib/lowDataDisplay';
+// Prefer reduced visual complexity on user-requested data saving and constrained networks.
+setLowDataDisplayHint();
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><FailureBoundary><LocaleProvider><AccessibilityProvider><App /></AccessibilityProvider></LocaleProvider></FailureBoundary></React.StrictMode>);
 
 // Public demo cache only. Does not enable clinical offline writes or background sync.

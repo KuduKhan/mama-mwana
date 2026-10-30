@@ -22,7 +22,7 @@ describe('current release visual and operational copy',()=>{
   expect(component).toContain('APP_DISPLAY_VERSION');
  });
  it('shows an explicit v2 preview without representing it as a clinical launch',()=>{
-  expect(APP_VERSION).toMatch(/^2\.0\.0-beta\.\d+$/);
+  expect(APP_VERSION).toMatch(/^2\.0\.0-(?:beta|rc)\.\d+$/);
   expect(APP_DISPLAY_VERSION).toBe('v2.0 Preview');
   expect(APP_IS_PREVIEW).toBe(true);
   expect(APP_CLINICAL_RELEASE_STATUS).toBe('NO_GO');
@@ -50,8 +50,8 @@ describe('current release visual and operational copy',()=>{
   expect(record).toContain('not a certified electronic health record');
  });
  it('preserves legacy selectors and explicitly loads the compatibility layer last',()=>{
-  const imports=readFileSync(join(root,'src/main.tsx'),'utf8');
-  expect(imports.indexOf("import './premium-current.css'")).toBeGreaterThan(imports.indexOf("import './premium-v14.css'"));
+  const imports=readFileSync(join(root,'src/styles/appStyles.ts'),'utf8');
+  expect(imports.indexOf("import '../premium-current.css'")).toBeGreaterThan(imports.indexOf("import '../premium-v14.css'"));
   const styles=readFileSync(join(root,'src/premium-current.css'),'utf8');
   expect(styles).toContain('.v4-record-stats');
   expect(styles).toContain('.care07-metrics');

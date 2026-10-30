@@ -1,0 +1,11 @@
+/* beta.12: honor browser data-saving preference and 2G by reducing decorative cost, not content. */
+:root[data-mm-data="reduce"] :is(.mm20-showcase,.mm22-smart-home,.panel,.mm13-action-card,.mm22-smart-action,.mm24-learning,.mm209-academy){
+ box-shadow:none!important;backdrop-filter:none!important;transition:none!important;animation:none!important}
+:root[data-mm-data="reduce"] .page-content{animation:none!important}
+:root[data-mm-data="reduce"] .mm20-showcase{background-image:none!important}
+@media(prefers-reduced-data:reduce){
+ .page-content{animation:none!important}
+ .mm20-showcase,.mm22-smart-action{box-shadow:none!important;backdrop-filter:none!important}
+}
+@media(prefers-reduced-motion:reduce){.mm20-showcase *,.mm22-smart-home *{animation:none!important;transition:none!important}}
+@media(forced-colors:active){.mm20-showcase{outline:1px solid CanvasText}}

@@ -1,6 +1,6 @@
 # MamaMwana — v2.0 Independent Acceptance Desk
 
-**Release decision: NO-GO.** Version 2.0.0-beta.10 is a public educational preview, not certified v2.0 clinical production.
+**Release decision: NO-GO.** Version 2.0.0-rc.1 is a public educational release candidate preview, not certified v2.0 clinical production.
 
 ## What the engineering release proves
 The checked-in docs/V200_ACCEPTANCE_MATRIX.json lists 10 reviewer work packages. GitHub CI produces a strictly sanitized .mamamwana-evidence/v200-acceptance-readiness.json, preserving manifest and matrix SHA-256 digests, commit/run linkage when verified, and pending gate IDs. It records NO_GO and independentApprovalVerified:false even if reviewers self-fill every field. It never generates signatures, records, approval, or patient data.

@@ -1,0 +1,11 @@
+import {readFileSync,statSync} from 'node:fs';
+const m=JSON.parse(readFileSync('dist/.vite/manifest.json','utf8'));
+const main=Object.entries(m).find(([k,v])=>v.isEntry&&(k==='index.html'||k==='src/main.tsx'||/^assets\/index[-.]/.test(v.file)));
+if(!main)throw Error('No main entry in manifest');
+const routePaths=['src/features/learning/LibraryPage.tsx','src/components/FamilyIntelligenceV203.tsx','src/components/FamilyExperienceV208.tsx'];
+const failures=routePaths.filter(path=>!m[path]?.isDynamicEntry);
+if(failures.length)throw Error('Expected dynamic route chunks missing: '+failures.join(', '));
+const assets=routePaths.map(path=>({path,file:m[path].file,bytes:statSync('dist/'+m[path].file).size}));
+if(assets.some(x=>x.bytes>250*1024))throw Error('One on-demand nonclinical feature chunk exceeds 250 KiB; review imports.');
+console.log('PASS '+assets.length+' deferred chunks for library/family demo features; no additional clinical data stored.');
+for(const a of assets)console.log(a.path+': '+(a.bytes/1024).toFixed(1)+' KiB');

@@ -2,10 +2,10 @@ import {describe,it,expect} from 'vitest';
 import {readFileSync} from 'node:fs';
 describe('premium appearance and clinical NO-GO remain isolated',()=>{
  const css=readFileSync('src/premium-finish-v20.css','utf8');
- const main=readFileSync('src/main.tsx','utf8');
+ const main=readFileSync('src/styles/appStyles.ts','utf8');
  const svg=readFileSync('public/care-motif.svg','utf8');
  it('loads final design layer after other feature CSS',()=>{
-  expect(main.indexOf("import './premium-finish-v20.css'")).toBeGreaterThan(main.indexOf("import './connected-services-v21.css'"));
+  expect(main.indexOf("import '../premium-finish-v20.css'")).toBeGreaterThan(main.indexOf("import '../connected-services-v21.css'"));
   expect(css).toContain('--mm-finish-gap');
   expect(css).toContain('var(--mm-focus-ring)');
  });

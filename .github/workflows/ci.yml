@@ -31,6 +31,8 @@ jobs:
         run: npm run test:local:prepare
       - name: Check local Auth fixture runner syntax
         run: node --check scripts/run-local-security.mjs && node --check scripts/prepare-local-migrations.mjs
+      - name: Verify RC.1 acceptances are independently pending and clinician integration locked
+        run: npm run release:rc:status
       - name: Verify fail-closed v2 release readiness
         run: npm run release:v2:status
       - name: Verify preview safety, public learning and offline boundaries
@@ -43,7 +45,9 @@ jobs:
         run: npm run build
       - name: Initial JavaScript performance budget
         run: npm run quality:bundle
-      - name: Verify beta.7–beta.10 experience and accessibility release contracts
+      - name: Verify feature-level code splitting and route budgets
+        run: npm run quality:routes
+      - name: Verify beta.7–beta.12 experience and accessibility release contracts
         run: npm run quality:experience
       - name: Produce sanitized v2 acceptance packet (not a human approval)
         run: npm run release:v2:acceptance-packet
