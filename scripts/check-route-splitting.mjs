@@ -1,6 +1,6 @@
 import {readFileSync,statSync} from 'node:fs';
 const m=JSON.parse(readFileSync('dist/.vite/manifest.json','utf8'));
-const main=Object.entries(m).find(([k,v])=>v.isEntry&&k==='src/main.tsx');
+const main=Object.entries(m).find(([k,v])=>v.isEntry&&(k==='index.html'||k==='src/main.tsx'||/^assets\/index[-.]/.test(v.file)));
 if(!main)throw Error('No main entry in manifest');
 const routePaths=['src/features/learning/LibraryPage.tsx','src/components/FamilyIntelligenceV203.tsx','src/components/FamilyExperienceV208.tsx'];
 const failures=routePaths.filter(path=>!m[path]?.isDynamicEntry);
