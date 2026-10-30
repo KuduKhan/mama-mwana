@@ -1,14 +1,30 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 300" fill="none" role="img">
-<title>Decorative maternal care emblem</title>
-<defs><linearGradient id="care" x1="24" y1="20" x2="286" y2="278" gradientUnits="userSpaceOnUse"><stop stop-color="#6CA98B"/><stop offset="1" stop-color="#B9DAC1"/></linearGradient></defs>
-<circle cx="182" cy="150" r="116" stroke="#79AC88" stroke-width="1.8" stroke-dasharray="4 9" opacity=".6"/>
-<circle cx="182" cy="150" r="89" fill="#F8FEF6" fill-opacity=".22" stroke="#8FB99E" stroke-width="2"/>
-<path d="M125 159c0-43 26-69 57-69 30 0 56 29 56 69" stroke="url(#care)" stroke-width="9" stroke-linecap="round"/>
-<circle cx="162" cy="140" r="19" fill="#DCAAA0" fill-opacity=".66"/>
-<circle cx="211" cy="150" r="15" fill="#EBCBB4" fill-opacity=".8"/>
-<path d="M130 184c28 34 79 39 107 0" stroke="#7EAF92" stroke-width="8" stroke-linecap="round"/>
-<path d="M263 83c2-17 14-26 30-26-2 18-13 27-30 26Zm0 0c-13-3-21-12-21-26 13 3 22 11 21 26Z" stroke="#75A986" stroke-width="2.3" fill="#E6F3DF" fill-opacity=".65"/>
-<path d="M263 84v28M84 110v24M72 122h24M277 190v18M268 199h18" stroke="#6EAA85" stroke-width="3" stroke-linecap="round"/>
-<path d="M108 227c-11-9-25-10-36-2M247 236c14-8 26-8 37-1" stroke="#C79D90" stroke-width="2.2" stroke-linecap="round"/>
-<circle cx="93" cy="68" r="4" fill="#DCAAA0"/><circle cx="286" cy="148" r="3" fill="#7FAE93"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 300" fill="none" role="img" aria-labelledby="mm-care-title mm-care-desc">
+<title id="mm-care-title">Maternal care and growth emblem</title>
+<desc id="mm-care-desc">An abstract, caring embrace surrounded by gentle growth leaves and circles.</desc>
+<defs>
+ <linearGradient id="mm-care-ring" x1="80" y1="52" x2="282" y2="251" gradientUnits="userSpaceOnUse">
+  <stop stop-color="#8BBF9B"/><stop offset=".53" stop-color="#568F78"/><stop offset="1" stop-color="#B4D8BD"/>
+ </linearGradient>
+ <linearGradient id="mm-care-halo" x1="88" y1="84" x2="266" y2="247" gradientUnits="userSpaceOnUse">
+  <stop stop-color="#F3FBF1" stop-opacity=".75"/><stop offset="1" stop-color="#EBF6EB" stop-opacity=".22"/>
+ </linearGradient>
+ <linearGradient id="mm-embrace" x1="127" y1="93" x2="249" y2="215" gradientUnits="userSpaceOnUse">
+  <stop stop-color="#387F65"/><stop offset="1" stop-color="#9DCCAA"/>
+ </linearGradient>
+</defs>
+<circle cx="181" cy="151" r="120" stroke="#7EAE91" stroke-width="1.5" stroke-dasharray="3 9" opacity=".52"/>
+<circle cx="181" cy="151" r="103" stroke="#B5D8C0" stroke-width="1.4" opacity=".65"/>
+<circle cx="181" cy="151" r="88" fill="url(#mm-care-halo)" stroke="url(#mm-care-ring)" stroke-width="2"/>
+<path d="M126 164c0-43 25-72 57-72 31 0 56 29 56 72" stroke="url(#mm-embrace)" stroke-width="9" stroke-linecap="round"/>
+<circle cx="161" cy="140" r="19" fill="#E7B5A6"/>
+<circle cx="162" cy="138" r="9" fill="#F5D4C8" fill-opacity=".58"/>
+<circle cx="210" cy="150" r="15" fill="#F1D1B4"/>
+<circle cx="210" cy="148" r="6" fill="#FFEADB" fill-opacity=".55"/>
+<path d="M131 184c21 25 41 35 55 35 22 0 39-12 51-35" stroke="#6BA186" stroke-width="8" stroke-linecap="round"/>
+<path d="M271 99c1-17 15-28 31-28-3 19-15 29-31 28Z" fill="#BCE0C3" stroke="#6BA687" stroke-width="2"/>
+<path d="M270 100c-16-3-24-12-24-27 15 3 24 12 24 27Z" fill="#E3F1D9" stroke="#6BA687" stroke-width="2"/>
+<path d="M271 99v29M96 110v24M84 122h24M273 200v17M265 208h16" stroke="#7BAF8D" stroke-width="2.7" stroke-linecap="round"/>
+<path d="M107 227c-12-8-24-10-36-3M247 237c14-8 26-8 39-1" stroke="#C99A8D" stroke-width="2.2" stroke-linecap="round"/>
+<circle cx="99" cy="72" r="4" fill="#D6A99A"/><circle cx="296" cy="160" r="3" fill="#6EAD8A"/>
+<circle cx="63" cy="161" r="2.3" fill="#8AB89A" opacity=".7"/><circle cx="251" cy="44" r="2.5" fill="#C5DDBD"/>
 </svg>
