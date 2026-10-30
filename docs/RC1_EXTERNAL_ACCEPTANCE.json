@@ -1,0 +1,113 @@
+{
+  "schema": "mamamwana.rc1.external-acceptance.v1",
+  "candidate": "2.0.0-rc.1",
+  "clinicalRelease": "NO_GO",
+  "releaseManifest": "docs/V200_RELEASE_SIGNOFF.json",
+  "hostedMigration12": "NOT_APPLIED",
+  "independentApprovalVerified": false,
+  "actualHostedRecoveryVerified": false,
+  "regulatoryCertificationVerified": false,
+  "scope": "Reviewer coordination only, no personal data or signatures stored in repository",
+  "gates": [
+    {
+      "id": "clinical",
+      "status": "pending",
+      "owner": null,
+      "evidenceVaultReference": null,
+      "independentReviewer": null,
+      "reviewedCommit": null,
+      "approvedAt": null,
+      "method": "Independent assessment required before clinical activation"
+    },
+    {
+      "id": "bilingual",
+      "status": "pending",
+      "owner": null,
+      "evidenceVaultReference": null,
+      "independentReviewer": null,
+      "reviewedCommit": null,
+      "approvedAt": null,
+      "method": "Independent assessment required before clinical activation"
+    },
+    {
+      "id": "privacy",
+      "status": "pending",
+      "owner": null,
+      "evidenceVaultReference": null,
+      "independentReviewer": null,
+      "reviewedCommit": null,
+      "approvedAt": null,
+      "method": "Independent assessment required before clinical activation"
+    },
+    {
+      "id": "security",
+      "status": "pending",
+      "owner": null,
+      "evidenceVaultReference": null,
+      "independentReviewer": null,
+      "reviewedCommit": null,
+      "approvedAt": null,
+      "method": "Independent assessment required before clinical activation"
+    },
+    {
+      "id": "isolation",
+      "status": "pending",
+      "owner": null,
+      "evidenceVaultReference": null,
+      "independentReviewer": null,
+      "reviewedCommit": null,
+      "approvedAt": null,
+      "method": "Independent assessment required before clinical activation"
+    },
+    {
+      "id": "recovery",
+      "status": "pending",
+      "owner": null,
+      "evidenceVaultReference": null,
+      "independentReviewer": null,
+      "reviewedCommit": null,
+      "approvedAt": null,
+      "method": "Independent assessment required before clinical activation"
+    },
+    {
+      "id": "erasure",
+      "status": "pending",
+      "owner": null,
+      "evidenceVaultReference": null,
+      "independentReviewer": null,
+      "reviewedCommit": null,
+      "approvedAt": null,
+      "method": "Independent assessment required before clinical activation"
+    },
+    {
+      "id": "devices",
+      "status": "pending",
+      "owner": null,
+      "evidenceVaultReference": null,
+      "independentReviewer": null,
+      "reviewedCommit": null,
+      "approvedAt": null,
+      "method": "Independent assessment required before clinical activation"
+    },
+    {
+      "id": "operations",
+      "status": "pending",
+      "owner": null,
+      "evidenceVaultReference": null,
+      "independentReviewer": null,
+      "reviewedCommit": null,
+      "approvedAt": null,
+      "method": "Independent assessment required before clinical activation"
+    },
+    {
+      "id": "release",
+      "status": "pending",
+      "owner": null,
+      "evidenceVaultReference": null,
+      "independentReviewer": null,
+      "reviewedCommit": null,
+      "approvedAt": null,
+      "method": "Independent assessment required before clinical activation"
+    }
+  ]
+}

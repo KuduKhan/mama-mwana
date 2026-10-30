@@ -1,12 +1,12 @@
 import {readFileSync} from 'node:fs';
 const read=p=>readFileSync(p,'utf8');
 const source=read('src/ui/navigation.ts'),ui=read('src/components/TrustQualityV210.tsx');
-const main=read('src/main.tsx'),learning=read('src/components/LearningAcademyV209.tsx');
+const main=read('src/styles/appStyles.ts'),learning=read('src/components/LearningAcademyV209.tsx');
 const story=read('src/components/FamilyExperienceV208.tsx');
 const css=read('src/experience-v210.css'),sw=read('public/demo-offline-sw.js');
 const p=JSON.parse(read('package.json')),m=JSON.parse(read('docs/V200_RELEASE_SIGNOFF.json'));
 const pass=[
- ['beta.10 is an unapproved preview',p.version==='2.0.0-beta.12'&&m.status==='NO_GO'&&m.productionClinicalAccess===false],
+ ['RC.1 remains an unapproved preview',p.version==='2.0.0-rc.1'&&m.status==='NO_GO'&&m.productionClinicalAccess===false],
  ['ten independent approvals are not self-issued',m.requiredGates.length===10&&m.requiredGates.every(g=>g.status==='pending')],
  ['five primary destinations preserved',/label:'Home'/.test(source)&&/label:'Journey'/.test(source)&&/label:'Planner'/.test(source)&&/label:'Learn'/.test(source)&&/label:'Me'/.test(source)],
  ['all clinical and family navigation sections remain',/id:'records'/.test(source)&&/id:'baby'/.test(source)&&/id:'visits'/.test(source)],

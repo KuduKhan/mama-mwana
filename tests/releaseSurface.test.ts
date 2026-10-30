@@ -22,7 +22,7 @@ describe('current release visual and operational copy',()=>{
   expect(component).toContain('APP_DISPLAY_VERSION');
  });
  it('shows an explicit v2 preview without representing it as a clinical launch',()=>{
-  expect(APP_VERSION).toMatch(/^2\.0\.0-beta\.\d+$/);
+  expect(APP_VERSION).toMatch(/^2\.0\.0-(?:beta|rc)\.\d+$/);
   expect(APP_DISPLAY_VERSION).toBe('v2.0 Preview');
   expect(APP_IS_PREVIEW).toBe(true);
   expect(APP_CLINICAL_RELEASE_STATUS).toBe('NO_GO');
