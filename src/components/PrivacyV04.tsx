@@ -6,6 +6,7 @@ import { readable } from '../lib/domain';
 import type { PrivacyChoices } from '../lib/privacy';
 import DataRightsV05 from './DataRightsV05';
 import CurrentFeatureHeading from './CurrentFeatureHeading';
+import PrivacyTrustV205 from './PrivacyTrustV205';
 
 interface Props {
  journeys:Journey[];
@@ -26,13 +27,13 @@ export default function PrivacyV04({journeys,selectedId,choices,isDemo,userId,on
  async function setPreference(key:keyof PrivacyChoices,checked:boolean){
   setMessage('');setWorking(true);
   try{await onChange({...choices,[key]:checked});setMessage('Your preference was saved.');}
-  catch(e){setMessage('Could not save your preference: '+String(e));}
+  catch(e){setMessage('Could not save your preference. Reconnect and try again.');}
   finally{setWorking(false);}
  }
  async function exportData(){
   setMessage('');setWorking(true);
   try{await onExport();setMessage('Export prepared on your device. Keep the file private.');}
-  catch(e){setMessage('Export unsuccessful: '+String(e));}
+  catch{setMessage('Export unsuccessful. No file was confirmed. Please try again.');}
   finally{setWorking(false);}
  }
  async function confirmDelete(e:FormEvent){
@@ -42,11 +43,12 @@ export default function PrivacyV04({journeys,selectedId,choices,isDemo,userId,on
    const success=await onDelete(target.id);
    if(!success)throw new Error('The record was not deleted. Refresh and try again.');
    setDeleteId(null);setConfirmation('');setMessage('The selected journey was deleted from its active database records.');
-  }catch(err){setMessage('Deletion failed: '+String(err));}
+  }catch{setMessage('Deletion could not be confirmed. Please contact authorized support before retrying.');}
   finally{setWorking(false);}
  }
  return <div className="page-content v4-page">
   <CurrentFeatureHeading eyebrow="YOUR DATA • YOUR CHOICES" title="Privacy & records" description="Understand your information, manage optional settings, and review private account controls." Icon={ShieldCheck} tone="sage"/>
+  <PrivacyTrustV205 isDemo={isDemo}/>
   <div className="v4-privacy-hero"><span><ShieldCheck size={30}/></span><div><h3>Health data deserves extra care</h3><p>Pregnancy and child health entries can be sensitive personal information. Signed-in records are associated with your authenticated account and protected with database row-level access policies. Review the app’s privacy notices before entering real records.</p></div></div>
   <section className="panel v4-privacy-section"><div className="panel-heading"><div><div className="eyebrow">OPTIONAL EXPERIENCE SETTINGS</div><h3>Feature preferences</h3></div><LockKeyhole size={20}/></div>
    <p className="muted">Essential account storage is required for signed-in journeys. These controls affect only the specified optional features, not medical records, research consent or any third-party data sharing.</p>

@@ -31,6 +31,7 @@ import './experience-v20.css';
 import './studio-v202.css';
 import './family-v203.css';
 import './learning-v204.css';
+import './quality-v205.css';
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><FailureBoundary><LocaleProvider><AccessibilityProvider><App /></AccessibilityProvider></LocaleProvider></FailureBoundary></React.StrictMode>);
 
 // Public demo cache only. Does not enable clinical offline writes or background sync.
