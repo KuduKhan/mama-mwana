@@ -27,3 +27,9 @@ For each connected service: create a dedicated independently reviewed backend + 
 
 ## Stable release condition
 **BLOCKED.** Do not change package version to `2.0.0` and do not set clinical approval to GO until independently validated written evidence satisfies the operational, clinical, privacy and regulatory release gate. This candidate intentionally stays `2.0.0-rc.1`.
+
+## RC.1 source regression audit (engineering only)
+
+The CI job runs `npm run security:v21`: the pure `scripts/audit-v21-locked-boundary.mjs` audit and adversarial Node regression tests. It checks the five v2.1 locked source contracts, rejects unexpected browser integration primitives, verifies ten pending independent gates, prevents unreviewed version and hosted-migration claims, and checks the production clinical-data build guard remains present. The audit uses repository source and sanitized release metadata only; it does not read private data or make provider/network calls.
+
+This is **defense in depth**, not proof that all software paths are safe, not a penetration test and not independent clinical, legal, regulatory or device approval. Clinical `NO_GO` and package `2.0.0-rc.1` remain unchanged. No source-level audit can authorize stable release. Only a separately scoped approval and activation process with independently validated evidence can do so.

@@ -25,6 +25,8 @@ jobs:
         run: npm run security:sql
       - name: Review privileged clinical RPC source-level boundaries
         run: npm run security:rpc-review
+      - name: Assert v2.1 integrations remain locked and clinical release remains NO-GO
+        run: npm run security:v21
       - name: Verify synthetic backup cryptographic primitives
         run: node --test scripts/disposable-backup-crypto.test.mjs
       - name: Validate normalized local migration workspace
