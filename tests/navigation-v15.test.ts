@@ -1,5 +1,5 @@
 import {describe,it,expect} from 'vitest';
-import {NAV,NAV_GROUPS,MOBILE_NAV,isTab} from '../src/ui/navigation';
+import {NAV,NAV_GROUPS,MOBILE_NAV,isTab,primaryForTab} from '../src/ui/navigation';
 describe('v1.5.0 unified navigation',()=>{
  it('preserves 13 unique feature pages in exactly one section',()=>{
   const ids=NAV.map(item=>item.id),grouped=NAV_GROUPS.flatMap(group=>[...group.ids]);
@@ -8,7 +8,8 @@ describe('v1.5.0 unified navigation',()=>{
   expect([...grouped].sort()).toEqual([...ids].sort());
  });
  it('preserves five quick destinations and excludes unknown tabs',()=>{
-  expect(MOBILE_NAV.map(item=>item.id)).toEqual(['home','care','planner','visits','baby']);
+  expect(MOBILE_NAV.map(item=>item.id)).toEqual(['home','family','planner','library','privacy']);
+  for(const item of NAV)expect(MOBILE_NAV.map(n=>n.id)).toContain(primaryForTab(item.id));
   for(const item of MOBILE_NAV)expect(isTab(item.id)).toBe(true);
   expect(isTab('not-a-tab')).toBe(false);
  });
