@@ -19,3 +19,15 @@ test('language choice works in live public workspace',async({page})=>{
  await page.getByRole('combobox',{name:'Learning language'}).selectOption('sw');
  await expect(page.getByRole('heading',{name:'Mafunzo ya familia'})).toBeVisible();
 });
+
+test('public learning quiz progress survives reload and can be erased',async({page})=>{
+ await page.goto('/');
+ await page.getByRole('button',{name:/Open learning library — no account required/i}).click();
+ await page.locator('.mm209-lesson input').first().check();
+ await expect(page.locator('.mm209-feedback')).toContainText('Correct');
+ await page.reload();
+ await page.getByRole('button',{name:/Open learning library — no account required/i}).click();
+ await expect(page.locator('.mm209-lesson input').first()).toBeChecked();
+ await page.getByRole('button',{name:'Clear learning progress'}).click();
+ await expect(page.locator('.mm209-lesson input').first()).not.toBeChecked();
+});
