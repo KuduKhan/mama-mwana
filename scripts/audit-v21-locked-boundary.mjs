@@ -20,7 +20,7 @@ export function auditV21Boundary({contracts,catalog,preview,releaseGuard,pkg,man
  if(!same(contractIds,REQUIRED_SERVICES))fail('CONTRACT_IDS_DRIFT');
  if(!same(catalogIds,REQUIRED_SERVICES))fail('CATALOG_IDS_DRIFT');
  if((contracts.match(/state:'LOCKED',backendRequired:true/g)||[]).length!==5)fail('CONTRACT_UNLOCKED');
- if((catalog.match(/,status:'LOCKED'\\}/g)||[]).length!==5)fail('CATALOG_UNLOCKED');
+ if((catalog.match(/,status:'LOCKED'\}/g)||[]).length!==5)fail('CATALOG_UNLOCKED');
  if(!/export function requireConnectedCareAuthorization\([^)]*\):never\s*\{\s*throw new Error\('MM_V21_CLINICAL_NO_GO:/.test(catalog))fail('REQUIRED_DENY_MISSING');
  if(!/export function invokeConnectedCare\(\):never\s*\{return requireConnectedCareAuthorization\(\);\}/.test(contracts))fail('INVOKE_DENY_MISSING');
  if(!preview.includes('NOT AUTHORIZED')||!preview.includes('All clinical capabilities are locked'))fail('PUBLIC_WARNING_MISSING');
