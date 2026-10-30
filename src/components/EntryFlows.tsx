@@ -8,7 +8,7 @@ import type {Journey,Visit} from '../lib/domain';
 import {Brand,Button,Panel} from '../ui/primitives';
 import {useModalFocus} from '../ui/useModalFocus';
 import {APP_DISPLAY_VERSION} from '../lib/release';
-export function AuthGate({onDemo}:{onDemo:()=>void}){
+export function AuthGate({onDemo,onLearn}:{onDemo:()=>void;onLearn:()=>void}){
  const {locale,setLocale,t}=useMamaLocale();
  const [mode,setMode]=useState<'signin'|'signup'>('signup');
  const [email,setEmail]=useState('');
@@ -40,6 +40,7 @@ export function AuthGate({onDemo}:{onDemo:()=>void}){
      <form onSubmit={submit} className="stack-form"><label>{t('auth.email')}<input type="email" required autoComplete="email" placeholder="mama@example.com" value={email} onChange={e=>setEmail(e.target.value)}/></label><label>{t('auth.password')}<input type="password" required minLength={8} autoComplete={mode==='signup'?'new-password':'current-password'} placeholder="At least 8 characters" value={password} onChange={e=>setPassword(e.target.value)}/></label>
      {message&&<div className="inline-note" role="status">{message}</div>}
      <Button type="submit" disabled={busy}>{busy?'Please wait...':mode==='signup'?'Create my account':'Sign in'} <ArrowRight size={16}/></Button></form></>}
+   <div className="mm-live-open"><Button type="button" Icon={ArrowRight} onClick={onLearn}>Open learning library — no account required</Button><p>Read general family-learning resources and try educational quizzes. No sample pregnancy profile or medical information needed.</p></div>
    <div className="demo-divider">{authConfigured?'OR TRY THE DEMO':'INTERACTIVE PRODUCT PREVIEW'}</div>
    <button className="demo-button" onClick={onDemo}><span className="demo-symbol"><Sparkles size={19}/></span><span><strong>{t('auth.demo')}</strong><small>{t('auth.demoDetails')}</small></span><ArrowRight size={18}/></button>
    <p className="footnote"><LockKeyhole size={14}/> Medical information should only be entered after your private database is connected. This app supports—not replaces—professional care.</p>
