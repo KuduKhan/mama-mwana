@@ -1,12 +1,14 @@
-import {useState} from 'react';
+import {useEffect,useState} from 'react';
 import {ArrowDownToLine,BookOpenCheck,CheckCircle2,ExternalLink,WifiOff} from 'lucide-react';
 import {ACADEMY_TOPICS,academyAnswer} from '../content/learningAcademyV209';
 import {useMamaLocale} from '../lib/locale';
-/** General public lessons; progress exists only in component memory, never in account storage. */
+import {readPublicAnswers,storePublicAnswers} from '../lib/publicLearningProgress';
+/** General education only. Quiz choices persist on-device, without names or clinical records. */
 export default function LearningAcademyV209(){
  const {locale}=useMamaLocale();
  const [active,setActive]=useState(ACADEMY_TOPICS[0].id);
- const [answers,setAnswers]=useState<Record<string,number>>({});
+ const [answers,setAnswers]=useState<Record<string,number>>(()=>readPublicAnswers(typeof window==='undefined'?null:window.localStorage));
+  useEffect(()=>{storePublicAnswers(typeof window==='undefined'?null:window.localStorage,answers);},[answers]);
  const [textOnly,setTextOnly]=useState(false);
  const index=locale==='sw'?1:0;
  const topic=ACADEMY_TOPICS.find(t=>t.id===active)??ACADEMY_TOPICS[0];
@@ -17,7 +19,7 @@ export default function LearningAcademyV209(){
     <span className="eyebrow">BETA.9 · PUBLIC LEARNING</span><h3 id="mm209-title">{locale==='sw'?'Akademia ya familia':'Family Learning Academy'}</h3>
     <p>{locale==='sw'?'Jaribu maswali ya jumla kwa Kiswahili au Kiingereza.':'Short, general knowledge checks in English or Kiswahili. Not approved medical training.'}</p>
    </div></header>
-  <div className="mm209-toolbar"><span role="status">{finished} / {ACADEMY_TOPICS.length} {locale==='sw'?'mada zimeeleweka':'topics completed in this view'}</span>
+  <div className="mm209-toolbar"><span role="status">{finished} / {ACADEMY_TOPICS.length} {locale==='sw'?'mada zimeeleweka':'topics completed on this device'}</span><button type="button" className="mm-account-link" onClick={()=>setAnswers({})}>{locale==='sw'?'Futa maendeleo':'Clear learning progress'}</button>
    <label className="mm209-low-data"><input type="checkbox" checked={textOnly} onChange={e=>setTextOnly(e.target.checked)}/><WifiOff size={16} aria-hidden="true"/>{locale==='sw'?'Muonekano wa maandishi':'Text-first display'}</label>
   </div>
   <div className="mm209-layout"><div className="mm209-topics" role="group" aria-label="Learning Academy topics">
@@ -32,6 +34,6 @@ export default function LearningAcademyV209(){
    <p className="mm209-source">{locale==='sw'?'Hali: Haijapitiwa na wataalamu':'Status: General, not independently reviewed'} · <a href={topic.source} target="_blank" rel="noopener noreferrer">{locale==='sw'?'Chanzo cha kusoma':'Source reference'} <ExternalLink size={13} aria-hidden="true"/></a></p>
   </article></div>
   <a className="mm209-pack" href="/learning/mamamwana-learning-essentials-v209.txt" download="mamamwana-public-learning-essentials-en-sw.txt"><ArrowDownToLine size={17} aria-hidden="true"/>{locale==='sw'?'Pakua masomo ya umma':'Download bilingual public learning pack'}</a>
-  <p className="mm209-footnote">{locale==='sw'?'Hakuna taarifa binafsi zinazohifadhiwa.':'Public offline material only. Answers and progress reset when this view is closed; no private records are cached.'}</p>
+  <p className="mm209-footnote">{locale==='sw'?'Hakuna taarifa binafsi zinazohifadhiwa.':'Public offline material only. Quiz choices are saved on this device and can be cleared; no clinical records or account identifiers are saved.'}</p>
  </section>;
 }
