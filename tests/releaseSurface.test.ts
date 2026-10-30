@@ -50,8 +50,8 @@ describe('current release visual and operational copy',()=>{
   expect(record).toContain('not a certified electronic health record');
  });
  it('preserves legacy selectors and explicitly loads the compatibility layer last',()=>{
-  const imports=readFileSync(join(root,'src/main.tsx'),'utf8');
-  expect(imports.indexOf("import './premium-current.css'")).toBeGreaterThan(imports.indexOf("import './premium-v14.css'"));
+  const imports=readFileSync(join(root,'src/styles/appStyles.ts'),'utf8');
+  expect(imports.indexOf("import '../premium-current.css'")).toBeGreaterThan(imports.indexOf("import '../premium-v14.css'"));
   const styles=readFileSync(join(root,'src/premium-current.css'),'utf8');
   expect(styles).toContain('.v4-record-stats');
   expect(styles).toContain('.care07-metrics');
