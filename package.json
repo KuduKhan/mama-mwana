@@ -25,7 +25,8 @@
     "security:rpc-review": "node scripts/audit-privileged-rpc-boundaries.mjs",
     "quality:experience": "node scripts/check-v2-experience.mjs",
     "quality:routes": "node scripts/check-route-splitting.mjs",
-    "release:rc:status": "node scripts/check-rc1-acceptance.mjs"
+    "release:rc:status": "node scripts/check-rc1-acceptance.mjs",
+    "security:v21": "node --test scripts/audit-v21-locked-boundary.test.mjs && node scripts/audit-v21-locked-boundary.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.58.0",
