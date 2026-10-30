@@ -8,7 +8,7 @@ describe('MamaMwana RC.1 immutable clinical release boundary',()=>{
   assert.deepEqual(auditV21Boundary(baseline()),[]);
  });
  it('rejects any unlocked service contract or catalogue status',()=>{
-  assert.ok(audit(b=>{b.contracts=b.contracts.replace("state:'LOCKED'","state:'READY'");}).includes('CONTRACT_UNLOCKED'));
+  assert.ok(audit(b=>{b.contracts=b.contracts.replace("state:'LOCKED',backendRequired:true","state:'READY',backendRequired:true");}).includes('CONTRACT_UNLOCKED'));
   assert.ok(audit(b=>{b.catalog=b.catalog.replace(",status:'LOCKED'}",",status:'ACTIVE'}");}).includes('CATALOG_UNLOCKED'));
  });
  it('rejects added patient-data service adapters and browser credentials',()=>{
