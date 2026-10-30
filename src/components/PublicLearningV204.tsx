@@ -19,3 +19,4 @@ export default function PublicLearningV204(){
   <a className="mm24-guide" download="mamamwana-public-guide.txt" href="/learning/mamamwana-public-guide-v204.txt"><ArrowDownToLine size={17} aria-hidden="true"/>{locale==='sw'?'Pakua mwongozo wa umma wa EN/SW':'Download complete EN/SW public guide'}</a>
   <p className="mm24-note">Public demo shell and guide are offline-ready after a successful initial load on supported devices. Private records, clinical writes and patient content are never cached.</p>
  </section>;
+}
