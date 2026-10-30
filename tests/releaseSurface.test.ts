@@ -34,7 +34,7 @@ describe('current release visual and operational copy',()=>{
   expect(app).toContain('APP_DISPLAY_VERSION');
   expect(app).not.toContain('v{APP_VERSION}');
   const sw=readFileSync(join(root,'public/demo-offline-sw.js'),'utf8');
-  expect(sw).toContain('mamamwana-public-demo-v2.0.0-beta.1');
+  expect(sw).toContain('mamamwana-public-demo-v'+APP_VERSION);
  });
  it('has no old application release headings or obsolete end-user migration prompts',()=>{
   for(const path of ui){
