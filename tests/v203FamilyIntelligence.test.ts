@@ -9,7 +9,8 @@ describe('beta.3 family timeline and personal visit kit',()=>{
   expect(rows).toHaveLength(1);
   expect(rows[0].label).toBe('Visit journal entry');
   expect(JSON.stringify(rows)).not.toContain('SECRET TEST NOTE');
-  // Journey is retained in memory for navigation and is never serialized externally.
+  expect(rows[0].journeyId).toBe(j.id);
+  // The public event projection has no pointer to notes or personal data fields.
  });
  it('exports only selected generic questions',()=>{
   const output=demoVisitKit([0,0,2,99,-1],'2026-10-30');

@@ -5,13 +5,13 @@ import {readable,todayISO} from '../lib/domain';
 import {buildCareEvents} from '../lib/careJourney';
 type Filter='all'|'visit'|'baby'|'wellbeing';
 const filterOptions:readonly {key:Filter;label:string}[]=[{key:'all',label:'All'},{key:'visit',label:'Visits'},{key:'baby',label:'Baby'},{key:'wellbeing',label:'Wellbeing'}];
-type RecordItem={id:string;day:string;kind:Filter;label:string;status:string;journey:Journey};
+type RecordItem={id:string;day:string;kind:Filter;label:string;status:string;journeyId:string};
 /** Private notes/clinic names deliberately excluded from the unified sample-data timeline. */
 export function safeFamilyDigest(journeys:Journey[]):RecordItem[]{
  return journeys.flatMap(j=>buildCareEvents(j).map(e=>({
   id:j.id+':'+e.id,day:e.day,kind:e.kind,
   label:e.kind==='visit'?'Visit journal entry':e.kind==='baby'?'Baby milestone entry':'Wellbeing journal entry',
-  status:e.status,journey:j
+  status:e.status,journeyId:j.id
  }))).sort((a,b)=>b.day.localeCompare(a.day)||a.id.localeCompare(b.id));
 }
 export function FamilyIntelligenceV203({journeys,demo,onSelect,onHub}:{journeys:Journey[];demo:boolean;onSelect:(j:Journey)=>void;onHub:()=>void}){
@@ -23,7 +23,7 @@ export function FamilyIntelligenceV203({journeys,demo,onSelect,onHub}:{journeys:
  return <section className="mm23-panel" aria-labelledby="mm23-family-title"><div className="mm23-head"><span className="mm23-symbol"><HeartHandshake size={20} aria-hidden="true"/></span><div><h3 id="mm23-family-title">Family Journey 360°</h3><p>Explore a combined family timeline in the sample-data demo. No private notes or clinical results appear here.</p></div></div>
   {!demo?<p className="mm23-locked"><LockKeyhole size={17}/> This enhanced family overview is limited to sample data until additional privacy review.</p>:<>
    <div className="mm23-tools"><div className="mm23-chips" role="group" aria-label="Filter family timeline">{filterOptions.map(f=><button type="button" aria-pressed={filter===f.key} key={f.key} onClick={()=>setFilter(f.key)}>{f.label}</button>)}</div><label className="mm23-search"><Search size={16} aria-hidden="true"/><span className="sr-only">Search safe family events</span><input aria-label="Search safe family events" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search event type or date"/></label></div>
-   {visible.length?<ol className="mm23-timeline">{visible.map(e=><li key={e.id}><time dateTime={e.day}>{readable(e.day)}</time><span><strong>{e.label}</strong><small>{e.status==='planned'?'Planned in journal':e.status==='confirm'?'Confirm journal date':'Recorded in sample journal'}</small></span><button type="button" onClick={()=>onSelect(e.journey)} aria-label={'Open family journey for '+e.day}><ChevronRight size={18} aria-hidden="true"/></button></li>)}</ol>:<p className="mm23-empty">No matching sample milestones yet.</p>}
+   {visible.length?<ol className="mm23-timeline">{visible.map(e=><li key={e.id}><time dateTime={e.day}>{readable(e.day)}</time><span><strong>{e.label}</strong><small>{e.status==='planned'?'Planned in journal':e.status==='confirm'?'Confirm journal date':'Recorded in sample journal'}</small></span><button type="button" onClick={()=>(()=>{const selected=journeys.find(j=>j.id===e.journeyId);if(selected)onSelect(selected);})()} aria-label={'Open family journey for '+e.day}><ChevronRight size={18} aria-hidden="true"/></button></li>)}</ol>:<p className="mm23-empty">No matching sample milestones yet.</p>}
    <div className="mm23-footer">{visible.length>=6&&!more&&<button type="button" onClick={()=>setMore(true)}>Show more milestones</button>}<button type="button" onClick={onHub}>Open personal timeline <ChevronRight size={17}/></button></div>
   </>}
  </section>;
