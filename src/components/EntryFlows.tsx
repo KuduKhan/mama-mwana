@@ -36,9 +36,9 @@ export function AuthGate({onDemo,onLearn}:{onDemo:()=>void;onLearn:()=>void}){
      <div className="auth-story-copy"><div className="eyebrow pale">A GENTLER WAY TO GROW</div><h1>Every beginning<br/>deserves <em className="handwritten-accent">care.</em></h1><p>From the first exciting weeks through your baby’s earliest milestones—one thoughtful place for your whole journey.</p><div className="auth-micro"><span><CheckCircle2 size={16}/> Pregnancy to parenthood</span><span><ShieldCheck size={16}/> Private by design</span></div></div>
    </div>
    <div className="auth-form-side"><div className="locale-auth"><label htmlFor="mamamwana-auth-locale">{t('app.language')}</label><select id="mamamwana-auth-locale" aria-label="Language / Lugha" value={locale} onChange={e=>setLocale(e.target.value==='sw'?'sw':'en')}><option value="en">English</option><option value="sw">Kiswahili</option></select></div><div className="auth-mobile-brand"><Brand/></div><div className="auth-panel">
-   <div className="badge-soft"><Sparkles size={14}/> {t('auth.welcome')}</div><div className="mm20-auth-edition">{APP_DISPLAY_VERSION} <span aria-hidden="true">·</span> Educational demo</div>
-   <h2>{authConfigured?(mode==='signup'?t('auth.begin'):mode==='recover'?'Recover your account':t('auth.return')):'Explore the MamaMwana preview'}</h2>
-   <p className="muted">{authConfigured?'Use a verified account for authentication. Private health records stay restricted until separately approved.':'Explore all journeys in an interactive demo without saving real personal information.'}</p>
+   <div className="badge-soft"><Sparkles size={14}/> {t('auth.welcome')}</div><div className="mm20-auth-edition">{APP_DISPLAY_VERSION} <span aria-hidden="true">·</span> Public learning</div>
+   <h2>{authConfigured?(mode==='signup'?t('auth.begin'):mode==='recover'?'Recover your account':t('auth.return')):'Welcome to MamaMwana'}</h2>
+   <p className="muted">{authConfigured?'Use a verified account for authentication. Private health records stay restricted until separately approved.':'Use the public bilingual learning library without an account. A separate sample-data journey is available for exploration only.'}</p>
    {authConfigured&&<><div className="auth-switch"><button className={mode==='signup'?'active':''} onClick={()=>{setMode('signup');setMessage('');}}>{t('auth.signup')}</button><button className={mode==='signin'?'active':''} onClick={()=>{setMode('signin');setMessage('');}}>{t('auth.signin')}</button></div>
      <form onSubmit={submit} className="stack-form"><label>{t('auth.email')}<input type="email" required autoComplete="email" placeholder="mama@example.com" value={email} onChange={e=>setEmail(e.target.value)}/></label>{mode!=='recover'&&<label>{t('auth.password')}<input type="password" required minLength={12} autoComplete={mode==='signup'?'new-password':'current-password'} placeholder="At least 12 characters" value={password} onChange={e=>setPassword(e.target.value)}/></label>}
      {message&&<div className="inline-note" role="status">{message}</div>}
@@ -47,7 +47,7 @@ export function AuthGate({onDemo,onLearn}:{onDemo:()=>void;onLearn:()=>void}){
      {mode==='recover'&&<button type="button" className="mm-account-link" onClick={()=>{setMode('signin');setMessage('');}}>Return to sign in</button>}
      </form></>}
    <div className="mm-live-open"><Button type="button" Icon={ArrowRight} onClick={onLearn}>Open learning library — no account required</Button><p>Read general family-learning resources and try educational quizzes. No sample pregnancy profile or medical information needed.</p></div>
-   <div className="demo-divider">{authConfigured?'OR TRY THE DEMO':'INTERACTIVE PRODUCT PREVIEW'}</div>
+   <div className="demo-divider">{authConfigured?'OPTIONAL SAMPLE EXPERIENCE':'OPTIONAL SAMPLE-DATA EXPERIENCE'}</div>
    <button className="demo-button" onClick={onDemo}><span className="demo-symbol"><Sparkles size={19}/></span><span><strong>{t('auth.demo')}</strong><small>{t('auth.demoDetails')}</small></span><ArrowRight size={18}/></button>
    <p className="footnote"><LockKeyhole size={14}/> Medical information should only be entered after your private database is connected. This app supports—not replaces—professional care.</p>
    </div></div>
