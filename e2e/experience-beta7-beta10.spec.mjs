@@ -27,7 +27,7 @@ test('beta.8 family storybook, beta.9 academy and beta.10 trust panel remain sam
  await expect(page.locator('.mm209-pack')).toHaveAttribute('href','/learning/mamamwana-learning-essentials-v209.txt');
  await page.locator('.mm209-lesson input').first().check();
  await expect(page.locator('.mm209-feedback')).toContainText('Correct');
- await page.locator('.mobile-tabs').getByRole('button',{name:'Me'}).click();
+ await page.locator('.mobile-tabs').getByRole('button',{name:'Me',exact:true}).click();
  await expect(page.getByRole('heading',{name:'Quality, privacy & transparency'})).toBeVisible();
  await expect(page.locator('.mm210-decision')).toContainText('CLINICAL NO-GO');
  const sizes=await page.evaluate(()=>({w:document.documentElement.clientWidth,s:document.documentElement.scrollWidth}));
