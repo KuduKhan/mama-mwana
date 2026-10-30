@@ -4,7 +4,7 @@ import {Brand,Button,SectionTitle,Panel,ProgressBar} from './ui/primitives';
 import {Notification,WarningCard,SourcesSmall} from './ui/FeedbackPanels';
 import {useModalFocus} from './ui/useModalFocus';
 import {AuthGate,Onboarding,NewVisitForm,BirthModal} from './components/EntryFlows';
-import {ConnectionStatusV16,NotificationCenterV16,FamilyTimelineV16,EducationReviewV16} from './components/ConnectedFamilyV16';
+import {ConnectionStatusV16,NotificationCenterV16,FamilyTimelineV16} from './components/ConnectedFamilyV16';
 import ReleaseShowcaseV20 from './components/ReleaseShowcaseV20';
 import SmartHomeV202 from './components/SmartHomeV202';
 const FamilyIntelligenceV203=lazy(()=>import('./components/FamilyIntelligenceV203').then(m=>({default:m.FamilyIntelligenceV203})));
@@ -13,7 +13,7 @@ const FamilyExperienceV208=lazy(()=>import('./components/FamilyExperienceV208').
 const VisitFollowThroughV208=lazy(()=>import('./components/FamilyExperienceV208').then(m=>({default:m.VisitFollowThroughV208})));
 import type { FormEvent } from 'react';
 import type { User } from '@supabase/supabase-js';
-import { Activity, ArrowLeft, ArrowRight, Baby, BookHeart, CalendarDays, Check, CheckCircle2, Cloud, Droplets, ExternalLink, Footprints, Heart, HeartHandshake, HeartPulse, LockKeyhole, LogOut, Menu, Moon, Plus, Globe2, ShieldAlert, ShieldCheck, Users, Bell, Download, NotebookPen, Search, ChevronRight, ChevronDown, Sparkles, Stethoscope, Sun, TrendingUp, Utensils, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Baby, BookHeart, CalendarDays, Check, CheckCircle2, Cloud, Droplets, ExternalLink, Footprints, Heart, HeartHandshake, HeartPulse, LockKeyhole, LogOut, Menu, Moon, Plus, Globe2, ShieldAlert, ShieldCheck, Users, Bell, Download, NotebookPen, Search, ChevronRight, ChevronDown, Sparkles, Stethoscope, Sun, TrendingUp, Utensils, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { configured, supabase } from './lib/supabase';
 import { APP_DISPLAY_VERSION } from './lib/release';
@@ -39,7 +39,7 @@ const LibraryPage=lazy(()=>import('./features/learning/LibraryPage'));
 import { BIRTH_CHECKLIST, ageInMonths, daysBetween, getPhase, isDate, postpartumDay, pregnancyStage, readable, todayISO } from './lib/domain';
 import type { FeedingMethod, Feeling, Journey } from './lib/domain';
 import { reminderStatus, visitReminders, visitCalendarUrl } from './lib/reminders';
-import { CARE_TASKS, CHILDHOOD_TASKS, educationForWeek, MILESTONES, POSTPARTUM_TASKS, SOURCES } from './content/education';
+import { CARE_TASKS, CHILDHOOD_TASKS, educationForWeek, MILESTONES, POSTPARTUM_TASKS } from './content/education';
 
 const TASK_ICONS:Record<string,LucideIcon>={
  droplets:Droplets,utensils:Utensils,footprints:Footprints,moon:Moon,heart:Heart,
