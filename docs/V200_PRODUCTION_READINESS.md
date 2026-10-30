@@ -2,7 +2,7 @@
 
 **Assessment date:** 30 October 2026  
 **Production release authorized:** **NO**  
-**Current live product:** v1.6.0 safe demo (once merged and deployed). The Vite production clinical build guard remains intact.
+**Current live product:** v2.0 Preview safe demo. No clinical production approval. The Vite production clinical build guard remains intact.
 
 ## Purpose
 A staged production-readiness evidence register, not a clinical deployment or compliance certification. Never equate a successful CI build, self-filled manifest, staging RLS tests or visual polish with approval to handle real patient/child health information.
@@ -32,7 +32,7 @@ A staged production-readiness evidence register, not a clinical deployment or co
 - \`npm run typecheck && npm run test && npm run security:client && npm run security:sql && npm run build\` — necessary engineering checks, not clinical approval.
 
 ## Release sequencing
-1. Deploy v1.6.0 safely as demo and maintain no-patient-data gates.
+1. Continue the v2.0 Preview public/demo release with no-patient-data gates.
 2. Collect independent signed clinical, bilingual, privacy/legal, physical-device, penetration and recovery artifacts.
 3. Review and roll out v12 account erasure safely in a controlled environment after restore rehearsal.
 4. Independently verify evidence, test a production-like environment, document risks, and obtain final signed release approval.

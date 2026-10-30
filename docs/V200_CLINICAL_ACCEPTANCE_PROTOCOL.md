@@ -38,4 +38,4 @@ A GitHub artifact cannot sign for a human. Human reviewers must not paste patien
 ## Go / No-Go
 A failure in danger-sign education, unexpected family/caregiver disclosure, unauthorized access, missing restore proof, inability to delete accounts correctly, insufficient data protection grounds, high/critical pentest findings or missing real-device screen-reader acceptance is NO-GO.
 
-Maintain the source-enforced production clinical gate and V200_RELEASE_SIGNOFF.json as NO_GO. The release:v2:authorize command intentionally refuses authorization. Independent evidence must be genuine and stored safely; the app version remains 1.6.0 until a separately reviewed clinical release is approved.
+Maintain the source-enforced production clinical gate and V200_RELEASE_SIGNOFF.json as NO_GO. The release:v2:authorize command intentionally refuses authorization. Independent evidence must be genuine and stored safely; the public preview remains on a pre-release v2.0 version until a separately reviewed clinical release is approved. The approval registry and clinical production build guard remain NO-GO.
