@@ -1,0 +1,37 @@
+.mm209-academy{margin:18px 0;padding:clamp(16px,2.4vw,26px);background:var(--mm22-surface);color:var(--mm22-text);
+ border:1px solid var(--mm22-line);border-radius:20px;box-shadow:var(--mm22-raised);min-width:0}
+.mm209-head{display:flex;align-items:flex-start;gap:12px}.mm209-head>div{min-width:0;flex:1}
+.mm209-head h3{font:650 clamp(19px,2.2vw,25px)/1.3 var(--mm-serif);margin:4px 0 6px}
+.mm209-head p,.mm209-footnote{color:var(--mm22-muted);font:400 12px/1.65 var(--mm-sans);margin:0}
+.mm209-icon{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;color:var(--mm-botanical);
+ border-radius:13px;background:var(--mm-sage-pale)}
+.mm209-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+ margin:18px 0 13px;padding:10px 12px;border:1px solid var(--mm22-line);border-radius:12px;font:650 11px var(--mm-sans)}
+.mm209-low-data{display:flex;align-items:center;gap:9px;min-height:38px;cursor:pointer}.mm209-low-data input{width:18px;height:18px;accent-color:var(--mm-focus)}
+.mm209-layout{display:grid;grid-template-columns:minmax(160px,.7fr) minmax(0,1.55fr);gap:14px}
+.mm209-topics{display:grid;align-content:start;gap:8px}
+.mm209-topics button{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:48px;
+ padding:12px 14px;border:1px solid var(--mm22-line);border-radius:12px;color:var(--mm22-text);background:var(--mm22-ground);
+ font:700 12px/1.5 var(--mm-sans);text-align:left;cursor:pointer}
+.mm209-topics button[aria-pressed=true]{border-color:#7eb393;background:#dff1e4;color:#175039}
+.mm209-topics button svg{flex-shrink:0;color:var(--mm-botanical)}
+.mm209-lesson{min-width:0;padding:clamp(14px,2vw,21px);border:1px solid var(--mm22-line);border-radius:14px;background:var(--mm22-ground)}
+.mm209-lesson>small{font:750 10px var(--mm-sans);color:var(--mm22-muted);letter-spacing:.06em}
+.mm209-lesson h4{font:650 clamp(18px,2vw,23px) var(--mm-serif);margin:8px 0 14px;color:var(--mm22-text)}
+.mm209-lesson fieldset{border:0;margin:0;padding:0;min-width:0}
+.mm209-lesson legend{font:650 13px/1.6 var(--mm-sans);padding:0 0 10px}
+.mm209-lesson fieldset label{display:flex;align-items:center;gap:11px;min-height:44px;padding:9px 11px;margin-bottom:8px;
+ border:1px solid var(--mm22-line);border-radius:11px;font:500 12px/1.55 var(--mm-sans);cursor:pointer}
+.mm209-lesson fieldset input{width:18px;height:18px;flex:0 0 18px;accent-color:var(--mm-focus)}
+.mm209-feedback{padding:12px;border-radius:10px;background:var(--mm-sage-pale);font:500 12px/1.6 var(--mm-sans)}
+.mm209-source{font:500 11px/1.6 var(--mm-sans);color:var(--mm22-muted);margin:14px 0 0}
+.mm209-source a{display:inline-flex;gap:4px;align-items:center;color:var(--mm-botanical);overflow-wrap:anywhere}
+.mm209-pack{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:44px;padding:11px 14px;
+ border-radius:12px;background:#246b4e;color:#fff;text-decoration:none;font:750 12px var(--mm-sans);margin:14px 0}
+.mm209-footnote{margin-top:3px}
+.mm209-academy :is(button,a,input):focus-visible{outline:3px solid var(--mm-focus);outline-offset:3px}
+.mm209-text-only .mm209-icon,.mm209-text-only .mm209-topics button svg{display:none}
+@media(max-width:790px){.mm209-layout{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:390px){.mm209-pack{display:flex;width:100%;text-align:center}.mm209-academy{padding:15px}}
+:root[data-mm-theme="dark"] .mm209-topics button[aria-pressed=true]{background:#2e553f;color:#e9f7ef;border-color:#6caa82}
+@media(forced-colors:active){.mm209-lesson,.mm209-topics button,.mm209-lesson fieldset label{border:1px solid CanvasText}}
