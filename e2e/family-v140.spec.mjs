@@ -28,7 +28,7 @@ test('display options remain local to this browser across reloads',async({page})
  await page.reload();
  await expect(page.locator('html')).toHaveAttribute('data-mm-text','largest');
  const saved=await page.evaluate(()=>Object.keys(JSON.parse(localStorage.getItem('mamamwana-ui-display-v1')||'{}')).sort());
- expect(saved).toEqual(['contrast','motion','textScale']);
+ expect(saved).toEqual(['contrast','motion','textScale','theme']);
 });
 test('settings reset without changing the active care journey',async({page})=>{
  await demo(page,1280);
