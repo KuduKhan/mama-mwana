@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
-import {NAV,NAV_GROUPS,MOBILE_NAV,isTab,type Tab} from './ui/navigation';
+import {NAV,NAV_GROUPS,MOBILE_NAV,isTab,primaryForTab,type Tab} from './ui/navigation';
 import {Brand,Button,SectionTitle,Panel,ProgressBar} from './ui/primitives';
 import {useModalFocus} from './ui/useModalFocus';
 import {AuthGate,Onboarding,NewVisitForm,BirthModal} from './components/EntryFlows';
@@ -515,7 +515,7 @@ export default function App(){
     <div className="mm-footer-bottom"><span>© {new Date().getFullYear()} MamaMwana · {APP_DISPLAY_VERSION}</span><span>{t('app.educational')}</span></div>
    </footer>
   </div>
-  <nav className="mobile-tabs" aria-label="Quick navigation">{MOBILE_NAV.map(({id,label,Icon})=><button key={id} className={tab===id?'active':''} aria-current={tab===id?'page':undefined} onClick={()=>enterTab(id)}><Icon size={21} strokeWidth={1.85} aria-hidden="true"/><span>{label}</span></button>)}</nav>
+  <nav className="mobile-tabs" aria-label="Quick navigation">{MOBILE_NAV.map(({id,label,Icon})=><button key={id} className={primaryForTab(tab)===id?'active':''} aria-current={primaryForTab(tab)===id?'page':undefined} onClick={()=>enterTab(id)}><Icon size={21} strokeWidth={1.85} aria-hidden="true"/><span>{label}</span></button>)}</nav>
   {displayOpen&&<div className="modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setDisplayOpen(false);}}><div className="modal mm14-dialog" ref={displayDialogRef} role="dialog" aria-modal="true" aria-labelledby="mm14-preferences-title" tabIndex={-1}><button type="button" className="modal-close" aria-label={t('a11y.close','Close display preferences')} onClick={()=>setDisplayOpen(false)}><X size={20}/></button><DisplayPreferencesV14/></div></div>}
    {warningOpen&&<div className="modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setWarningOpen(false);}}><div className="modal warning-modal" ref={warningDialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="urgent-title"><button className="modal-close" aria-label="Close" onClick={()=>setWarningOpen(false)}><X size={20}/></button><div className="modal-mark danger"><ShieldAlert size={26}/></div><h2 id="urgent-title">When to seek urgent help</h2><p className="muted">If you or your baby has any of these concerns, seek immediate in-person medical assessment or contact local emergency services. Do not wait for an app response.</p><ul className="urgent-list">{URGENT.map(t=><li key={t}><span className="urgent-dot"/>{t}</li>)}</ul><p className="footnote">This is not an exhaustive list. If something feels seriously wrong, get checked promptly. For urgent warning signs, follow your local emergency care instructions.</p><Button onClick={()=>setWarningOpen(false)}>I understand</Button></div></div>}
   {birthOpen&&<BirthModal dueDate={activeJourney.due_date} onClose={()=>setBirthOpen(false)} onBirth={markBirth}/>}

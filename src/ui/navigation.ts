@@ -25,9 +25,15 @@ export const NAV_GROUPS:readonly {key:string;labelKey:string;label:string;ids:re
 
 export const MOBILE_NAV:readonly NavItem[]=[
  {id:'home',label:'Home',Icon:House},
- {id:'care',label:'Today',Icon:Heart},
+ {id:'family',label:'Journey',Icon:Users},
  {id:'planner',label:'Planner',Icon:ListTodo},
- {id:'visits',label:'Visits',Icon:CalendarDays},
- {id:'baby',label:'Baby',Icon:Baby}
+ {id:'library',label:'Learn',Icon:BookHeart},
+ {id:'privacy',label:'Me',Icon:LockKeyhole}
 ];
+/** All 13 product sections remain accessible through the search drawer. */
+export const PRIMARY_FOR_TAB:Readonly<Record<Tab,Tab>>={
+ home:'home',care:'home',family:'family',pregnancy:'family',birth:'family',baby:'family',hub:'family',
+ planner:'planner',visits:'planner',library:'library',guidance:'library',privacy:'privacy',records:'privacy'
+};
+export function primaryForTab(tab:Tab):Tab{return PRIMARY_FOR_TAB[tab];}
 export const isTab=(value:unknown):value is Tab=>typeof value==='string'&&NAV.some(item=>item.id===value);

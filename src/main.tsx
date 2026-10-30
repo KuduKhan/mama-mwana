@@ -35,6 +35,7 @@ import './quality-v205.css';
 import './connected-services-v21.css';
 // Final shared design layer: layout rhythm, icon precision and accessible micro-interactions.
 import './premium-finish-v20.css';
+import './experience-v207.css';
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><FailureBoundary><LocaleProvider><AccessibilityProvider><App /></AccessibilityProvider></LocaleProvider></FailureBoundary></React.StrictMode>);
 
 // Public demo cache only. Does not enable clinical offline writes or background sync.
