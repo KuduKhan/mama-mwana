@@ -2,7 +2,7 @@
 
 ## Functional changes
 - A visitor can open the actual bilingual public learning library **without** creating a synthetic pregnancy or signing in. Existing public lesson downloads and learning quizzes remain available; no patient data is generated or stored.
-- If the production Supabase URL and **publishable** browser key are independently configured, Supabase Auth sessions can be established even while the medical-record data gate stays locked. A signed-in account enters the public educational workspace and can securely sign out.
+- If the production Supabase URL and **publishable** browser key are independently configured, Supabase Auth sessions can be established even while the medical-record data gate stays locked. Email confirmation and password recovery flows are implemented in the client and still require independently verified production Auth configuration. A signed-in account enters the public educational workspace and can securely sign out.
 - Existing sample journeys remain an explicitly separate optional demonstration for acceptance testing only.
 
 ## Unchanged restrictions
