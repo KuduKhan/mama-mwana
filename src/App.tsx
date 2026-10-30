@@ -5,9 +5,10 @@ import {useModalFocus} from './ui/useModalFocus';
 import {AuthGate,Onboarding,NewVisitForm,BirthModal} from './components/EntryFlows';
 import {ConnectionStatusV16,NotificationCenterV16,FamilyTimelineV16,EducationReviewV16} from './components/ConnectedFamilyV16';
 import ReleaseShowcaseV20 from './components/ReleaseShowcaseV20';
+import SmartHomeV202 from './components/SmartHomeV202';
 import type { FormEvent } from 'react';
 import type { User } from '@supabase/supabase-js';
-import { Activity, ArrowLeft, ArrowRight, Baby, BookHeart, CalendarDays, Check, CheckCircle2, Cloud, Droplets, ExternalLink, Footprints, Heart, HeartHandshake, HeartPulse, LockKeyhole, LogOut, Menu, Moon, Plus, Globe2, ShieldAlert, ShieldCheck, Users, Bell, Download, NotebookPen, ChevronRight, ChevronDown, Sparkles, Stethoscope, Sun, TrendingUp, Utensils, X } from 'lucide-react';
+import { Activity, ArrowLeft, ArrowRight, Baby, BookHeart, CalendarDays, Check, CheckCircle2, Cloud, Droplets, ExternalLink, Footprints, Heart, HeartHandshake, HeartPulse, LockKeyhole, LogOut, Menu, Moon, Plus, Globe2, ShieldAlert, ShieldCheck, Users, Bell, Download, NotebookPen, Search, ChevronRight, ChevronDown, Sparkles, Stethoscope, Sun, TrendingUp, Utensils, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { configured, supabase } from './lib/supabase';
 import { APP_DISPLAY_VERSION } from './lib/release';
@@ -71,6 +72,7 @@ export default function App(){
  const [saveStatus,setSaveStatus]=useState<'saved'|'saving'|'error'>('saved');
  const [loadingJourney,setLoadingJourney]=useState(false);
  const [tab,setTab]=useState<Tab>('home');
+ const [navQuery,setNavQuery]=useState('');
  // History records only a public page name; never include a patient or journey identifier.
  useEffect(()=>{
   const existing=window.history.state;
@@ -323,6 +325,7 @@ export default function App(){
  return <div className="page-content mm13-home">
    {journeys.length>1&&<div className="mm14-home-family" aria-label={t('family.quick','Family quick switch')}><span>{t('family.quick','Family quick switch')}</span><div>{journeys.map(j=><button key={j.id} type="button" aria-pressed={j.id===activeJourney.id} onClick={()=>selectJourney(j)}>{j.baby_birth_date?(j.baby_name||t('family.baby','Baby')):t('family.pregnancy','Pregnancy journey')}{j.id===activeJourney.id?' · '+t('family.current','Current'):''}</button>)}</div></div>}
   <ReleaseShowcaseV20 onFamily={()=>enterTab('family')} onLearning={()=>enterTab('library')}/>
+  <SmartHomeV202 journey={activeJourney} done={completedToday} total={tasks.length} onNavigate={enterTab}/>
   <section className="mm13-today" aria-labelledby="mm13-today-heading">
    <div className="mm13-today-head"><div><span className="eyebrow">{t('home.todayEyebrow','YOUR DAILY FOCUS')}</span><h2 id="mm13-today-heading">{t('home.todayTitle','Your day at a glance')}</h2><p>{t('home.todaySubtitle','Pick up where you left off. Personal reminders, not medical advice.')}</p></div><span className="mm13-today-date"><Sun size={16} aria-hidden="true"/>{readable(todayISO())}</span></div>
    <div className="mm13-action-grid" aria-label="Suggested next steps">
@@ -463,7 +466,8 @@ export default function App(){
    <div className="sidebar-header"><Brand/><button ref={closeDrawerRef} className="mobile-close" aria-label="Close navigation" onClick={()=>setMenuOpen(false)}><X size={20}/></button></div>
    <div className="sidebar-intro"><span className="eyebrow">{t('app.space')}</span><div className="sidebar-greeting">{t('app.growing')} <Heart size={17} strokeWidth={1.8} aria-hidden="true"/></div></div>
    <div className="nav-heading">{t('app.journey')}</div>
-   <nav className="sidebar-nav" aria-label="Primary navigation">{NAV_GROUPS.map(group=><div key={group.key} className="mm13-nav-group" role="group" aria-labelledby={'mm13-group-'+group.key}><div id={'mm13-group-'+group.key} className="mm13-nav-group-label">{t(group.labelKey,group.label)}</div>{NAV.filter(item=>group.ids.includes(item.id)).map(({id,label,Icon})=><button key={id} onClick={()=>enterTab(id)} className={'nav-item '+(tab===id?'selected':'')} aria-current={tab===id?'page':undefined}><Icon size={19} strokeWidth={1.9} aria-hidden="true"/>{t('nav.'+id,label)}{tab===id&&<span className="nav-active-dot"/>}</button>)}</div>)}</nav>
+   <label className="mm22-nav-search"><span className="sr-only">Search app sections</span><Search size={17} aria-hidden="true"/><input type="search" value={navQuery} onChange={e=>setNavQuery(e.target.value)} placeholder="Find a section" aria-label="Find a section" autoComplete="off"/></label>
+   <nav className="sidebar-nav" aria-label="Primary navigation">{NAV_GROUPS.filter(group=>group.ids.some(id=>NAV.some(item=>item.id===id&&t('nav.'+id,item.label).toLocaleLowerCase().includes(navQuery.trim().toLocaleLowerCase())))).map(group=><div key={group.key} className="mm13-nav-group" role="group" aria-labelledby={'mm13-group-'+group.key}><div id={'mm13-group-'+group.key} className="mm13-nav-group-label">{t(group.labelKey,group.label)}</div>{NAV.filter(item=>group.ids.includes(item.id)&&t('nav.'+item.id,item.label).toLocaleLowerCase().includes(navQuery.trim().toLocaleLowerCase())).map(({id,label,Icon})=><button key={id} onClick={()=>enterTab(id)} className={'nav-item '+(tab===id?'selected':'')} aria-current={tab===id?'page':undefined}><Icon size={19} strokeWidth={1.9} aria-hidden="true"/>{t('nav.'+id,label)}{tab===id&&<span className="nav-active-dot"/>}</button>)}</div>)}{navQuery&&NAV.every(item=>!t('nav.'+item.id,item.label).toLocaleLowerCase().includes(navQuery.trim().toLocaleLowerCase()))&&<p className="mm22-search-empty">No matching section</p>}</nav>
    <div className="sidebar-spacer"/>
    <div className="sidebar-support"><span className="sidebar-support-icon"><ShieldCheck size={21}/></span><strong>Your health matters</strong><p>Medical concerns always deserve a real healthcare professional.</p><button onClick={()=>{setMenuOpen(false);setWarningOpen(true);}}>When to seek help <ArrowRight size={14}/></button></div>
    <div className="sidebar-footer mm-sidebar-footer"><button onClick={signOut}><LogOut size={17}/>{demo?t('app.demoExit'):t('app.logout')}</button><div className="mm-sidebar-signature"><img src="/icon.svg" width={26} height={26} alt="" aria-hidden="true"/><span><strong>MamaMwana</strong><small>© {new Date().getFullYear()} · {APP_DISPLAY_VERSION}</small></span></div></div>

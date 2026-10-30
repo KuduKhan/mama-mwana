@@ -28,6 +28,7 @@ import './chrome-renewal.css';
 import './clinical-warmth.css';
 import './connected-family-v16.css';
 import './experience-v20.css';
+import './studio-v202.css';
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><FailureBoundary><LocaleProvider><AccessibilityProvider><App /></AccessibilityProvider></LocaleProvider></FailureBoundary></React.StrictMode>);
 
 // Public demo cache only. Does not enable clinical offline writes or background sync.
