@@ -13,6 +13,7 @@ export function AccessibilityProvider({children}:{children:ReactNode}){
   doc.dataset.mmText=preferences.textScale;
   doc.dataset.mmContrast=preferences.contrast;
   doc.dataset.mmMotion=preferences.motion;
+  doc.dataset.mmTheme=preferences.theme;
   try{window.localStorage.setItem(DISPLAY_KEY,JSON.stringify(preferences));}catch{/* optional UI-only preference */}
  },[preferences]);
  const value=useMemo(()=>({preferences,setPreferences,reset:()=>setPreferences({...DEFAULT_DISPLAY})}),[preferences]);

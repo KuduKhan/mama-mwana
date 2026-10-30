@@ -8,6 +8,11 @@ export default function DisplayPreferencesV14(){
   <h3 id="mm14-preferences-title">{t('a11y.heading','Display and accessibility')}</h3>
   <p>{t('a11y.summary','Customize how this device shows MamaMwana. No medical details are saved in these settings.')}</p>
   <div className="mm14-preferences-grid">
+   <label>{t('a11y.theme','Appearance')}
+    <select aria-label="Appearance theme" value={preferences.theme} onChange={e=>setPreferences({...preferences,theme:e.target.value as 'system'|'light'|'dark'})}>
+     <option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option>
+    </select>
+   </label>
    <label>{t('a11y.text','Text size')}
     <select aria-label={t('a11y.text','Text size')} value={preferences.textScale} onChange={e=>setPreferences({...preferences,textScale:e.target.value as TextScale})}>
      <option value="standard">{t('a11y.standard','Standard')}</option><option value="large">{t('a11y.large','Large')}</option><option value="largest">{t('a11y.largest','Extra large')}</option>

@@ -29,6 +29,8 @@ jobs:
         run: node --check scripts/run-local-security.mjs && node --check scripts/prepare-local-migrations.mjs
       - name: Verify fail-closed v2 release readiness
         run: npm run release:v2:status
+      - name: Verify preview safety, public learning and offline boundaries
+        run: npm run release:v2:privacy-safety
       - name: Typecheck
         run: npm run typecheck
       - name: Domain unit tests

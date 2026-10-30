@@ -1,0 +1,24 @@
+MAMAMWANA — PUBLIC LEARNING COMPANION
+Version: 2.0 beta.4 | Educational demo only
+
+ENGLISH
+1. Preparing questions: Write questions ahead of an appointment, and confirm all plans directly with a healthcare professional.
+2. Family support: Discuss practical ways family members can support one another through everyday responsibilities.
+3. Learning together: Celebrate children’s interests with storytelling, songs and play suited to family preferences.
+4. Respecting privacy: Check who can view a device before opening private information. Never share passwords.
+
+KISWAHILI — MAFUNZO YA JUMLA
+1. Kuandaa maswali: Andika maswali kabla ya miadi na uthibitishe mipango yote na mtaalamu wa afya.
+2. Msaada wa familia: Jadili namna wanafamilia wanavyoweza kusaidiana katika shughuli za kila siku.
+3. Kujifunza pamoja: Furahieni hadithi, nyimbo na michezo kulingana na mapendeleo ya familia.
+4. Kuheshimu faragha: Hakikisha ni nani anayeweza kuona kifaa kabla ya kufungua taarifa binafsi. Usishiriki nywila.
+
+STATUS
+These are general, non-clinical learning prompts. No individual medical recommendation, diagnosis, or treatment is provided. Independent clinical review of medical materials and professional Kiswahili medical translation remain pending.
+
+REFERENCES
+WHO public antenatal care: https://www.who.int/publications/i/item/9789241549912
+WHO public postnatal care: https://www.who.int/publications/i/item/9789240045989
+
+OFFLINE LIMITS
+Only this public generic guide and the demo shell may be cached. The application never caches patient records or clinical API responses for offline access. Changes to sample demo state may be lost on reload.
