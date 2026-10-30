@@ -2,13 +2,13 @@ import {useEffect,useState} from 'react';
 import {ArrowDownToLine,BookOpenCheck,CheckCircle2,ExternalLink,WifiOff} from 'lucide-react';
 import {ACADEMY_TOPICS,academyAnswer} from '../content/learningAcademyV209';
 import {useMamaLocale} from '../lib/locale';
-import {readPublicAnswers,storePublicAnswers} from '../lib/publicLearningProgress';
+import {browserLearningStorage,readPublicAnswers,storePublicAnswers} from '../lib/publicLearningProgress';
 /** General education only. Quiz choices persist on-device, without names or clinical records. */
 export default function LearningAcademyV209(){
  const {locale}=useMamaLocale();
  const [active,setActive]=useState(ACADEMY_TOPICS[0].id);
- const [answers,setAnswers]=useState<Record<string,number>>(()=>readPublicAnswers(typeof window==='undefined'?null:window.localStorage));
-  useEffect(()=>{storePublicAnswers(typeof window==='undefined'?null:window.localStorage,answers);},[answers]);
+ const [answers,setAnswers]=useState<Record<string,number>>(()=>readPublicAnswers(browserLearningStorage()));
+  useEffect(()=>{storePublicAnswers(browserLearningStorage(),answers);},[answers]);
  const [textOnly,setTextOnly]=useState(false);
  const index=locale==='sw'?1:0;
  const topic=ACADEMY_TOPICS.find(t=>t.id===active)??ACADEMY_TOPICS[0];
