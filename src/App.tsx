@@ -6,6 +6,7 @@ import {AuthGate,Onboarding,NewVisitForm,BirthModal} from './components/EntryFlo
 import {ConnectionStatusV16,NotificationCenterV16,FamilyTimelineV16,EducationReviewV16} from './components/ConnectedFamilyV16';
 import ReleaseShowcaseV20 from './components/ReleaseShowcaseV20';
 import SmartHomeV202 from './components/SmartHomeV202';
+import {FamilyIntelligenceV203,VisitPreparationV203} from './components/FamilyIntelligenceV203';
 import type { FormEvent } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { Activity, ArrowLeft, ArrowRight, Baby, BookHeart, CalendarDays, Check, CheckCircle2, Cloud, Droplets, ExternalLink, Footprints, Heart, HeartHandshake, HeartPulse, LockKeyhole, LogOut, Menu, Moon, Plus, Globe2, ShieldAlert, ShieldCheck, Users, Bell, Download, NotebookPen, Search, ChevronRight, ChevronDown, Sparkles, Stethoscope, Sun, TrendingUp, Utensils, X } from 'lucide-react';
@@ -371,6 +372,7 @@ export default function App(){
    <Panel className="family-intro"><span className="small-round mint"><Users size={21}/></span><div><h3>Every chapter has its place</h3><p>Starting another journey does not erase your previous pregnancy, birth or baby records. Distinct child profiles can include twins and multiples. Legacy charts remain linked to the original journey.</p></div></Panel>
    <FamilySnapshotV14 journeys={journeys} activeId={activeJourney.id} onSelect={selectJourney}/>
    <FamilyTimelineV16 journeys={journeys} activeId={activeJourney.id} onSelect={selectJourney}/>
+   <FamilyIntelligenceV203 journeys={journeys} demo={demo} onSelect={selectJourney} onHub={()=>enterTab('hub')}/>
     <div className="family-list">{journeys.map(j=>{const born=Boolean(j.baby_birth_date);return <button key={j.id} className={'family-journey '+(j.id===activeJourney.id?'current':'')} onClick={()=>selectJourney(j)}>
      <span className="family-avatar">{born?<Baby size={25}/>:<Heart size={25}/>}</span><span className="family-journey-copy"><strong>{born?j.baby_name+'’s journey':'Pregnancy journey'}</strong><small>{born?'Born '+readable(j.baby_birth_date!):'Estimated due '+readable(j.due_date)} · {j.mother_name}</small></span><span className="family-tag">{j.id===activeJourney.id?t('family.current','Current'):t('family.switch','Open')}</span><ChevronRight size={18}/></button>;})}</div>
    <FamilyChildrenV09 journey={activeJourney} isDemo={demo} userId={user?.id??null}/>
@@ -410,6 +412,7 @@ export default function App(){
  function Visits(){
  return <div className="page-content"><SectionTitle eyebrow="CARE CONNECTIONS" title="Antenatal visits" subtitle="Your own appointment journal. The schedule is always set with your healthcare team." action={<Button Icon={Plus} onClick={()=>setNewVisit(true)}>Add visit</Button>}/>
   <Panel className="anc-intro"><div className="anc-icon"><Stethoscope size={28}/></div><div><h3>Stay connected with your care team</h3><p>WHO describes a model with at least eight antenatal contacts across pregnancy. These weeks are general educational reference points—not appointments booked for you.</p></div></Panel>
+  <VisitPreparationV203 journey={activeJourney} demo={demo}/>
   <Panel className="anc-timeline"><div className="panel-heading"><div><div className="eyebrow">REFERENCE TIMELINE</div><h3>Eight WHO contact points</h3></div><span className="soft-label">Illustrative only</span></div><div className="weeks-strip">{ANC_WEEKS.map((w,i)=><div key={w} className={'week-chip '+(w<=preg.week?'passed':'')}><small>{i+1}</small><strong>{w===12?'≤12':String(w)}</strong><span>wks</span></div>)}</div><p className="footnote">Ask your clinic which contact dates, examinations and follow-ups are right for your pregnancy.</p></Panel>
   {newVisit&&<Panel className="form-panel"><h3>Plan an appointment</h3><NewVisitForm onSave={v=>{void changeClinical('visit',v).then(ok=>{if(ok){setNewVisit(false);setToast('Visit added to your personal journal.');}});}} onCancel={()=>setNewVisit(false)}/></Panel>}
   {reminders.length>0&&<Panel className="reminders-panel"><div className="panel-heading"><div><div className="eyebrow">APPOINTMENT REMINDERS</div><h3>Dates to follow up</h3></div><Bell size={20}/></div><p className="muted">In-app reminders appear when you open MamaMwana. For an external reminder, add a visit to your own calendar.</p><div className="reminder-items">{reminders.map(v=><div key={v.id} className="reminder-item"><span className={'reminder-signal '+(reminderStatus(v)==='overdue'?'overdue':'')}/><span><strong>{v.clinic}</strong><small>{readable(v.scheduled_on)} · {reminderStatus(v)==='overdue'?'Date passed — confirm with clinic':reminderStatus(v)==='today'?'Today':'Within seven days'}</small></span></div>)}</div></Panel>}
