@@ -1,6 +1,7 @@
 import {describe,it,expect} from 'vitest';
 import {readFileSync} from 'node:fs';
 import {spawnSync} from 'node:child_process';
+// @ts-expect-error Deliberately pure JavaScript acceptance validator has runtime tests; no TS declaration.
 import {assessV200Acceptance} from '../scripts/v200-acceptance-core.mjs';
 const matrix=JSON.parse(readFileSync('docs/V200_ACCEPTANCE_MATRIX.json','utf8'));
 const manifest=JSON.parse(readFileSync('docs/V200_RELEASE_SIGNOFF.json','utf8'));
@@ -18,7 +19,7 @@ describe('v2.0 independent acceptance cannot be inferred from CI',()=>{
   expect(()=>assessV200Acceptance(manifest,{...matrix,clinicalLaunchAuthorization:'YES'})).toThrow();
  });
  it('never certifies even completely self-filled review metadata',()=>{
-  const filled={...manifest,requiredGates:manifest.requiredGates.map(g=>({...g,status:'approved',reviewer:'claimed reviewer',signedAt:'2026-10-30',evidence:'unverified'}))};
+  const filled={...manifest,requiredGates:manifest.requiredGates.map((g:{id:string;status:string;evidence:string|null;reviewer:string|null;signedAt:string|null})=>({...g,status:'approved',reviewer:'claimed reviewer',signedAt:'2026-10-30',evidence:'unverified'}))};
   const x=assessV200Acceptance(filled,matrix);
   expect(x.gatesPending).toBe(0);expect(x.independentApprovalVerified).toBe(false);
   expect(x.decision).toBe('NO_GO');
