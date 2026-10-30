@@ -10,7 +10,7 @@ import {useModalFocus} from '../ui/useModalFocus';
 import {APP_DISPLAY_VERSION} from '../lib/release';
 export function AuthGate({onDemo,onLearn}:{onDemo:()=>void;onLearn:()=>void}){
  const {locale,setLocale,t}=useMamaLocale();
- const [mode,setMode]=useState<'signin'|'signup'>('signup');
+ const [mode,setMode]=useState<'signin'|'signup'|'recover'>('signup');
  const [email,setEmail]=useState('');
  const [password,setPassword]=useState('');
  const [busy,setBusy]=useState(false);
@@ -19,10 +19,13 @@ export function AuthGate({onDemo,onLearn}:{onDemo:()=>void;onLearn:()=>void}){
   e.preventDefault();if(!authSupabase)return;
   setBusy(true);setMessage('');
   try{
-   const result=mode==='signup'
-    ?await authSupabase.auth.signUp({email:email.trim(),password})
+   const result=mode==='recover'
+    ?await authSupabase.auth.resetPasswordForEmail(email.trim(),{redirectTo:window.location.origin})
+    :mode==='signup'
+    ?await authSupabase.auth.signUp({email:email.trim(),password,options:{emailRedirectTo:window.location.origin}})
     :await authSupabase.auth.signInWithPassword({email:email.trim(),password});
    if(result.error)setMessage(result.error.message);
+   else if(mode==='recover')setMessage('If this account exists, check its email for a password recovery link.');
    else if(mode==='signup')setMessage('Check your email for an account verification link, if confirmation is enabled. Do not add personal health details until the care workspace is approved.');
    else if(!configured)setMessage('Account sign-in verified. The private health-data workspace is still restricted; explore the sample-data demo.');
   }catch{setMessage('Account service temporarily unavailable. Please try again.');}
@@ -34,12 +37,15 @@ export function AuthGate({onDemo,onLearn}:{onDemo:()=>void;onLearn:()=>void}){
    </div>
    <div className="auth-form-side"><div className="locale-auth"><label htmlFor="mamamwana-auth-locale">{t('app.language')}</label><select id="mamamwana-auth-locale" aria-label="Language / Lugha" value={locale} onChange={e=>setLocale(e.target.value==='sw'?'sw':'en')}><option value="en">English</option><option value="sw">Kiswahili</option></select></div><div className="auth-mobile-brand"><Brand/></div><div className="auth-panel">
    <div className="badge-soft"><Sparkles size={14}/> {t('auth.welcome')}</div><div className="mm20-auth-edition">{APP_DISPLAY_VERSION} <span aria-hidden="true">·</span> Educational demo</div>
-   <h2>{authConfigured?(mode==='signup'?t('auth.begin'):t('auth.return')):'Explore the MamaMwana preview'}</h2>
+   <h2>{authConfigured?(mode==='signup'?t('auth.begin'):mode==='recover'?'Recover your account':t('auth.return')):'Explore the MamaMwana preview'}</h2>
    <p className="muted">{authConfigured?'Use a verified account for authentication. Private health records stay restricted until separately approved.':'Explore all journeys in an interactive demo without saving real personal information.'}</p>
    {authConfigured&&<><div className="auth-switch"><button className={mode==='signup'?'active':''} onClick={()=>{setMode('signup');setMessage('');}}>{t('auth.signup')}</button><button className={mode==='signin'?'active':''} onClick={()=>{setMode('signin');setMessage('');}}>{t('auth.signin')}</button></div>
-     <form onSubmit={submit} className="stack-form"><label>{t('auth.email')}<input type="email" required autoComplete="email" placeholder="mama@example.com" value={email} onChange={e=>setEmail(e.target.value)}/></label><label>{t('auth.password')}<input type="password" required minLength={8} autoComplete={mode==='signup'?'new-password':'current-password'} placeholder="At least 8 characters" value={password} onChange={e=>setPassword(e.target.value)}/></label>
+     <form onSubmit={submit} className="stack-form"><label>{t('auth.email')}<input type="email" required autoComplete="email" placeholder="mama@example.com" value={email} onChange={e=>setEmail(e.target.value)}/></label>{mode!=='recover'&&<label>{t('auth.password')}<input type="password" required minLength={12} autoComplete={mode==='signup'?'new-password':'current-password'} placeholder="At least 12 characters" value={password} onChange={e=>setPassword(e.target.value)}/></label>}
      {message&&<div className="inline-note" role="status">{message}</div>}
-     <Button type="submit" disabled={busy}>{busy?'Please wait...':mode==='signup'?'Create my account':'Sign in'} <ArrowRight size={16}/></Button></form></>}
+     <Button type="submit" disabled={busy}>{busy?'Please wait...':mode==='recover'?'Send recovery link':mode==='signup'?'Create my account':'Sign in'} <ArrowRight size={16}/></Button>
+     {mode==='signin'&&<button type="button" className="mm-account-link" onClick={()=>{setMode('recover');setMessage('');}}>Forgot password?</button>}
+     {mode==='recover'&&<button type="button" className="mm-account-link" onClick={()=>{setMode('signin');setMessage('');}}>Return to sign in</button>}
+     </form></>}
    <div className="mm-live-open"><Button type="button" Icon={ArrowRight} onClick={onLearn}>Open learning library — no account required</Button><p>Read general family-learning resources and try educational quizzes. No sample pregnancy profile or medical information needed.</p></div>
    <div className="demo-divider">{authConfigured?'OR TRY THE DEMO':'INTERACTIVE PRODUCT PREVIEW'}</div>
    <button className="demo-button" onClick={onDemo}><span className="demo-symbol"><Sparkles size={19}/></span><span><strong>{t('auth.demo')}</strong><small>{t('auth.demoDetails')}</small></span><ArrowRight size={18}/></button>
