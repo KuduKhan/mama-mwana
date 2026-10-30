@@ -1,0 +1,41 @@
+name: MamaMwana disposable encrypted restore and v12 regression
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/disposable-recovery.yml'
+      - 'scripts/run-disposable-recovery-drill.mjs'
+      - 'scripts/disposable-backup-crypto.mjs'
+      - 'scripts/disposable-backup-crypto.test.mjs'
+      - 'scripts/fixtures/disposable-pre-v12.sql'
+      - 'supabase/migrations/20261029_000012_v12_recipient_erasure_fk.sql'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  synthetic-recovery:
+    name: Disposable encrypted restore, v12 SQL, account erasure
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test AEAD encryption integrity
+        run: node --test scripts/disposable-backup-crypto.test.mjs
+      - name: Check runner syntax and Docker availability
+        run: |
+          node --check scripts/run-disposable-recovery-drill.mjs
+          docker info > /dev/null
+      - name: Recover encrypted synthetic PostgreSQL snapshot
+        run: node scripts/run-disposable-recovery-drill.mjs
+      - name: Preserve technical-only evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: mamamwana-v200-disposable-recovery-${{ github.run_id }}
+          path: .mamamwana-evidence/disposable-recovery.json
+          retention-days: 7
+          if-no-files-found: error

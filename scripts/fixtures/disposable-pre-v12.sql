@@ -1,0 +1,15 @@
+CREATE SCHEMA auth; CREATE SCHEMA private;
+CREATE TABLE auth.users(id uuid PRIMARY KEY);
+CREATE TABLE public.family_children(id uuid PRIMARY KEY,owner_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,version bigint NOT NULL DEFAULT 1);
+CREATE TABLE public.family_growth_entries(id uuid PRIMARY KEY,owner_id uuid NOT NULL,child_id uuid NOT NULL,version bigint NOT NULL DEFAULT 1);
+CREATE TABLE public.family_vaccine_entries(id uuid PRIMARY KEY,owner_id uuid NOT NULL,child_id uuid NOT NULL,version bigint NOT NULL DEFAULT 1);
+CREATE TABLE public.family_record_events(id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,owner_id uuid REFERENCES auth.users(id) ON DELETE CASCADE,child_id uuid,record_id uuid NOT NULL,record_kind text NOT NULL,action text NOT NULL,old_version bigint,new_version bigint);
+CREATE TABLE public.caregiver_invitations(id uuid PRIMARY KEY,accepted_by uuid,CONSTRAINT caregiver_invitations_accepted_by_fkey FOREIGN KEY(accepted_by) REFERENCES auth.users(id) ON DELETE SET NULL);
+CREATE FUNCTION private.reject_fk_update() RETURNS trigger LANGUAGE plpgsql AS $f$ BEGIN IF old.accepted_by IS DISTINCT FROM new.accepted_by THEN RAISE EXCEPTION 'MM_DISPOSABLE_VERIFIED_SESSION_REQUIRED';END IF;RETURN new;END $f$;
+CREATE TRIGGER prevent_unguarded_recipient_update BEFORE UPDATE ON public.caregiver_invitations FOR EACH ROW EXECUTE FUNCTION private.reject_fk_update();
+CREATE FUNCTION private.audit_family_write() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $f$ BEGIN INSERT INTO public.family_record_events(owner_id,child_id,record_id,record_kind,action,old_version) VALUES(old.owner_id,old.id,old.id,'profile','DELETE',old.version);RETURN old;END $f$;
+CREATE TRIGGER family_audit_after_delete AFTER DELETE ON public.family_children FOR EACH ROW EXECUTE FUNCTION private.audit_family_write();
+ALTER TABLE public.family_children ENABLE ROW LEVEL SECURITY;ALTER TABLE public.caregiver_invitations ENABLE ROW LEVEL SECURITY;
+INSERT INTO auth.users(id) VALUES('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'),('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb');
+INSERT INTO public.family_children(id,owner_id) VALUES('cccccccc-cccc-4ccc-8ccc-cccccccccccc','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa');
+INSERT INTO public.caregiver_invitations(id,accepted_by) VALUES('dddddddd-dddd-4ddd-8ddd-dddddddddddd','bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb');

@@ -23,6 +23,10 @@ jobs:
         run: npm run security:client
       - name: Check clinical SQL authorization contracts
         run: npm run security:sql
+      - name: Review privileged clinical RPC source-level boundaries
+        run: npm run security:rpc-review
+      - name: Verify synthetic backup cryptographic primitives
+        run: node --test scripts/disposable-backup-crypto.test.mjs
       - name: Validate normalized local migration workspace
         run: npm run test:local:prepare
       - name: Check local Auth fixture runner syntax
