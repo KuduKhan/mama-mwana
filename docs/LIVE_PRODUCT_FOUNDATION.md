@@ -29,4 +29,4 @@ Production currently lacks the required **Auth** connection variables and the re
 - A READY deployment and green CI are **not** evidence of independent clinical approval.
 
 ## Known limitations
-Public lessons and Kiswahili medical translations still need independent clinical review before being endorsed as clinical guidance. General quiz progress is only in the current component session. Neither signed-in nor anonymous education has approved private record persistence. Live provider services have not been implemented.
+Public lessons and Kiswahili medical translations still need independent clinical review before being endorsed as clinical guidance. General quiz progress is saved only on the current device as allowlisted answer indices, is not synced to accounts, and may be cleared from the learning screen. Neither signed-in nor anonymous education has approved private record persistence. Live provider services have not been implemented.
