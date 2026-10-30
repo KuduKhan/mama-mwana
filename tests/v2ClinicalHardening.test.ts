@@ -34,7 +34,7 @@ describe('v2 clinical acceptance security invariants',()=>{
  it('retains demo-only public static asset caching rather than Auth or API caching',()=>{
   const s=read('public/demo-offline-sw.js');
   expect(s).toContain("req.method!=='GET'");
-  expect(s).toContain("PUBLIC=['/','/icon.svg','/manifest.webmanifest','/learning/mamamwana-public-guide-v204.txt']");
+  expect(s).toContain("PUBLIC=['/','/icon.svg','/manifest.webmanifest','/learning/mamamwana-public-guide-v204.txt','/learning/mamamwana-learning-essentials-v209.txt']");
   expect(s).toContain("isAsset(url)");
   expect(s).not.toContain('supabase.co');
  });

@@ -1,0 +1,16 @@
+.mm207-next{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-top:15px;padding:15px 17px;
+ background:var(--mm22-ground);border:1px solid var(--mm22-line);border-radius:16px;min-width:0}
+.mm207-next-icon{display:grid;place-items:center;width:43px;height:43px;flex:0 0 43px;
+ background:var(--mm-sage-pale);color:var(--mm-botanical);border:1px solid var(--mm22-line);border-radius:13px}
+.mm207-next-copy{min-width:0;flex:1 1 200px}
+.mm207-next-copy strong{display:block;color:var(--mm22-text);font:750 13px/1.4 var(--mm-sans)}
+.mm207-next-copy small{display:block;margin-top:4px;color:var(--mm22-muted);font:500 11px/1.55 var(--mm-sans)}
+.mm207-next button{min-height:44px;display:flex;gap:8px;align-items:center;justify-content:center;
+ background:#266d50;border:1px solid #266d50;color:white;border-radius:12px;
+ padding:10px 15px;font:750 12px var(--mm-sans);cursor:pointer;transition:transform .18s ease,background-color .18s ease}
+.mm207-next button:focus-visible{outline:3px solid var(--mm-focus);outline-offset:3px}
+@media(hover:hover) and (pointer:fine){.mm207-next button:hover{background:#185239;transform:translateY(-1px)}}
+@media(max-width:390px){.mm207-next{padding:13px}.mm207-next button{width:100%}}
+:root[data-mm-theme="dark"] .mm207-next button{background:#285b45;border-color:#75b68d;color:#fff}
+@media(prefers-reduced-motion:reduce){.mm207-next button{transition:none!important;transform:none!important}}
+:root[data-mm-motion="reduce"] .mm207-next button{transition:none!important;transform:none!important}

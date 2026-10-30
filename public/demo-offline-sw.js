@@ -1,6 +1,6 @@
 /* MamaMwana demo-only offline shell. DO NOT cache Auth, API, patient content or requests. */
-const NAME='mamamwana-public-demo-v2.0.0-beta.6';
-const PUBLIC=['/','/icon.svg','/manifest.webmanifest','/learning/mamamwana-public-guide-v204.txt'];
+const NAME='mamamwana-public-demo-v2.0.0-beta.10';
+const PUBLIC=['/','/icon.svg','/manifest.webmanifest','/learning/mamamwana-public-guide-v204.txt','/learning/mamamwana-learning-essentials-v209.txt'];
 const isAsset=(url)=>url.origin===self.location.origin&&/^\/assets\/[A-Za-z0-9_-]+\.(js|css)$/.test(url.pathname);
 self.addEventListener('install',event=>{
  event.waitUntil(caches.open(NAME).then(cache=>cache.addAll(PUBLIC)).then(()=>self.skipWaiting()));

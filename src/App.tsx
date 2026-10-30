@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
-import {NAV,NAV_GROUPS,MOBILE_NAV,isTab,type Tab} from './ui/navigation';
+import {NAV,NAV_GROUPS,MOBILE_NAV,isTab,primaryForTab,type Tab} from './ui/navigation';
 import {Brand,Button,SectionTitle,Panel,ProgressBar} from './ui/primitives';
 import {useModalFocus} from './ui/useModalFocus';
 import {AuthGate,Onboarding,NewVisitForm,BirthModal} from './components/EntryFlows';
@@ -8,6 +8,8 @@ import ReleaseShowcaseV20 from './components/ReleaseShowcaseV20';
 import SmartHomeV202 from './components/SmartHomeV202';
 import {FamilyIntelligenceV203,VisitPreparationV203} from './components/FamilyIntelligenceV203';
 import PublicLearningV204 from './components/PublicLearningV204';
+import LearningAcademyV209 from './components/LearningAcademyV209';
+import {FamilyExperienceV208,VisitFollowThroughV208} from './components/FamilyExperienceV208';
 import type { FormEvent } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { Activity, ArrowLeft, ArrowRight, Baby, BookHeart, CalendarDays, Check, CheckCircle2, Cloud, Droplets, ExternalLink, Footprints, Heart, HeartHandshake, HeartPulse, LockKeyhole, LogOut, Menu, Moon, Plus, Globe2, ShieldAlert, ShieldCheck, Users, Bell, Download, NotebookPen, Search, ChevronRight, ChevronDown, Sparkles, Stethoscope, Sun, TrendingUp, Utensils, X } from 'lucide-react';
@@ -374,6 +376,7 @@ export default function App(){
    <FamilySnapshotV14 journeys={journeys} activeId={activeJourney.id} onSelect={selectJourney}/>
    <FamilyTimelineV16 journeys={journeys} activeId={activeJourney.id} onSelect={selectJourney}/>
    <FamilyIntelligenceV203 journeys={journeys} demo={demo} onSelect={selectJourney} onHub={()=>enterTab('hub')}/>
+   <FamilyExperienceV208 journeys={journeys} demo={demo}/>
     <div className="family-list">{journeys.map(j=>{const born=Boolean(j.baby_birth_date);return <button key={j.id} className={'family-journey '+(j.id===activeJourney.id?'current':'')} onClick={()=>selectJourney(j)}>
      <span className="family-avatar">{born?<Baby size={25}/>:<Heart size={25}/>}</span><span className="family-journey-copy"><strong>{born?j.baby_name+'’s journey':'Pregnancy journey'}</strong><small>{born?'Born '+readable(j.baby_birth_date!):'Estimated due '+readable(j.due_date)} · {j.mother_name}</small></span><span className="family-tag">{j.id===activeJourney.id?t('family.current','Current'):t('family.switch','Open')}</span><ChevronRight size={18}/></button>;})}</div>
    <FamilyChildrenV09 journey={activeJourney} isDemo={demo} userId={user?.id??null}/>
@@ -414,6 +417,7 @@ export default function App(){
  return <div className="page-content"><SectionTitle eyebrow="CARE CONNECTIONS" title="Antenatal visits" subtitle="Your own appointment journal. The schedule is always set with your healthcare team." action={<Button Icon={Plus} onClick={()=>setNewVisit(true)}>Add visit</Button>}/>
   <Panel className="anc-intro"><div className="anc-icon"><Stethoscope size={28}/></div><div><h3>Stay connected with your care team</h3><p>WHO describes a model with at least eight antenatal contacts across pregnancy. These weeks are general educational reference points—not appointments booked for you.</p></div></Panel>
   <VisitPreparationV203 journey={activeJourney} demo={demo}/>
+  <VisitFollowThroughV208 demo={demo}/>
   <Panel className="anc-timeline"><div className="panel-heading"><div><div className="eyebrow">REFERENCE TIMELINE</div><h3>Eight WHO contact points</h3></div><span className="soft-label">Illustrative only</span></div><div className="weeks-strip">{ANC_WEEKS.map((w,i)=><div key={w} className={'week-chip '+(w<=preg.week?'passed':'')}><small>{i+1}</small><strong>{w===12?'≤12':String(w)}</strong><span>wks</span></div>)}</div><p className="footnote">Ask your clinic which contact dates, examinations and follow-ups are right for your pregnancy.</p></Panel>
   {newVisit&&<Panel className="form-panel"><h3>Plan an appointment</h3><NewVisitForm onSave={v=>{void changeClinical('visit',v).then(ok=>{if(ok){setNewVisit(false);setToast('Visit added to your personal journal.');}});}} onCancel={()=>setNewVisit(false)}/></Panel>}
   {reminders.length>0&&<Panel className="reminders-panel"><div className="panel-heading"><div><div className="eyebrow">APPOINTMENT REMINDERS</div><h3>Dates to follow up</h3></div><Bell size={20}/></div><p className="muted">In-app reminders appear when you open MamaMwana. For an external reminder, add a visit to your own calendar.</p><div className="reminder-items">{reminders.map(v=><div key={v.id} className="reminder-item"><span className={'reminder-signal '+(reminderStatus(v)==='overdue'?'overdue':'')}/><span><strong>{v.clinic}</strong><small>{readable(v.scheduled_on)} · {reminderStatus(v)==='overdue'?'Date passed — confirm with clinic':reminderStatus(v)==='today'?'Today':'Within seven days'}</small></span></div>)}</div></Panel>}
@@ -460,6 +464,7 @@ export default function App(){
  function Library(){
  return <div className="page-content"><SectionTitle eyebrow="KNOWLEDGE WITH CARE" title="Health & learning library" subtitle="Practical education grounded in trusted health organizations. Always follow your own care team’s advice."/>
   <PublicLearningV204/>
+  <LearningAcademyV209/>
   <EducationReviewV16/>
   <div className="library-grid"><Panel className="library-card"><span className="small-round mint"><Utensils size={22}/></span><h3>Food and hydration</h3><p>Eat varied, nutritious and safely prepared foods. Wash produce, cook meat and eggs thoroughly, avoid unpasteurized dairy, and discuss supplements and any special dietary needs with your care team.</p></Panel><Panel className="library-card"><span className="small-round peach"><Activity size={22}/></span><h3>Movement and comfort</h3><p>With an uncomplicated pregnancy and medical clearance, gentle movement can be beneficial. Stop if you experience concerning symptoms and seek professional advice. From 28 weeks, go to sleep on your side.</p></Panel><Panel className="library-card"><span className="small-round lilac"><Baby size={22}/></span><h3>After baby arrives</h3><p>Newborns need safe sleep on their backs, feeding support and routine newborn checks. Mothers need postnatal assessments, pain and wound support, and attention to emotional wellbeing.</p></Panel><Panel className="library-card"><span className="small-round sand"><Stethoscope size={22}/></span><h3>Health appointments</h3><p>Use your country’s current maternal and child health handbook and clinician-provided schedule for visits, immunizations and investigations. MamaMwana does not automatically prescribe them.</p></Panel></div>
   <Panel className="resources-panel"><div className="eyebrow">EVIDENCE & REFERENCES</div><h3>Learn from trusted sources</h3><div className="resource-links">{SOURCES.map(s=><a key={s.url} href={s.url} target="_blank" rel="noreferrer"><span><BookHeart size={18}/>{s.title}</span><ExternalLink size={17}/></a>)}</div><p className="footnote">General education content • Initial review October 2026 • Requires professional clinical review before use in a live health service. Not a medical device, diagnosis or individualized treatment plan.</p></Panel>
@@ -515,7 +520,7 @@ export default function App(){
     <div className="mm-footer-bottom"><span>© {new Date().getFullYear()} MamaMwana · {APP_DISPLAY_VERSION}</span><span>{t('app.educational')}</span></div>
    </footer>
   </div>
-  <nav className="mobile-tabs" aria-label="Quick navigation">{MOBILE_NAV.map(({id,label,Icon})=><button key={id} className={tab===id?'active':''} aria-current={tab===id?'page':undefined} onClick={()=>enterTab(id)}><Icon size={21} strokeWidth={1.85} aria-hidden="true"/><span>{label}</span></button>)}</nav>
+  <nav className="mobile-tabs" aria-label="Quick navigation">{MOBILE_NAV.map(({id,label,Icon})=><button key={id} className={primaryForTab(tab)===id?'active':''} aria-current={primaryForTab(tab)===id?'page':undefined} onClick={()=>enterTab(id)}><Icon size={21} strokeWidth={1.85} aria-hidden="true"/><span>{label}</span></button>)}</nav>
   {displayOpen&&<div className="modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setDisplayOpen(false);}}><div className="modal mm14-dialog" ref={displayDialogRef} role="dialog" aria-modal="true" aria-labelledby="mm14-preferences-title" tabIndex={-1}><button type="button" className="modal-close" aria-label={t('a11y.close','Close display preferences')} onClick={()=>setDisplayOpen(false)}><X size={20}/></button><DisplayPreferencesV14/></div></div>}
    {warningOpen&&<div className="modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setWarningOpen(false);}}><div className="modal warning-modal" ref={warningDialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="urgent-title"><button className="modal-close" aria-label="Close" onClick={()=>setWarningOpen(false)}><X size={20}/></button><div className="modal-mark danger"><ShieldAlert size={26}/></div><h2 id="urgent-title">When to seek urgent help</h2><p className="muted">If you or your baby has any of these concerns, seek immediate in-person medical assessment or contact local emergency services. Do not wait for an app response.</p><ul className="urgent-list">{URGENT.map(t=><li key={t}><span className="urgent-dot"/>{t}</li>)}</ul><p className="footnote">This is not an exhaustive list. If something feels seriously wrong, get checked promptly. For urgent warning signs, follow your local emergency care instructions.</p><Button onClick={()=>setWarningOpen(false)}>I understand</Button></div></div>}
   {birthOpen&&<BirthModal dueDate={activeJourney.due_date} onClose={()=>setBirthOpen(false)} onBirth={markBirth}/>}
