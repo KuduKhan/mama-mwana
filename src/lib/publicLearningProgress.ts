@@ -4,6 +4,9 @@ import {ACADEMY_TOPICS} from '../content/learningAcademyV209';
 // care plans, baby measurements, identifiers, or network synchronization.
 export const PUBLIC_LEARNING_KEY='mamamwana-public-learning-answers-v1';
 export type PublicAnswers=Record<string,number>;
+export function browserLearningStorage():Storage|null{
+ try{return typeof window==='undefined'?null:window.localStorage;}catch{return null;}
+}
 export function sanitizePublicAnswers(value:unknown):PublicAnswers{
  if(!value||typeof value!=='object'||Array.isArray(value))return {};
  const given=value as Record<string,unknown>,result:PublicAnswers={};
