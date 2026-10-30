@@ -4,7 +4,7 @@ const read=path=>readFileSync(path,'utf8');
 const m=JSON.parse(read('docs/V200_RELEASE_SIGNOFF.json'));
 const pkg=JSON.parse(read('package.json'));
 const failures=[];
-if(pkg.version!=='2.0.0-beta.10')failures.push('Expected beta.10 release');
+if(pkg.version!=='2.0.0-beta.11')failures.push('Expected beta.10 release');
 if(m.status!=='NO_GO'||m.productionClinicalAccess!==false)failures.push('Clinical NO_GO violated');
 if(m.requiredGates.length!==10||m.requiredGates.some(g=>g.status!=='pending'||g.signedAt!==null))failures.push('Missing real approvals must stay pending');
 const sw=read('public/demo-offline-sw.js');

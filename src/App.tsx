@@ -1,6 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import {NAV,NAV_GROUPS,MOBILE_NAV,isTab,primaryForTab,type Tab} from './ui/navigation';
 import {Brand,Button,SectionTitle,Panel,ProgressBar} from './ui/primitives';
+import {Notification,WarningCard,SourcesSmall} from './ui/FeedbackPanels';
 import {useModalFocus} from './ui/useModalFocus';
 import {AuthGate,Onboarding,NewVisitForm,BirthModal} from './components/EntryFlows';
 import {ConnectionStatusV16,NotificationCenterV16,FamilyTimelineV16,EducationReviewV16} from './components/ConnectedFamilyV16';
@@ -34,6 +35,7 @@ import {buildCompleteExport,emptyPrivateExportRows,fetchPrivateExportRows} from 
 import BetaNoticeV10 from './components/BetaNoticeV10';
 import type {PrivacyChoices} from './lib/privacy';
 const ChildHealthV03 = lazy(() => import('./components/ChildHealthV03'));
+const LibraryPage=lazy(()=>import('./features/learning/LibraryPage'));
 import { BIRTH_CHECKLIST, ageInMonths, daysBetween, getPhase, isDate, postpartumDay, pregnancyStage, readable, todayISO } from './lib/domain';
 import type { FeedingMethod, Feeling, Journey } from './lib/domain';
 import { reminderStatus, visitReminders, visitCalendarUrl } from './lib/reminders';
@@ -55,10 +57,6 @@ const URGENT=[
 const uniqueToggle=(a:string[],id:string)=>a.includes(id)?a.filter(v=>v!==id):[...a,id];
 
 function formatAge(months:number){return months<1?'Under 1 month':months<12?months+' month'+(months===1?'':'s'):(Math.floor(months/12)+' year'+(Math.floor(months/12)===1?'':'s')+(months%12?' '+months%12+' mo':''));}
-function Notification({message,onClose}:{message:string;onClose:()=>void}){return <div className="toast" role="status">{message}<button aria-label="Dismiss notification" onClick={onClose}><X size={16}/></button></div>;}
-
-function WarningCard({onOpen}:{onOpen:()=>void}){return <button className="warning-card" onClick={onOpen}><span className="warning-icon"><ShieldAlert size={20}/></span><span><strong>Know when to get help</strong><small>Important signs for mother and baby</small></span><ArrowRight size={18}/></button>;}
-function SourcesSmall(){return <div className="source-row">Sources: {SOURCES.slice(0,3).map((s,i)=><a key={s.url} href={s.url} target="_blank" rel="noreferrer">{i>0?' · ':''}{s.title.replace(' recommendations','')}</a>)}</div>;}
 
 export default function App(){
  const {locale,setLocale,t}=useMamaLocale();
@@ -461,16 +459,7 @@ export default function App(){
   <Panel className="postpartum-banner"><div className="postpartum-illustration"><HeartPulse size={32}/></div><div><div className="eyebrow">MOTHER MATTERS TOO</div><h3>{pDays<=42?'Your postpartum recovery':'Your wellbeing continues'}</h3><p>{pDays<=42?'You are '+pDays+' days postpartum. Keep your postnatal follow-up plan and ask for support with healing and feelings.':'You deserve ongoing care, rest, and attention to your physical and emotional health.'}</p></div><Button variant="subtle" onClick={()=>enterTab('care')}>Care plan <ArrowRight size={15}/></Button></Panel>
  </div>;
  }
- function Library(){
- return <div className="page-content"><SectionTitle eyebrow="KNOWLEDGE WITH CARE" title="Health & learning library" subtitle="Practical education grounded in trusted health organizations. Always follow your own care team’s advice."/>
-  <PublicLearningV204/>
-  <LearningAcademyV209/>
-  <EducationReviewV16/>
-  <div className="library-grid"><Panel className="library-card"><span className="small-round mint"><Utensils size={22}/></span><h3>Food and hydration</h3><p>Eat varied, nutritious and safely prepared foods. Wash produce, cook meat and eggs thoroughly, avoid unpasteurized dairy, and discuss supplements and any special dietary needs with your care team.</p></Panel><Panel className="library-card"><span className="small-round peach"><Activity size={22}/></span><h3>Movement and comfort</h3><p>With an uncomplicated pregnancy and medical clearance, gentle movement can be beneficial. Stop if you experience concerning symptoms and seek professional advice. From 28 weeks, go to sleep on your side.</p></Panel><Panel className="library-card"><span className="small-round lilac"><Baby size={22}/></span><h3>After baby arrives</h3><p>Newborns need safe sleep on their backs, feeding support and routine newborn checks. Mothers need postnatal assessments, pain and wound support, and attention to emotional wellbeing.</p></Panel><Panel className="library-card"><span className="small-round sand"><Stethoscope size={22}/></span><h3>Health appointments</h3><p>Use your country’s current maternal and child health handbook and clinician-provided schedule for visits, immunizations and investigations. MamaMwana does not automatically prescribe them.</p></Panel></div>
-  <Panel className="resources-panel"><div className="eyebrow">EVIDENCE & REFERENCES</div><h3>Learn from trusted sources</h3><div className="resource-links">{SOURCES.map(s=><a key={s.url} href={s.url} target="_blank" rel="noreferrer"><span><BookHeart size={18}/>{s.title}</span><ExternalLink size={17}/></a>)}</div><p className="footnote">General education content • Initial review October 2026 • Requires professional clinical review before use in a live health service. Not a medical device, diagnosis or individualized treatment plan.</p></Panel>
-  <WarningCard onOpen={()=>setWarningOpen(true)}/>
- </div>;
- }
+
  return <div className="app-shell"><a className="ui-skip-link" href="#mamamwana-main">Skip to main content</a>
   <aside ref={sidebarRef} id="mamamwana-primary-navigation" className={'sidebar '+(menuOpen?'sidebar-open':'')} inert={isNarrow&&!menuOpen} aria-label="Primary navigation panel">
    <div className="sidebar-header"><Brand/><button ref={closeDrawerRef} className="mobile-close" aria-label="Close navigation" onClick={()=>setMenuOpen(false)}><X size={20}/></button></div>
@@ -498,7 +487,7 @@ export default function App(){
    {!demo&&<BetaNoticeV10/>}
     {demo&&<div className="demo-banner"><Sparkles size={16}/><span className="mm20-banner-version">{APP_DISPLAY_VERSION}</span><span><strong>Sample data only.</strong> Changes are not saved when you exit.</span><button onClick={signOut}>Exit <ArrowRight size={14}/></button></div>}
    {locale==='sw'&&<p className="locale-clinical-review" role="status">{t('app.review')}</p>}
-    <main id="mamamwana-main" tabIndex={-1}><Suspense fallback={<div className="mm-section-loading" role="status" aria-live="polite">Loading this section…</div>}>{tab==='home'?<Home/>:tab==='family'?<Family/>:tab==='pregnancy'?<Pregnancy/>:tab==='care'?<Care/>:tab==='visits'?<Visits/>:tab==='birth'?<Birth/>:tab==='baby'?<BabyPage/>:tab==='planner'?<CarePlannerV07 journey={activeJourney} isDemo={demo} userId={user?.id??null}/>:tab==='hub'?<CareJourneyHubV12 journey={activeJourney} isDemo={demo}/>:tab==='records'?<ClinicalRecordsV04 journey={activeJourney} isDemo={demo}/>:tab==='guidance'?<GuidanceV04 stage={phase} allowStageContext={privacy.guidance_context} userId={user?.id??null} isDemo={demo}/>:tab==='privacy'?<PrivacyV04 journeys={journeys} selectedId={activeJourney.id} choices={privacy} isDemo={demo} userId={user?.id??null} onChange={savePrivacy} onExport={exportAllData} onDelete={deleteJourney}/>:<Library/>}</Suspense></main>
+    <main id="mamamwana-main" tabIndex={-1}><Suspense fallback={<div className="mm-section-loading" role="status" aria-live="polite">Loading this section…</div>}>{tab==='home'?<Home/>:tab==='family'?<Family/>:tab==='pregnancy'?<Pregnancy/>:tab==='care'?<Care/>:tab==='visits'?<Visits/>:tab==='birth'?<Birth/>:tab==='baby'?<BabyPage/>:tab==='planner'?<CarePlannerV07 journey={activeJourney} isDemo={demo} userId={user?.id??null}/>:tab==='hub'?<CareJourneyHubV12 journey={activeJourney} isDemo={demo}/>:tab==='records'?<ClinicalRecordsV04 journey={activeJourney} isDemo={demo}/>:tab==='guidance'?<GuidanceV04 stage={phase} allowStageContext={privacy.guidance_context} userId={user?.id??null} isDemo={demo}/>:tab==='privacy'?<PrivacyV04 journeys={journeys} selectedId={activeJourney.id} choices={privacy} isDemo={demo} userId={user?.id??null} onChange={savePrivacy} onExport={exportAllData} onDelete={deleteJourney}/>:<LibraryPage onEmergency={()=>setWarningOpen(true)}/>}</Suspense></main>
    <footer className="app-footer mm-app-footer mm-renewed-footer">
     <div className="mm-footer-top">
      <div className="mm-footer-identity"><Brand/><p>Thoughtful support from pregnancy to early childhood. Education and your own notes, never a substitute for a healthcare professional.</p><span className="mm-renewed-footer-caption">Every little beginning matters.</span></div>
