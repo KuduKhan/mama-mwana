@@ -50,12 +50,12 @@ export default function PersonalTrackerWorkspace({user}:{user:User}){
  const [draft,setDraft]=useState<TrackerDraft>(()=>blankTrackerDraft());
  const [editing,setEditing]=useState<TrackerItem|null>(null);
  const [kindFilter,setKindFilter]=useState<TrackerKind|'all'>('all');
- const [busy,setBusy]=useState(false),[loading,setLoading]=useState(true);
+ const [busy,setBusy]=useState(false),[loading,setLoading]=useState(true),[ready,setReady]=useState(false);
  const [error,setError]=useState(''),[status,setStatus]=useState('');
  const [reload,setReload]=useState(0);
  const client=authSupabase;
  useEffect(()=>{
-  let alive=true;setItems([]);setError('');setStatus('');setLoading(true);setEditing(null);setDraft(blankTrackerDraft());
+  let alive=true;setItems([]);setError('');setStatus('');setLoading(true);setReady(false);setEditing(null);setDraft(blankTrackerDraft());
   if(!client){setError('The account service is not available.');setLoading(false);return;}
   void (async()=>{
    try{
@@ -70,7 +70,7 @@ export default function PersonalTrackerWorkspace({user}:{user:User}){
      from+=page;
      if(from>=10000)throw Error('Too many records to load safely. Contact support for a private export.');
     }
-    if(alive)setItems(rows);
+    if(alive){setItems(rows);setReady(true);}
    }catch(e){if(alive)setError(e instanceof Error?e.message:'Unable to retrieve private tracker entries.');}
    finally{if(alive)setLoading(false);}
   })();
@@ -90,7 +90,7 @@ export default function PersonalTrackerWorkspace({user}:{user:User}){
   setDraft(prev=>({...prev,[name]:value}));
  }
  async function save(e:FormEvent){
-  e.preventDefault();if(!client||busy||loading)return;setError('');setStatus('');
+  e.preventDefault();if(!client||busy||loading||!ready)return;setError('');setStatus('');
   let normalized:ReturnType<typeof normalizeTrackerDraft>;
   try{normalized=normalizeTrackerDraft(draft);}catch(e){setError(e instanceof Error?e.message:'Invalid entry');return;}
   setBusy(true);
@@ -110,7 +110,7 @@ export default function PersonalTrackerWorkspace({user}:{user:User}){
   finally{setBusy(false);}
  }
  async function toggle(item:TrackerItem){
-  if(!client||busy||loading)return;setBusy(true);setError('');setStatus('');
+  if(!client||busy||loading||!ready)return;setBusy(true);setError('');setStatus('');
   try{
    const {data,error:saveError}=await client.from('personal_tracker_items').update({completed:!item.completed,updated_at:new Date().toISOString()})
     .eq('id',item.id).eq('owner_id',user.id).select(FIELDS).single();
@@ -120,7 +120,7 @@ export default function PersonalTrackerWorkspace({user}:{user:User}){
   finally{setBusy(false);}
  }
  async function remove(item:TrackerItem){
-  if(!window.confirm('Delete this private entry? This cannot be undone.')||!client||busy)return;
+  if(!window.confirm('Delete this private entry? This cannot be undone.')||!client||busy||!ready)return;
   setBusy(true);setError('');setStatus('');
   try{
    const {data,error:removeError}=await client.from('personal_tracker_items').delete()
@@ -132,7 +132,7 @@ export default function PersonalTrackerWorkspace({user}:{user:User}){
   finally{setBusy(false);}
  }
  async function deleteAll(){
-  if(!client||busy||!items.length)return;
+  if(!client||busy||!ready||!items.length)return;
   const confirmed=window.prompt(t.clearWarning+' Type DELETE to confirm.');
   if(confirmed!=='DELETE')return;
   setBusy(true);setError('');setStatus('');
@@ -148,11 +148,24 @@ export default function PersonalTrackerWorkspace({user}:{user:User}){
   finally{setBusy(false);}
  }
  async function exportAll(){
-  if(!client||busy||loading)return;
+  if(!client||busy||loading||!ready)return;
   if(!window.confirm('Download your private tracker information as a JSON file? Protect the file on your device.'))return;
-  // Refresh from the server before exporting; do not silently omit off-screen entries.
-  setReload(v=>v+1);
-  downloadFile(exportTrackerJson(items),'mamamwana-personal-tracker-'+localToday()+'.json','application/json');
+  setBusy(true);setError('');setStatus('');
+  try{
+   const rows:TrackerItem[]=[];let from=0;const page=250;
+   while(true){
+    const {data,error:readError}=await client.from('personal_tracker_items').select(FIELDS)
+     .eq('owner_id',user.id).order('created_at',{ascending:false}).range(from,from+page-1);
+    if(readError)throw readError;
+    rows.push(...((data??[]) as TrackerItem[]));
+    if(!data||data.length<page)break;
+    from+=page;
+    if(from>=10000)throw Error('Large private export requires assisted handling.');
+   }
+   downloadFile(exportTrackerJson(rows),'mamamwana-personal-tracker-'+localToday()+'.json','application/json');
+   setStatus('The latest '+rows.length+' privately owned entries were downloaded.');
+  }catch(e){setError(e instanceof Error?e.message:'Unable to export your complete tracker.');}
+  finally{setBusy(false);}
  }
  function calendar(item:TrackerItem){
   if(!window.confirm('Add a generic reminder to your calendar? It will not include family notes or measurements.'))return;
@@ -190,7 +203,7 @@ export default function PersonalTrackerWorkspace({user}:{user:User}){
     {draft.kind==='reminder'&&<label>{t.date}<input required type="date" value={draft.remind_on} onChange={e=>field('remind_on',e.target.value)}/></label>}
     <label>{t.source}<select value={draft.source_kind} onChange={e=>field('source_kind',e.target.value as TrackerDraft['source_kind'])}>
      <option value="self">{t.self}</option><option value="provider_supplied">{t.provider}</option></select></label>
-    <div className="mm-tracker-buttons"><button type="submit" disabled={busy||loading||Boolean(error&&items.length===0&&loading)}><Check size={17}/>{busy?t.busy:t.save}</button>
+    <div className="mm-tracker-buttons"><button type="submit" disabled={busy||loading||!ready}><Check size={17}/>{busy?t.busy:t.save}</button>
      {editing&&<button type="button" className="ghost" onClick={()=>newDraft()}>{t.cancel}</button>}</div>
    </form>
    <section className="mm-tracker-panel" aria-labelledby="mm-tracker-list-title">
@@ -206,13 +219,13 @@ export default function PersonalTrackerWorkspace({user}:{user:User}){
       {item.kind==='reminder'&&<p className={reminderDue(item)?'mm-tracker-due':''}><CalendarDays size={15} aria-hidden="true"/> {item.remind_on} · {item.completed?t.done:reminderDue(item)?t.due:'Upcoming'}</p>}
       {item.source_kind==='provider_supplied'&&<small>Copied from a professional source — not independently verified</small>}
       <div className="mm-tracker-entry-actions">
-       <button disabled={busy} onClick={()=>edit(item)}>{t.edit}</button>
-       {item.kind==='reminder'&&<button disabled={busy} onClick={()=>{void toggle(item)}}>{item.completed?t.reopen:t.done}</button>}
+       <button disabled={busy||!ready} onClick={()=>edit(item)}>{t.edit}</button>
+       {item.kind==='reminder'&&<button disabled={busy||!ready} onClick={()=>{void toggle(item)}}>{item.completed?t.reopen:t.done}</button>}
        {item.kind==='reminder'&&<button disabled={busy} onClick={()=>calendar(item)}>{t.calendar}</button>}
        <button disabled={busy} className="danger" onClick={()=>{void remove(item)}}><Trash2 size={14} aria-hidden="true"/>{t.delete}</button>
       </div></article>)}</div>}
     <div className="mm-tracker-manage">
-     <button type="button" disabled={busy||loading||!items.length} onClick={()=>{void exportAll()}}><Download size={16}/>{t.export}</button>
+     <button type="button" disabled={busy||loading||!ready||!items.length} onClick={()=>{void exportAll()}}><Download size={16}/>{t.export}</button>
      <button type="button" disabled={busy||loading||!items.length} className="danger" onClick={()=>{void deleteAll()}}><Trash2 size={16}/>{t.deleteAll}</button>
     </div>
    </section>
