@@ -10,12 +10,15 @@ import SmartHomeV202 from './components/SmartHomeV202';
 const FamilyIntelligenceV203=lazy(()=>import('./components/FamilyIntelligenceV203').then(m=>({default:m.FamilyIntelligenceV203})));
 const VisitPreparationV203=lazy(()=>import('./components/FamilyIntelligenceV203').then(m=>({default:m.VisitPreparationV203})));
 const FamilyExperienceV208=lazy(()=>import('./components/FamilyExperienceV208').then(m=>({default:m.FamilyExperienceV208})));
+const LiveLearningWorkspace=lazy(()=>import('./components/LiveLearningWorkspace'));
+const AccountPasswordReset=lazy(()=>import('./components/AccountPasswordReset'));
+
 const VisitFollowThroughV208=lazy(()=>import('./components/FamilyExperienceV208').then(m=>({default:m.VisitFollowThroughV208})));
 import type { FormEvent } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { ArrowLeft, ArrowRight, Baby, BookHeart, CalendarDays, Check, CheckCircle2, Cloud, Droplets, ExternalLink, Footprints, Heart, HeartHandshake, HeartPulse, LockKeyhole, LogOut, Menu, Moon, Plus, Globe2, ShieldAlert, ShieldCheck, Users, Bell, Download, NotebookPen, Search, ChevronRight, ChevronDown, Sparkles, Stethoscope, Sun, TrendingUp, Utensils, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { configured, supabase } from './lib/supabase';
+import { authConfigured, authSupabase, configured, supabase } from './lib/supabase';
 import { APP_DISPLAY_VERSION } from './lib/release';
 import {useMamaLocale} from './lib/locale';
 import { Settings2 } from 'lucide-react';
@@ -61,8 +64,10 @@ function formatAge(months:number){return months<1?'Under 1 month':months<12?mont
 export default function App(){
  const {locale,setLocale,t}=useMamaLocale();
  const [user,setUser]=useState<User|null>(null);
- const [checking,setChecking]=useState(configured);
+ const [checking,setChecking]=useState(authConfigured);
  const [demo,setDemo]=useState(false);
+ const [publicLearning,setPublicLearning]=useState(false);
+ const [passwordRecovery,setPasswordRecovery]=useState(false);
  const [journey,setJourney]=useState<Journey|null>(null);
  const [journeys,setJourneys]=useState<Journey[]>([]);
  const [creatingJourney,setCreatingJourney]=useState(false);
@@ -146,10 +151,10 @@ export default function App(){
  const [wellbeingNote,setWellbeingNote]=useState('');
 
  useEffect(()=>{
-  if(!supabase){setChecking(false);return;}
-  const client=supabase;let active=true;
+  if(!authSupabase){setChecking(false);return;}
+  const client=authSupabase;let active=true;
   client.auth.getUser().then(({data:{user},error})=>{if(active){setUser(error?null:user);setChecking(false);}}).catch(()=>{if(active)setChecking(false);});
-  const {data:{subscription}}=client.auth.onAuthStateChange((_event,session)=>{if(active){setUser(session?.user??null);setChecking(false);}});
+  const {data:{subscription}}=client.auth.onAuthStateChange((event,session)=>{if(active){if(event==='PASSWORD_RECOVERY')setPasswordRecovery(true);setUser(session?.user??null);setChecking(false);}});
   return ()=>{active=false;subscription.unsubscribe();};
  },[]);
  useEffect(()=>{
@@ -294,7 +299,11 @@ export default function App(){
  }
  function selectJourney(selected:Journey){current.current=selected;setJourney(selected);setCreatingJourney(false);setWeekView(null);setMilestoneFilter(null);setSaveStatus('saved');enterTab('home');}
  function createAnotherJourney(){setCreatingJourney(true);setWeekView(null);setMenuOpen(false);}
- function signOut(){if(demo)setDemo(false);else void supabase?.auth.signOut();setJourneys([]);setJourney(null);current.current=null;persistedIds.current.clear();setDataError('');setCreatingJourney(false);setTab('home');window.history.replaceState({...window.history.state,mmPage:'home'},'');}
+ async function signOut(){
+  if(demo)setDemo(false);
+  else if(authSupabase){const {error}=await authSupabase.auth.signOut();if(error)throw new Error('ACCOUNT_SIGN_OUT_FAILED');setUser(null);}
+  setPublicLearning(false);setJourneys([]);setJourney(null);current.current=null;persistedIds.current.clear();setDataError('');setCreatingJourney(false);setTab('home');window.history.replaceState({...window.history.state,mmPage:'home'},'');
+ }
  function markBirth(date:string,name:string){modify(j=>({...j,baby_birth_date:date,baby_name:name}));setBirthOpen(false);enterTab('baby');setToast('Welcome, '+name+'! Your pregnancy journey remains connected.');}
  async function saveGrowth(e:FormEvent){e.preventDefault();const weight=growthWeight===''?null:Number(growthWeight),length=growthLength===''?null:Number(growthLength);
   if(!isDate(growthDate)||!journey?.baby_birth_date||daysBetween(journey.baby_birth_date,growthDate)<0||daysBetween(growthDate,todayISO())<0){setToast('Choose a valid measurement date after your baby’s birth.');return;}
@@ -305,7 +314,10 @@ export default function App(){
  }
  if(!demo&&dataError)return <div className="loading-screen" role="alert"><div className="loading-icon"><ShieldAlert size={28}/></div><h2>Records are temporarily unavailable</h2><p>{dataError}</p><p>Your existing journey has not been deleted. The current database schema and your account permissions must be checked before continuing.</p><Button onClick={()=>window.location.reload()}>Retry securely</Button></div>;
  if(checking||loadingJourney)return <div className="loading-screen"><div className="loading-icon"><Heart size={28}/></div><p>Preparing your MamaMwana space…</p></div>;
- if(!demo&&!user)return <AuthGate onDemo={()=>{setDemo(true);setJourney(null);setJourneys([]);current.current=null;}}/>;
+ if(!demo&&passwordRecovery)return <Suspense fallback={<div className="loading-screen">Preparing secure password recovery…</div>}><AccountPasswordReset onComplete={()=>{setPasswordRecovery(false);setUser(null);}}/></Suspense>;
+ if(!demo&&user&&!configured)return <Suspense fallback={<div className="loading-screen">Opening learning workspace…</div>}><LiveLearningWorkspace user={user} onSignOut={signOut}/></Suspense>;
+ if(!demo&&publicLearning)return <Suspense fallback={<div className="loading-screen">Opening learning library…</div>}><LiveLearningWorkspace onBack={()=>setPublicLearning(false)}/></Suspense>;
+ if(!demo&&!user)return <AuthGate onLearn={()=>setPublicLearning(true)} onDemo={()=>{setDemo(true);setPublicLearning(false);setJourney(null);setJourneys([]);current.current=null;}}/>;
  if(!journey||creatingJourney)return <><CaregiverInbox userId={user?.id??null} demo={demo}/><Onboarding isDemo={demo} onCancel={journey?()=>{setCreatingJourney(false);enterTab('family');}:undefined} onCreate={j=>{setCreatingJourney(false);persist(j);enterTab('home');}}/></>;
  const activeJourney:Journey = journey;
  const phase=getPhase(journey),preg=pregnancyStage(activeJourney.due_date,activeJourney.baby_birth_date??todayISO());
