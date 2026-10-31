@@ -11,6 +11,3 @@ export const authSupabase=authConfigured?createClient(url!,key!,{
 // A private workspace requires this independent deployment safety gate.
 export const configured=authConfigured&&import.meta.env.VITE_AUTH_ACCESS_ENABLED==='true';
 export const supabase=configured?authSupabase:null;
-// A separate personal-organizer release flag; NEVER authorizes the clinical workspace.
-// The backend only permits owner-scoped personal_tracker_items access when independently released.
-export const personalTrackerEnabled=authConfigured&&import.meta.env.VITE_PERSONAL_TRACKER_ENABLED==='true';
