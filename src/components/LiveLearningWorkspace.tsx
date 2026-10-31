@@ -4,7 +4,7 @@ import {BookOpen,LockKeyhole,LogOut,ShieldAlert,ShieldCheck,ArrowLeft} from 'luc
 import {Brand,Button,Panel} from '../ui/primitives';
 import {useMamaLocale} from '../lib/locale';
 import {APP_DISPLAY_VERSION} from '../lib/release';
-import {personalTrackerEnabled} from '../lib/supabase';
+import {personalTrackerEnabled} from '../lib/personalTrackerGate';
 const PersonalTrackerWorkspace=lazy(()=>import('./PersonalTrackerWorkspace'));
 
 // An operational, public educational experience. No patient data, medical
