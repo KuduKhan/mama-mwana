@@ -163,3 +163,12 @@
  .mm-gc--tile::before,.mm-gc--tile::after{display:none}
  :is(button,a):focus-visible .mm-gc--tile{outline:2px solid Highlight;outline-offset:2px}
 }
+
+/* Avoid stacking two raised ceramic frames around the same symbol. */
+:is(.journey-card-icon,.anc-icon,.sidebar-support-icon,.mm20-aside-mark,.mm208-mark):has(>.mm-gc){
+ background:none;background-image:none;border-color:transparent;box-shadow:none;
+}
+.mm20-aside-mark:has(>.mm-gc) .mm-gc{--mm-gc-size:43px}
+.mm208-mark:has(>.mm-gc) .mm-gc{--mm-gc-size:40px}
+:root[data-mm-contrast="high"] .mm-gc--tile{border-width:2px;border-color:currentColor}
+:root[data-mm-contrast="high"] .mm-gc__symbol--face{filter:none;stroke-width:2.65px}
