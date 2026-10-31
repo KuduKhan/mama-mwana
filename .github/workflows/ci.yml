@@ -27,6 +27,8 @@ jobs:
         run: npm run security:rpc-review
       - name: Assert v2.1 integrations remain locked and clinical release remains NO-GO
         run: npm run security:v21
+      - name: Verify account-only synthetic acceptance test remains fail-closed
+        run: node --test scripts/verify-account-only-live.test.mjs
       - name: Verify synthetic backup cryptographic primitives
         run: node --test scripts/disposable-backup-crypto.test.mjs
       - name: Validate normalized local migration workspace
