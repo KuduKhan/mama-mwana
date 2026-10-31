@@ -18,6 +18,6 @@ assert.doesNotMatch(sql,/security\s+definer/i);
 assert.match(trackerGate,/VITE_PERSONAL_TRACKER_ENABLED==='true'/);
 assert.match(auth,/VITE_AUTH_ACCESS_ENABLED==='true'/);
 assert.match(workspace,/user&&personalTrackerEnabled/);
-assert.doesNotMatch(workspace,/from ['\"]\.\.\\/lib\\/supabase/);
+assert.equal(workspace.includes("from '../lib/supabase'"),false);
 assert.doesNotMatch(workspace,/\bapplyClinicalMutation\b/);
 console.log('PASS tracker release boundaries: separate flags, per-owner RLS, no anonymous or privileged clinical grants');
