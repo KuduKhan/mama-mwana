@@ -4,6 +4,8 @@ import {BookOpen,LockKeyhole,LogOut,ShieldAlert,ShieldCheck,ArrowLeft} from 'luc
 import {Brand,Button,Panel} from '../ui/primitives';
 import {useMamaLocale} from '../lib/locale';
 import {APP_DISPLAY_VERSION} from '../lib/release';
+import {personalTrackerEnabled} from '../lib/personalTrackerGate';
+const PersonalTrackerWorkspace=lazy(()=>import('./PersonalTrackerWorkspace'));
 
 // An operational, public educational experience. No patient data, medical
 // profiles, care-provider integrations or clinical backend calls are made here.
@@ -45,9 +47,10 @@ export default function LiveLearningWorkspace({user=null,onBack,onSignOut}:{
    </div>
    {signOutError&&<p role="alert" className="error">{signOutError}</p>}
    <Panel className="mm-live-care-boundary"><LockKeyhole size={20} aria-hidden="true"/>
-    <div><strong>Private care records remain closed</strong>
-     <p>Pregnancy journals, child records, clinical interpretation and provider messaging are disabled until independent clinical, privacy, security and operational approval. Do not enter personal medical details into public learning or sample modes.</p></div>
+    <div><strong>{user&&personalTrackerEnabled?'Clinical care records remain closed':'Private care records remain closed'}</strong>
+     <p>{user&&personalTrackerEnabled?'Your personal organizer is separate from clinician records. Clinical diagnosis, professional growth interpretation and provider messaging remain disabled.':'Pregnancy journals, child records, clinical interpretation and provider messaging are disabled until independent clinical, privacy, security and operational approval. Do not enter personal medical details into public learning or sample modes.'}</p></div>
    </Panel>
+   {user&&personalTrackerEnabled&&<Suspense fallback={<p className="mm-live-loading" role="status">Opening private organizer…</p>}><PersonalTrackerWorkspace key={user.id} user={user}/></Suspense>}
    <Suspense fallback={<p className="mm-live-loading" role="status">Loading educational resources…</p>}>
     <LibraryPage onEmergency={()=>setEmergency(v=>!v)}/>
    </Suspense>

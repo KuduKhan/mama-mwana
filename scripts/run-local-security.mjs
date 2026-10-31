@@ -69,7 +69,8 @@ async function main(){
    'tests/clinical.integration.test.ts',
    'tests/carePlanner.integration.test.ts',
    'tests/family.integration.test.ts',
-   'tests/caregiver.integration.test.ts'
+   'tests/caregiver.integration.test.ts',
+   'tests/personalTracker.integration.test.ts'
   ],{
    stdio:'inherit',shell:false,timeout:240000,
    env:{
