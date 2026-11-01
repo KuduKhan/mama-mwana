@@ -8,6 +8,7 @@ import {APP_DISPLAY_VERSION} from '../lib/release';
 // An operational, public educational experience. No patient data, medical
 // profiles, care-provider integrations or clinical backend calls are made here.
 const LibraryPage=lazy(()=>import('../features/learning/LibraryPage'));
+const PersonalTrackerWorkspace=lazy(()=>import('./PersonalTrackerWorkspace'));
 export default function LiveLearningWorkspace({user=null,onBack,onSignOut}:{
  user?:User|null;onBack?:()=>void;onSignOut?:()=>Promise<void>|void;
 }){
@@ -44,9 +45,10 @@ export default function LiveLearningWorkspace({user=null,onBack,onSignOut}:{
      </div></div>
    </div>
    {signOutError&&<p role="alert" className="error">{signOutError}</p>}
+   {user&&<Suspense fallback={<p role="status">Loading your private tracker…</p>}><PersonalTrackerWorkspace userId={user.id}/></Suspense>}
    <Panel className="mm-live-care-boundary"><LockKeyhole size={20} aria-hidden="true"/>
     <div><strong>Private care records remain closed</strong>
-     <p>Pregnancy journals, child records, clinical interpretation and provider messaging are disabled until independent clinical, privacy, security and operational approval. Do not enter personal medical details into public learning or sample modes.</p></div>
+     <p>Personal tracking is limited to owner-only journals, progress entries and in-app reminders after database authorization. Clinical records, interpretation and provider messaging remain disabled. Do not enter personal medical details into public learning or sample modes.</p></div>
    </Panel>
    <Suspense fallback={<p className="mm-live-loading" role="status">Loading educational resources…</p>}>
     <LibraryPage onEmergency={()=>setEmergency(v=>!v)}/>
