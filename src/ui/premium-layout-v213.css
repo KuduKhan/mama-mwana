@@ -1,0 +1,194 @@
+/* MamaMwana v2.13 — Layout Fit & Premium Spacing.
+   Visual refinement only. Preserve original flat Lucide icons, routing, medical warnings,
+   account/privacy behavior, intentional scrollable tabs, and theme preferences. */
+
+:root{
+ --mm-fit-gutter:clamp(15px,2.6vw,40px);
+ --mm-fit-section-gap:clamp(18px,2.15vw,29px);
+ --mm-fit-card-gap:clamp(12px,1.55vw,21px);
+ --mm-fit-card-pad:clamp(17px,2vw,27px);
+ --mm-fit-round:clamp(16px,1.8vw,23px);
+ --mm-fit-focus:var(--mm-focus,#267e59);
+}
+.app-shell,.app-main,.app-main > main{min-width:0;max-width:100%}
+.app-main > main{width:100%;flex:1 1 auto}
+.page-content{
+ width:100%;max-width:var(--mm-content-max,1180px);
+ min-width:0;margin-inline:auto;
+ padding-inline:var(--mm-fit-gutter);
+ padding-block-start:clamp(22px,2.5vw,36px);
+}
+.page-content > *{min-width:0;max-width:100%}
+.page-content > :is(
+ .section-heading,.mm20-showcase,.mm22-smart-home,.mm13-today,.mm-current-feature,
+ .panel,.dashboard-grid,.pregnancy-grid,.metrics-grid,.family09,.care07,.m12-hub,
+ .mm14-family-summary,.mm14-home-family,.mm23-panel,.mm24-learning,.ch-card,
+ .mm16-panel,.v4-page,.mm208-studio,.mm209-academy,.mm210-trust
+){margin-block-end:var(--mm-fit-section-gap)}
+.page-content > :last-child{margin-block-end:0}
+
+/* Grid tracks must be allowed to contract instead of pushing out of the viewport.
+   Do not mask actual overflow with overflow:hidden. */
+.page-content :is(
+ .dashboard-grid,.pregnancy-grid,.metrics-grid,.two-columns,.care-list,.library-grid,
+ .family09-grid,.family09-columns,.mm14-family-grid,.mm13-action-grid,.mm22-smart-grid,
+ .mm23-tools,.mm24-grid,.mm21-layout,.mm210-grid,.v4-governance-grid,.v4-article-grid,
+ .care07-form-grid,.mm208-grid,.mm209-grid
+){column-gap:var(--mm-fit-card-gap);row-gap:var(--mm-fit-card-gap);min-width:0}
+.page-content :is(
+ .dashboard-grid,.pregnancy-grid,.metrics-grid,.two-columns,.care-list,.library-grid,
+ .family09-grid,.family09-columns,.mm14-family-grid,.mm13-action-grid,.mm22-smart-grid,
+ .mm23-tools,.mm24-grid,.mm21-layout,.mm210-grid,.v4-governance-grid,.v4-article-grid,
+ .care07-form-grid,.mm208-grid,.mm209-grid
+) > *{min-width:0;max-width:100%}
+.page-content :is(.dashboard-grid,.pregnancy-grid,.two-columns,.care-list) {
+ grid-template-columns:repeat(2,minmax(0,1fr));
+}
+.page-content .dashboard-grid{grid-template-columns:minmax(0,1.6fr) minmax(280px,1fr)}
+.page-content .metrics-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.page-content .mm22-smart-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.page-content :is(.mm20-showcase,.mm22-smart-home,.mm13-today,.mm-current-feature,
+ .panel,.ch-card,.mm14-family-summary,.mm23-panel,.mm24-learning,.mm208-studio,
+ .mm209-academy,.mm210-trust){box-sizing:border-box;min-width:0;max-width:100%}
+.page-content :is(.panel,.ch-card,.mm14-family-summary,.mm23-panel,.mm24-learning){
+ padding:var(--mm-fit-card-pad);border-radius:var(--mm-fit-round)
+}
+
+/* Equal breathing room for copy, icons and action controls. */
+.page-content :is(.section-heading,.panel-heading,.mm13-today-head,.mm14-family-heading,
+ .mm22-smart-head,.mm208-header,.mm209-head,.mm210-head){
+ min-width:0;gap:clamp(12px,1.5vw,21px)
+}
+.page-content :is(.section-heading,.panel-heading,.mm13-today-head,.mm14-family-heading)>*{
+ min-width:0;max-width:100%
+}
+.page-content .section-heading > div:first-child{flex:1 1 300px;min-width:0}
+.page-content .section-heading > :not(div:first-child){flex:0 1 auto;min-width:0;max-width:100%}
+.page-content :is(h1,h2,h3,h4,p,small,strong,label){overflow-wrap:break-word}
+.page-content :is(.section-heading h2,.mm13-today-head h2,.mm22-smart-head h2,
+ .mm20-showcase h2){text-wrap:balance;line-height:1.22}
+.page-content :is(.section-heading p,.panel p,.mm20-showcase-body p,.mm22-smart-head p){
+ line-height:1.66
+}
+.page-content :is(.panel-heading,.section-heading) .btn{max-width:100%;white-space:normal}
+
+/* Prevent action labels from colliding with their existing flat SVGs. */
+.page-content :is(.mm13-action-card,.mm22-smart-action,.care-item,.task-row,
+ .mm14-family-card,.mm24-guide,.mm21-options button){
+ min-width:0;box-sizing:border-box;gap:clamp(10px,1.2vw,16px)
+}
+.page-content :is(.mm13-action-card,.mm22-smart-action,.care-item,.task-row) > svg{
+ flex-shrink:0
+}
+.page-content :is(.mm13-action-copy,.task-description,.mm22-smart-action > span:nth-child(2),
+ .care-item > span:nth-child(2)){flex:1 1 auto;min-width:0}
+.page-content :is(.mm13-action-copy,.task-description,.mm22-smart-action > span:nth-child(2))
+ :is(strong,small){display:block;max-width:100%;overflow-wrap:anywhere}
+.page-content :is(.mm13-action-card,.mm22-smart-action){height:100%;align-items:center}
+.page-content .mm22-smart-action{padding:clamp(14px,1.6vw,20px);min-height:96px}
+.page-content .mm13-action-card{padding:clamp(14px,1.6vw,20px);min-height:96px}
+.page-content :is(.mm13-action-icon,.mm22-action-icon,.task-icon,.care-item-icon){
+ flex-shrink:0
+}
+.page-content .metric-card{min-width:0;height:100%;padding:clamp(16px,1.7vw,22px)}
+.page-content .metric-card :is(strong,small,span){max-width:100%;overflow-wrap:anywhere}
+
+/* Showcase content can wrap without a clipped or crowded call-to-action row. */
+.page-content .mm20-showcase{
+ grid-template-columns:minmax(0,1.55fr) minmax(220px,.75fr);
+ gap:clamp(18px,2.2vw,32px);padding:clamp(20px,2.7vw,36px)
+}
+.page-content .mm20-showcase > *{min-width:0}
+.page-content .mm20-showcase-actions{display:flex;flex-wrap:wrap;gap:10px}
+.page-content .mm20-showcase-actions button{white-space:normal;min-width:0;min-height:44px;
+ max-width:100%;justify-content:center;text-align:center}
+.page-content .mm20-showcase-actions button > svg{flex:none}
+.page-content .mm20-showcase-aside{min-width:0;align-self:stretch}
+
+/* Forms: stable label-to-control flow; never let native inputs overrun a card. */
+.page-content :is(form,fieldset,label,.form-row,.button-row,.appointment-row,.care07-entry){
+ min-width:0;max-width:100%
+}
+.page-content :is(input,textarea,select){box-sizing:border-box;min-width:0;max-width:100%}
+.page-content :is(label,.form-field,.field){overflow-wrap:anywhere}
+.page-content :is(.button-row,.appointment-actions,.care07-entry-actions,.care07-submit-actions,
+ .mm20-showcase-actions,.mm24-actions,.mm23-tools){flex-wrap:wrap;min-width:0}
+.page-content :is(.button-row,.appointment-actions,.care07-entry-actions,.care07-submit-actions)
+ > button{min-height:44px;max-width:100%;white-space:normal}
+.page-content :is(img,video,canvas){max-width:100%;height:auto}
+
+/* Preserve usable text spacing on navigation, including long Kiswahili labels. */
+.sidebar{min-width:0}
+.sidebar-nav,.sidebar-nav .mm13-nav-group{min-width:0}
+.sidebar-nav .nav-item{min-width:0;max-width:100%;height:auto;min-height:48px;
+ white-space:normal;text-align:left;overflow-wrap:anywhere;line-height:1.42}
+.sidebar-nav .nav-item > svg:first-child{flex-shrink:0}
+.mm22-nav-search,.mm22-nav-search input{min-width:0}
+.topbar,.topbar-left,.topbar-actions{min-width:0}
+.topbar-left > div{min-width:0}
+.mm-app-footer,.mm-footer-top,.mm-footer-bottom{min-width:0}
+.mm-footer-top > *,.mm-footer-bottom > *{min-width:0}
+
+/* Small-laptop/tablet: content space shrinks because the sidebar is still open. */
+@media (min-width:761px) and (max-width:1199px){
+ .page-content .dashboard-grid,.page-content .pregnancy-grid{
+  grid-template-columns:minmax(0,1fr)
+ }
+ .page-content .metrics-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .page-content .mm22-smart-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .page-content .care-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (min-width:761px) and (max-width:1050px){
+ .page-content .mm20-showcase{grid-template-columns:minmax(0,1fr)}
+ .page-content :is(.two-columns,.library-grid){grid-template-columns:minmax(0,1fr)}
+ .page-content .mm210-grid{grid-template-columns:minmax(0,1fr)}
+ .page-content .mm22-smart-grid{grid-template-columns:minmax(0,1fr)}
+}
+
+/* Mobile: comfortable single column, a genuine bottom-nav safe area. */
+@media (max-width:760px){
+ :root{--mm-fit-gutter:clamp(13px,4vw,20px);--mm-fit-section-gap:18px;
+  --mm-fit-card-gap:12px;--mm-fit-card-pad:clamp(16px,4vw,20px)}
+ .page-content{
+  max-width:100%;padding-inline:var(--mm-fit-gutter);
+  padding-block-start:clamp(16px,4vw,23px);
+  padding-block-end:calc(108px + env(safe-area-inset-bottom,0px))
+ }
+ .page-content :is(.dashboard-grid,.pregnancy-grid,.two-columns,.care-list,
+  .library-grid,.metrics-grid,.mm13-action-grid,.mm22-smart-grid,.mm210-grid,
+  .mm208-grid,.mm209-grid){grid-template-columns:minmax(0,1fr)}
+ .page-content .metric-card:last-child{grid-column:auto}
+ .page-content :is(.mm20-showcase,.mm22-smart-home,.panel,.ch-card){min-width:0}
+ .page-content .mm20-showcase{grid-template-columns:minmax(0,1fr);
+  padding:clamp(18px,4.5vw,25px);gap:16px}
+ .page-content .mm20-showcase-actions{align-items:stretch}
+ .page-content .mm20-showcase-actions button{flex:1 1 155px}
+ .page-content .mm22-smart-action{min-height:79px}
+ .page-content .section-heading{align-items:flex-start;flex-wrap:wrap}
+ .page-content .section-heading > div:first-child{flex:1 1 100%}
+ .page-content .section-heading > :not(div:first-child){flex:1 1 auto}
+ .page-content .section-heading .btn{min-height:44px}
+ .page-content .button-row{align-items:stretch}
+ .page-content .button-row .btn{flex:1 1 160px}
+ .mobile-tabs{box-sizing:border-box}
+ .mobile-tabs button{min-width:0;overflow:hidden}
+ .mobile-tabs button > span{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+ .mm-app-footer{padding-block-end:calc(105px + env(safe-area-inset-bottom,0px))}
+}
+@media (max-width:380px){
+ .page-content .mm20-showcase-actions button{flex-basis:100%}
+ .page-content :is(.mm22-smart-action,.mm13-action-card){gap:10px}
+ .mobile-tabs{padding-inline:3px;gap:1px}
+ .mobile-tabs button{padding-inline:1px}
+ .mobile-tabs button > span{font-size:9px}
+}
+@media (prefers-reduced-motion:reduce){
+ .page-content :is(.mm13-action-card,.mm22-smart-action,.metric-card){transition:none!important}
+}
+:root[data-mm-motion="reduce"] .page-content
+ :is(.mm13-action-card,.mm22-smart-action,.metric-card){transition:none!important}
+@media (forced-colors:active){
+ .page-content :is(.panel,.ch-card,.mm20-showcase,.mm22-smart-action){
+  border:1px solid CanvasText
+ }
+}
