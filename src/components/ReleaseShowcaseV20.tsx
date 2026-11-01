@@ -1,7 +1,6 @@
 import {ArrowRight,BookOpenText,HeartHandshake,ShieldCheck,Sparkles} from 'lucide-react';
 import {APP_DISPLAY_VERSION} from '../lib/release';
 import {useMamaLocale} from '../lib/locale';
-import {GlassCeramicIcon} from '../ui/GlassCeramicIcon';
 /** Non-clinical preview announcement. No personal data or implied approval. */
 export default function ReleaseShowcaseV20({onFamily,onLearning}:{onFamily:()=>void;onLearning:()=>void}){
  const {locale}=useMamaLocale();
@@ -16,7 +15,7 @@ export default function ReleaseShowcaseV20({onFamily,onLearning}:{onFamily:()=>v
    </div>
   </div>
   <div className="mm20-showcase-aside" aria-label={locale==='sw'?'Mipaka ya mfano':'Preview boundaries'}>
-   <span className="mm20-aside-mark"><GlassCeramicIcon Icon={ShieldCheck} tone="teal" size="lg"/></span>
+   <span className="mm20-aside-mark"><ShieldCheck size={24} aria-hidden="true"/></span>
    <strong>{locale==='sw'?'Faragha ni muhimu':'Built around your privacy'}</strong>
    <span>{locale==='sw'?'Sehemu 13 za mfano':'13 connected spaces'}</span>
    <small>{locale==='sw'?'Taarifa za mfano pekee · Hakuna taarifa halisi za wagonjwa':'Sample data only · No live patient records'}</small>
