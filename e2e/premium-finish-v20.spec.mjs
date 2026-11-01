@@ -33,11 +33,15 @@ test('overview surfaces keep matching gutters and consistent spacing at five bre
 });
 test('all 13 app navigation icons share one optical size and page surfaces do not overflow',async({page})=>{
  await demo(page,1024);
- const dimensions=await page.locator('.sidebar-nav .nav-item>svg:first-child').evaluateAll(nodes=>nodes.map(n=>{
+ const icons=page.locator('.sidebar-nav .nav-item > .mm-gc--tile');
+ await expect(icons).toHaveCount(13);
+ const dimensions=await icons.evaluateAll(nodes=>nodes.map(n=>{
   const r=n.getBoundingClientRect();return Math.round(r.width)+'x'+Math.round(r.height);
  }));
- expect(dimensions).toHaveLength(13);
  expect(new Set(dimensions).size).toBe(1);
+ // Each tile has one sculpted depth path and one readable foreground path.
+ expect(await icons.locator('svg').count()).toBe(26);
+ expect(await icons.locator('[aria-hidden="true"]').count()).toBeGreaterThanOrEqual(26);
  for(const name of sections){
   await navigate(page,1024,name);
   const widths=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth}));
