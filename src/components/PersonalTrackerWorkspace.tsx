@@ -1,6 +1,7 @@
 import {useCallback,useEffect,useRef,useState,type FormEvent} from 'react';
 import {CalendarDays,CheckCircle2,Download,FileClock,NotebookPen,Plus,RefreshCw,Search,ShieldCheck,Trash2,X} from 'lucide-react';
 import {authSupabase} from '../lib/supabase';
+import '../personal-tracker.css';
 import {useMamaLocale} from '../lib/locale';
 import {
   fileSafeLocalDate,genericReminderCalendar,TRACKER_PAGE_SIZE,
