@@ -10,21 +10,24 @@ for(const width of [320,360,375,390,430,570,760]){
  test('premium header and branded footer fit '+width+'px without collision',async({page})=>{
   await demo(page,width);
   const h=page.locator('.mm-renewed-header'),f=page.locator('.mm-renewed-footer');
-  await expect(h.locator('.mm-phone-pagebar')).toBeVisible();
-  await expect(h.locator('.mm-phone-page-label strong')).toHaveText('Overview');
-  await expect(h.locator('.mm-mobile-brand img')).toHaveAttribute('src','/icon.svg');
+  await expect(h.locator('.mm-phone-pagebar')).toBeHidden();
+  await expect(h.locator('.topbar-current-page')).toHaveText('Overview');
+  await expect(h.locator('.topbar-actions .topbar-icon')).toBeVisible();
   await expect(f.locator('.mm-renewed-footer-caption')).toBeVisible();
   await expect(f.locator('.mm-footer-links')).toBeHidden();
   const geometry=await page.evaluate(()=>{
    const r=x=>{const b=document.querySelector(x).getBoundingClientRect();return {left:b.left,right:b.right,top:b.top,bottom:b.bottom,w:b.width,h:b.height}};
    return {width:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth,
-    menu:r('.mm-renewed-header .hamburger'),logo:r('.mm-renewed-header .mm-mobile-brand'),
-    wordmark:r('.mm-renewed-header .mm-mobile-wordmark'),lang:r('.mm-renewed-header .locale-switch select'),
-    prefs:r('.mm-renewed-header .mm14-topbar'),page:r('.mm-renewed-header .mm-phone-pagebar'),
-    safety:r('.mm-renewed-header .mm-phone-urgent'),footer:r('.mm-renewed-footer')};
+    header:r('.mm-renewed-header'),menu:r('.mm-renewed-header .hamburger'),
+    title:r('.mm-renewed-header .topbar-current-page'),
+    lang:r('.mm-renewed-header .locale-switch select'),
+    prefs:r('.mm-renewed-header .mm14-topbar'),
+    safety:r('.mm-renewed-header .topbar-actions .topbar-icon'),
+    footer:r('.mm-renewed-footer')};
   });
   expect(geometry.scroll).toBeLessThanOrEqual(geometry.width+2);
-  for(const part of ['menu','logo','wordmark','lang','prefs','page','safety','footer']){
+  expect(geometry.header.h).toBeLessThanOrEqual(74);
+  for(const part of ['header','menu','title','lang','prefs','safety','footer']){
    expect(geometry[part].left,part).toBeGreaterThanOrEqual(-1);
    expect(geometry[part].right,part).toBeLessThanOrEqual(geometry.width+1);
   }
@@ -32,11 +35,10 @@ for(const width of [320,360,375,390,430,570,760]){
    expect(geometry[part].w,part+' width').toBeGreaterThanOrEqual(44);
    expect(geometry[part].h,part+' height').toBeGreaterThanOrEqual(44);
   }
-  expect(geometry.logo.left).toBeGreaterThanOrEqual(geometry.menu.right-1);
-  expect(geometry.wordmark.left).toBeGreaterThanOrEqual(geometry.logo.right-1);
-  expect(geometry.lang.left).toBeGreaterThanOrEqual(geometry.wordmark.right-1);
+  expect(geometry.title.left).toBeGreaterThanOrEqual(geometry.menu.right-1);
+  expect(geometry.lang.left).toBeGreaterThanOrEqual(geometry.title.right-1);
   expect(geometry.prefs.left).toBeGreaterThanOrEqual(geometry.lang.right-1);
-  expect(geometry.page.top).toBeGreaterThanOrEqual(geometry.menu.bottom-1);
+  expect(geometry.safety.left).toBeGreaterThanOrEqual(geometry.prefs.right-1);
   await f.scrollIntoViewIfNeeded();
   const box=await f.boundingBox();
   expect(box.height,'closed footer remains compact').toBeLessThanOrEqual(165);
@@ -61,7 +63,7 @@ test('mobile header settings, bilingual switching and safety are reachable on a 
  await page.getByRole('button',{name:'Display preferences'}).click();
  await expect(page.getByRole('dialog',{name:'Mwonekano na ufikivu'})).toBeVisible();
  await page.keyboard.press('Escape');
- await page.getByRole('button',{name:'Health warning signs'}).last().click();
+ await page.locator('.mm-renewed-header .topbar-actions .topbar-icon').click();
  await expect(page.getByRole('dialog',{name:'When to seek urgent help'})).toBeVisible();
  await page.keyboard.press('Escape');
  await page.getByRole('button',{name:'Open navigation'}).click();
@@ -81,10 +83,10 @@ test('tablet and desktop headers and footers keep their full navigation and safe
 });
 test('landscape header, dock and footer remain accessible',async({page})=>{
  await demo(page,667,375);
- await expect(page.locator('.mm-renewed-header .mm-phone-pagebar')).toBeVisible();
+ await expect(page.locator('.mm-renewed-header .mm-phone-pagebar')).toBeHidden();
  await page.getByRole('button',{name:'Open navigation'}).click();
  await expect(page.locator('.sidebar-support button')).toBeVisible();
  await page.keyboard.press('Escape');
- await page.getByRole('button',{name:'Health warning signs'}).last().click();
+ await page.locator('.mm-renewed-header .topbar-actions .topbar-icon').click();
  await expect(page.getByRole('dialog',{name:'When to seek urgent help'})).toBeVisible();
 });

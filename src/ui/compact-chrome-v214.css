@@ -1,0 +1,240 @@
+/* MamaMwana v2.14 — Compact navigation chrome.
+   Layout-only refinement. Preserve all 13 destinations, original Lucide icons,
+   clinical safety actions, locale controls and the existing drawer focus trap. */
+
+:root{
+  --mm-chrome-sidebar:clamp(216px,18.5vw,250px);
+  --mm-chrome-header:64px;
+}
+
+/* The sidebar's navigation scrolls independently; safety and exit remain visible. */
+.app-shell>.sidebar{
+  box-sizing:border-box;
+  overflow:hidden;
+  min-width:0;
+}
+.sidebar-header,.sidebar-intro,.mm22-nav-search,.sidebar-support,.sidebar-footer{
+  flex-shrink:0;
+}
+.sidebar-header .brand{min-width:0;gap:9px}
+.sidebar-header .brand-icon{
+  width:38px;height:38px;flex:0 0 38px;
+  border-radius:12px;transform:none;
+}
+.sidebar-header .brand-title{
+  min-width:0;font-size:19px;line-height:1.05;letter-spacing:-.75px;
+}
+.sidebar-header .brand-title small{
+  max-width:100%;font-size:6.4px;letter-spacing:.6px;line-height:1.35;
+  margin-top:4px;
+}
+.sidebar-nav{
+  box-sizing:border-box;flex:1 1 auto;min-height:0;
+  overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;
+  scrollbar-width:thin;scrollbar-color:#b6d0be transparent;
+}
+.sidebar-nav .nav-item{
+  box-sizing:border-box;width:100%;min-height:44px;height:auto;
+  padding:7px 11px;gap:10px;border-radius:11px;
+  font-size:12.5px;line-height:1.32;
+  white-space:normal;overflow-wrap:anywhere;
+}
+.sidebar-nav .nav-item>svg:first-child{width:18px;height:18px;flex:0 0 18px}
+.sidebar-spacer{display:none}
+.sidebar .mm22-nav-search{min-width:0;max-width:calc(100% - 24px)}
+.sidebar .mm22-nav-search input{min-width:0;max-width:100%}
+.sidebar-support{
+  display:grid;grid-template-columns:29px minmax(0,1fr);align-items:center;
+  gap:0 9px;margin:7px 11px;padding:9px 10px;border-radius:13px;
+}
+.sidebar-support-icon{
+  grid-column:1;grid-row:1 / span 2;
+  width:29px;height:29px;min-width:29px;margin:0;border-radius:9px;
+}
+.sidebar-support-icon svg{width:17px;height:17px}
+.sidebar-support strong{grid-column:2;font-size:11.5px;line-height:1.35}
+.sidebar-support p{display:none}
+.sidebar-support button{
+  grid-column:2;min-height:33px;align-items:center;align-self:center;
+  font-size:11px;line-height:1.25;margin:0;padding:5px 0;
+}
+.sidebar-footer{padding:7px 14px 10px}
+.sidebar-footer>button{min-height:40px;gap:9px;padding:7px 3px}
+.sidebar-footer .mm-sidebar-signature{display:none}
+.sidebar-nav .nav-item:focus-visible,
+.sidebar-support button:focus-visible,
+.sidebar-footer button:focus-visible,
+.sidebar .mm22-nav-search input:focus-visible{
+  outline:3px solid var(--mm-focus,#267e59);outline-offset:2px;
+}
+
+@media (min-width:761px){
+  .app-shell>.sidebar{
+    width:var(--mm-chrome-sidebar);flex:0 0 var(--mm-chrome-sidebar);
+    height:100dvh;min-height:0;position:sticky;top:0;
+  }
+  .sidebar-header{padding:15px 16px 12px}
+  .sidebar-intro{
+    margin:0 12px 8px;padding:10px 12px;border-radius:12px;
+  }
+  .sidebar-intro .eyebrow{font-size:9px;letter-spacing:1.1px}
+  .sidebar-greeting{margin-top:3px;font-size:12px;line-height:1.3}
+  .sidebar-greeting svg{width:15px;height:15px}
+  .sidebar .nav-heading{display:none}
+  .sidebar .mm22-nav-search{margin:0 12px 9px}
+  .sidebar-nav{padding:0 10px 9px;gap:7px}
+  .sidebar-nav .mm13-nav-group{margin-block:0 4px}
+  .mm13-nav-group-label{font-size:10px;letter-spacing:.8px}
+  .mm-renewed-header.topbar{
+    box-sizing:border-box;height:var(--mm-chrome-header);
+    min-height:var(--mm-chrome-header);
+    padding:0 clamp(14px,1.9vw,28px);gap:12px;
+  }
+  .mm-renewed-header .topbar-left{min-width:0;gap:8px}
+  .mm-renewed-header .topbar-context{min-width:0}
+  .mm-renewed-header .topbar-hello{
+    font-size:15px;line-height:1.2;letter-spacing:-.25px;
+  }
+  .mm-renewed-header .topbar-subtitle{margin-top:3px;font-size:11px;line-height:1.2}
+  .mm-renewed-header .topbar-actions{gap:clamp(5px,.6vw,9px)}
+  .mm-renewed-header .avatar{width:34px;height:34px;border-radius:11px}
+  .mm-renewed-header .topbar-family{min-height:40px}
+}
+@media (min-width:761px) and (max-width:1180px){
+  :root{--mm-chrome-sidebar:216px}
+  .mm-renewed-header .topbar-actions .env-label{
+    box-sizing:border-box;min-width:40px;min-height:40px;
+    justify-content:center;font-size:0;padding:8px;
+  }
+  .mm-renewed-header .topbar-actions .env-label svg{width:18px;height:18px}
+  .mm-renewed-header .topbar-actions .topbar-family{
+    box-sizing:border-box;width:40px;min-width:40px;
+    min-height:40px;padding:8px;font-size:0;justify-content:center;
+  }
+  .mm-renewed-header .topbar-actions .avatar{display:none}
+}
+@media (min-width:761px) and (max-width:900px){
+  .sidebar-header{padding-inline:12px}
+  .sidebar-header .brand-title{font-size:17px}
+  .mm-renewed-header.topbar{padding-inline:12px;gap:6px}
+  .mm-renewed-header .topbar-actions{gap:5px}
+}
+
+/* On phones, replace the duplicated two-row header with one compact row.
+   The current destination remains named, while the warning action moves into
+   the first row; language and display preferences are never removed. */
+@media (max-width:760px){
+  .app-shell>.sidebar{
+    box-sizing:border-box;position:fixed;left:0;top:0;
+    width:min(306px,calc(100vw - 20px));height:100dvh;
+    min-height:0;max-height:100dvh;
+  }
+  .sidebar-header{
+    box-sizing:border-box;display:flex;align-items:center;
+    padding:calc(9px + env(safe-area-inset-top,0px)) 12px 8px;
+  }
+  .sidebar-header .brand-title{font-size:18px}
+  .sidebar-header .mobile-close{
+    display:grid;place-items:center;width:44px;min-width:44px;
+    height:44px;min-height:44px;margin-left:auto;
+  }
+  .sidebar-intro{
+    margin:0 11px 7px;padding:8px 11px;border-radius:11px;
+  }
+  .sidebar-intro .eyebrow{display:none}
+  .sidebar-greeting{margin:0;font-size:12px;line-height:1.4}
+  .sidebar .nav-heading{display:none}
+  .sidebar .mm22-nav-search{margin:0 11px 7px;max-width:calc(100% - 22px)}
+  .sidebar-nav{padding:0 9px 8px;gap:5px}
+  .sidebar-nav .nav-item{min-height:44px;padding:8px 11px}
+  .sidebar-support{margin:6px 10px;padding:7px 9px}
+  .sidebar-footer{padding:5px 12px max(7px,env(safe-area-inset-bottom,0px))}
+  .sidebar-footer>button{min-height:44px}
+
+  .mm-renewed-header.topbar{
+    box-sizing:border-box;display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    grid-template-areas:"identity controls";
+    align-items:center;column-gap:6px;row-gap:0;
+    height:auto;min-height:54px;width:100%;max-width:100%;
+    padding:calc(5px + env(safe-area-inset-top,0px)) 10px 5px;
+    position:sticky;top:0;
+  }
+  .mm-renewed-header .topbar-left{
+    grid-area:identity;display:flex;align-items:center;
+    gap:5px;flex:1 1 auto;min-width:0;max-width:100%;overflow:hidden;
+  }
+  .mm-renewed-header .hamburger{
+    flex:0 0 44px;width:44px;min-width:44px;height:44px;min-height:44px;
+    display:grid;place-items:center;
+  }
+  .mm-renewed-header .mm-mobile-brand{
+    display:flex;flex:0 0 28px;width:28px;min-width:28px;height:28px;
+  }
+  .mm-renewed-header .mm-mobile-brand img{
+    display:block;width:28px;max-width:28px;height:28px;
+  }
+  .mm-renewed-header .mm-mobile-wordmark{display:none}
+  .mm-renewed-header .topbar-context{
+    display:block;flex:1 1 auto;min-width:0;max-width:100%;
+    overflow:hidden;
+  }
+  .mm-renewed-header .topbar-hello{display:none}
+  .mm-renewed-header .topbar-subtitle{
+    display:block;min-width:0;max-width:100%;
+    margin:0;font-size:0;line-height:1.2;
+    white-space:nowrap;overflow:hidden;
+  }
+  .mm-renewed-header .topbar-current-page{
+    display:block;max-width:100%;min-width:0;
+    font-size:clamp(12px,3.4vw,14px);line-height:1.25;
+    font-weight:800;letter-spacing:-.2px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .mm-renewed-header .topbar-subtitle-divider{display:none}
+  .mm-renewed-header .topbar-actions{
+    grid-area:controls;display:flex;flex:0 0 auto;
+    align-items:center;justify-content:flex-end;
+    width:auto;min-width:0;max-width:100%;gap:3px;
+  }
+  .mm-renewed-header .topbar-actions :is(.env-label,.topbar-family,.avatar){
+    display:none;
+  }
+  .mm-renewed-header .topbar-actions .locale-switch,
+  .mm-renewed-header .topbar-actions .mm14-topbar,
+  .mm-renewed-header .topbar-actions .topbar-icon{
+    box-sizing:border-box;display:grid;place-items:center;
+    flex:0 0 44px;width:44px;min-width:44px;max-width:44px;
+    height:44px;min-height:44px;margin:0;padding:0;
+    border-radius:12px;
+  }
+  .mm-renewed-header .topbar-actions .locale-switch select{
+    box-sizing:border-box;width:44px;min-width:44px;max-width:44px;
+    height:44px;min-height:44px;
+  }
+  .mm-renewed-header .topbar-actions .topbar-icon svg{
+    width:19px;height:19px;
+  }
+  .mm-renewed-header .mm-phone-pagebar{display:none}
+}
+@media (max-width:380px){
+  .mm-renewed-header.topbar{padding-inline:8px;column-gap:3px}
+  .mm-renewed-header .topbar-left{gap:4px}
+  .mm-renewed-header .mm-mobile-brand{display:none}
+  .mm-renewed-header .topbar-actions{gap:2px}
+}
+@media (max-width:760px) and (max-height:500px){
+  .mm-renewed-header.topbar{
+    position:sticky;padding-top:4px;padding-bottom:4px;
+  }
+  .sidebar-intro{display:none}
+  .sidebar-support p{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .app-shell>.sidebar,.mm-renewed-header.topbar{animation:none}
+}
+@media (forced-colors:active){
+  .sidebar-nav .nav-item.selected,
+  .mm-renewed-header .topbar-icon,
+  .mm-renewed-header .mm14-topbar{border:1px solid CanvasText}
+}
