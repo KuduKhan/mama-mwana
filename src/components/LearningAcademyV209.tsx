@@ -2,6 +2,7 @@ import {useEffect,useState} from 'react';
 import {ArrowDownToLine,BookOpenCheck,CheckCircle2,ExternalLink,WifiOff} from 'lucide-react';
 import {ACADEMY_TOPICS,academyAnswer} from '../content/learningAcademyV209';
 import {useMamaLocale} from '../lib/locale';
+import {APP_DISPLAY_VERSION} from '../lib/release';
 import {browserLearningStorage,readPublicAnswers,storePublicAnswers} from '../lib/publicLearningProgress';
 /** General education only. Quiz choices persist on-device, without names or clinical records. */
 export default function LearningAcademyV209(){
@@ -16,7 +17,7 @@ export default function LearningAcademyV209(){
  const finished=ACADEMY_TOPICS.filter(t=>answers[t.id]===t.correct).length;
  return <section className={'mm209-academy '+(textOnly?'mm209-text-only':'')} aria-labelledby="mm209-title">
   <header className="mm209-head"><span className="mm209-icon"><BookOpenCheck size={22} aria-hidden="true"/></span><div>
-    <span className="eyebrow">BETA.9 · PUBLIC LEARNING</span><h3 id="mm209-title">{locale==='sw'?'Akademia ya familia':'Family Learning Academy'}</h3>
+    <span className="eyebrow">{APP_DISPLAY_VERSION} · PUBLIC LEARNING</span><h3 id="mm209-title">{locale==='sw'?'Akademia ya familia':'Family Learning Academy'}</h3>
     <p>{locale==='sw'?'Jaribu maswali ya jumla kwa Kiswahili au Kiingereza.':'Short, general knowledge checks in English or Kiswahili. Not approved medical training.'}</p>
    </div></header>
   <div className="mm209-toolbar"><span role="status">{finished} / {ACADEMY_TOPICS.length} {locale==='sw'?'mada zimeeleweka':'topics completed on this device'}</span><button type="button" className="mm-account-link" onClick={()=>setAnswers({})}>{locale==='sw'?'Futa maendeleo':'Clear learning progress'}</button>
