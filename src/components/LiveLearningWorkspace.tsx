@@ -4,11 +4,14 @@ import {BookOpen,LockKeyhole,LogOut,ShieldAlert,ShieldCheck,ArrowLeft} from 'luc
 import {Brand,Button,Panel} from '../ui/primitives';
 import {useMamaLocale} from '../lib/locale';
 import {APP_DISPLAY_VERSION} from '../lib/release';
+import {trackerEnabled} from '../lib/personalTracker';
 
 // An operational, public educational experience. No patient data, medical
 // profiles, care-provider integrations or clinical backend calls are made here.
 const LibraryPage=lazy(()=>import('../features/learning/LibraryPage'));
 const PersonalTrackerWorkspace=lazy(()=>import('./PersonalTrackerWorkspace'));
+// A working account does not authorize the separate personal-tracker database rollout.
+const TRACKER_RELEASED=trackerEnabled(import.meta.env.VITE_PERSONAL_TRACKER_ENABLED);
 export default function LiveLearningWorkspace({user=null,onBack,onSignOut}:{
  user?:User|null;onBack?:()=>void;onSignOut?:()=>Promise<void>|void;
 }){
@@ -45,7 +48,10 @@ export default function LiveLearningWorkspace({user=null,onBack,onSignOut}:{
      </div></div>
    </div>
    {signOutError&&<p role="alert" className="error">{signOutError}</p>}
-   {user&&<Suspense fallback={<p role="status">Loading your private tracker…</p>}><PersonalTrackerWorkspace userId={user.id}/></Suspense>}
+   {user&&(TRACKER_RELEASED
+    ? <Suspense fallback={<p role="status">Loading your private tracker…</p>}><PersonalTrackerWorkspace userId={user.id}/></Suspense>
+    : <Panel className="mm-live-care-boundary"><LockKeyhole size={19} aria-hidden="true"/><div><strong>Personal tracking is not yet activated</strong>
+      <p>Private journals and reminders require a verified database rollout and explicit tracker enablement. Your learning account remains available; do not enter sensitive health records here.</p></div></Panel>)}
    <Panel className="mm-live-care-boundary"><LockKeyhole size={20} aria-hidden="true"/>
     <div><strong>Private care records remain closed</strong>
      <p>Personal tracking is limited to owner-only journals, progress entries and in-app reminders after database authorization. Clinical records, interpretation and provider messaging remain disabled. Do not enter personal medical details into public learning or sample modes.</p></div>

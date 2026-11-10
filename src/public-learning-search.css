@@ -1,0 +1,9 @@
+/* Search remains entirely on-device; the public lesson is not a private health record. */
+.mm24-learning .mm24-topic-search{display:flex;align-items:center;gap:8px;min-width:0;width:100%;border:1px solid #cee1d4;border-radius:12px;background:#fffefb;padding:0 12px;margin:0 0 10px;color:#40765b}
+.mm24-learning .mm24-topic-search:focus-within{outline:3px solid #328064;outline-offset:3px}
+.mm24-learning .mm24-topic-search input{display:block;min-width:0;width:100%;padding:11px 0;min-height:44px;border:0;background:transparent;font:inherit;font-size:.91rem;color:#234b39;outline:none!important;box-shadow:none!important}
+.mm24-learning .mm24-topic-search input::placeholder{color:#789084}
+.mm24-learning .mm24-search-hidden{position:absolute;width:1px;height:1px;clip:rect(0,0,0,0);overflow:hidden;white-space:nowrap}
+.mm24-learning .mm24-search-empty{font-size:.88rem;line-height:1.5;color:#607c6d;padding:12px 10px;margin:0}
+@media(max-width:760px){.mm24-learning .mm24-topic-search{margin:0 0 6px}}
+@media(forced-colors:active){.mm24-learning .mm24-topic-search{border:1px solid CanvasText}}

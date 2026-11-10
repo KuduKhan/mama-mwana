@@ -4,6 +4,7 @@ import type {Journey} from '../lib/domain';
 import {safeFamilyDigest} from './FamilyIntelligenceV203';
 import {readable} from '../lib/domain';
 import {useMamaLocale} from '../lib/locale';
+import {APP_DISPLAY_VERSION} from '../lib/release';
 const tasks=[
  {id:'support',en:'Identify a trusted support person',sw:'Tambua mtu wa karibu wa kukusaidia'},
  {id:'transport',en:'Discuss practical transport options',sw:'Jadili usafiri unaopatikana'},
@@ -27,7 +28,7 @@ export function FamilyExperienceV208({journeys,demo}:{journeys:Journey[];demo:bo
  const story=useMemo(()=>demo?storybookPreview(journeys):[],[demo,journeys]);
  return <section className="mm208-studio" aria-labelledby="mm208-title">
   <div className="mm208-header"><span className="mm208-mark"><HeartHandshake size={22} aria-hidden="true"/></span>
-   <div><span className="eyebrow">BETA.8 · FAMILY CONNECTIONS</span><h3 id="mm208-title">{locale==='sw'?'Hadithi na msaada wa familia':'Family Storybook & Support'}</h3>
+   <div><span className="eyebrow">{APP_DISPLAY_VERSION} · FAMILY CONNECTIONS</span><h3 id="mm208-title">{locale==='sw'?'Hadithi na msaada wa familia':'Family Storybook & Support'}</h3>
    <p>{locale==='sw'?'Mpango na matukio ya mfano pekee.':'A gentle look at sample milestones and everyday help. No clinical records are shared.'}</p></div>
   </div>
   {!demo?<p className="mm208-locked"><LockKeyhole size={16} aria-hidden="true"/> Available only in the sample-data demo pending independent privacy review.</p>:
