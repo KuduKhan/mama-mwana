@@ -192,3 +192,25 @@
   border:1px solid CanvasText
  }
 }
+
+/* v2.14 — Compact navigation chrome: visual-only, no change to focus or route logic. */
+@media (min-width:761px){
+ .sidebar{width:clamp(212px,17vw,248px);flex:0 0 clamp(212px,17vw,248px)}
+ .sidebar-nav{padding-inline:clamp(8px,1vw,13px)}
+ .sidebar-nav .nav-item{min-height:42px;padding-block:8px;gap:9px;line-height:1.28;font-size:clamp(12px,.9vw,14px)}
+ .sidebar-nav .mm13-nav-group{margin-block:7px}
+ .mm-renewed-header.topbar{padding-block:9px;min-height:62px;gap:10px}
+ .mm-renewed-header .topbar-actions{gap:7px;flex-wrap:wrap;justify-content:flex-end}
+}
+@media (max-width:760px){
+ .mm-renewed-header.topbar{min-height:54px;padding-block:6px}
+ .mm-renewed-header .topbar-left,.mm-renewed-header .topbar-actions{gap:6px}
+ .sidebar-nav .nav-item{min-height:44px;padding-block:9px;line-height:1.3}
+}
+@media (max-width:380px){
+ .mm-renewed-header.topbar{gap:5px}
+ .mm-renewed-header .topbar-actions{min-width:0}
+}
+.sidebar-nav .nav-item:focus-visible,.mm-renewed-header :is(button,a,select):focus-visible{
+ outline:2px solid var(--mm-fit-focus);outline-offset:2px
+}
