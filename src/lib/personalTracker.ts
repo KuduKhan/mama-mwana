@@ -74,7 +74,7 @@ export function trackerExport(entries: readonly TrackerEntry[]): string {
   return JSON.stringify({
     product: 'MamaMwana personal tracker',
     version: 1,
-    warning: 'Sensitive private export. Store securely. This is not a certified medical record.',
+    warning: 'Sensitive private export. This file is not encrypted. Store it securely. This is not a certified medical record.',
     entries: entries.map(({id, kind, title, note, event_date, completed, created_at, updated_at}) =>
       ({id, kind, title, note, event_date, completed, created_at, updated_at}))
   }, null, 2);
